@@ -11,7 +11,7 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
+const noChatsText = "You haven't initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 
 const {width} = Dimensions.get('window')
 
