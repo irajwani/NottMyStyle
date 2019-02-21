@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
+import { StatusBar, Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -11,8 +11,8 @@ import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen } from '../colors.js';
-import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen, lightPurple, darkPurple, coolBlack, gradientColors, bgGray } from '../colors.js';
+import { LoadingIndicator, WhiteSpace } from '../localFunctions/visualFunctions.js';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -188,7 +188,7 @@ class ProfilePage extends Component {
     // console.log(comments, 'the user has no comments, perfectly harmless');
     // const gradientColors = ["#a2f76c", "#1c3a09"]
     //kinda like this one
-    const gradientColors = ["#c8f966", "#307206", "#1c3a09"]; 
+    
     
     // const gradientColors = [limeGreen,lightGreen, treeGreen];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
@@ -196,7 +196,7 @@ class ProfilePage extends Component {
     if(isGetting){
       return(
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
-          <LoadingIndicator isVisible={isGetting} color={'#0baa26'} type={'Wordpress'}/>
+          <LoadingIndicator isVisible={isGetting} color={lightPurple} type={'Wordpress'}/>
         </View>
       )
     }
@@ -216,14 +216,14 @@ class ProfilePage extends Component {
             <Icon 
               name="settings" 
               size={30} 
-              color={iOSColors.gray}
+              color={'#fff'}
               onPress={() => this.props.navigation.navigate('Settings')}
 
             />
             <Icon 
               name="logout" 
               size={30} 
-              color={'#020002'}
+              color={'#fff'}
               onPress={() => {
                 firebase.auth().signOut().then( () => {this.props.navigation.navigate('SignIn'); alert("You have successfully logged out")})
               }}
@@ -268,7 +268,7 @@ class ProfilePage extends Component {
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>ON SALE</Text>
           </View>
 
-          <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} />
+          {/* <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} /> */}
 
           <View style={styles.numberCard}>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.soldProducts} </Text>
@@ -280,8 +280,8 @@ class ProfilePage extends Component {
       
       <View style={styles.footerContainer} >
 
-        <ScrollView contentContainerStyle={styles.halfPageScroll}>
-          <View style={ {backgroundColor: '#fff'} }>
+        <ScrollView style={styles.halfPageScrollContainer} contentContainerStyle={styles.halfPageScroll}>
+          <View style={ {backgroundColor: bgGray} }>
           <Text style={styles.reviewsHeader}>REVIEWS</Text>
           {this.state.noComments ? null : Object.keys(comments).map(
                   (comment) => (
@@ -312,7 +312,9 @@ class ProfilePage extends Component {
 
                       </View>
 
-                      {comments[comment].uri ? <View style={styles.separator}/> : null}
+                      
+
+                      {/* {comments[comment].uri ? <View style={styles.separator}/> : null} */}
                       
                   </View>
                   
@@ -358,9 +360,18 @@ export default ProfilePage;
             /> */}
 
 const styles = StyleSheet.create({
-  
-  halfPageScroll: {
+  halfPageScrollContainer: {
+    flex: 1,
+    width: width,
+    backgroundColor: bgGray,
     
+  },
+  halfPageScroll: {
+    backgroundColor: bgGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    justifyContent: 'space-evenly'
   },
   mainContainer: {
     flex: 1,
@@ -434,7 +445,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     // width: width,
     // height: height/7.5,
-    backgroundColor: '#cdcdd6',
+    backgroundColor: lightPurple,
     justifyContent: 'center'
   },
 
@@ -459,14 +470,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Avenir Next',
     fontSize: 18,
     fontWeight: '400',
-    color: graphiteGray,
+    color: '#fff',
   },
 
   footerContainer: {
     flex: 2,
+    width: width,
     flexDirection: 'column',
     padding: 2,
-    backgroundColor: '#fff'
+    backgroundColor: bgGray
   },
 
   headerBackground: {
@@ -514,7 +526,7 @@ const styles = StyleSheet.create({
   numberProducts: {
     fontFamily: avenirNext,
     fontSize: 28,
-    color: graphiteGray,
+    color: '#FFF',
     fontWeight: 'normal'
   },
   soldProducts: {
@@ -575,13 +587,25 @@ title: {
 
 reviewsHeader: {
   fontFamily: 'Avenir Next',
-  fontSize: 24,
+  fontSize: 20,
   fontWeight: "normal",
-  paddingLeft: 10
+  paddingLeft: 10,
+  textAlign: 'left',
+  color: darkPurple
 },
 
 commentContainer: {
   flexDirection: 'column',
+  borderRadius: 10,
+  width: width - 15,
+  backgroundColor: "#fff",
+  shadowOpacity: 0.1,
+  shadowRadius: 0.4,
+  shadowColor: 'black',
+  shadowOffset: {width: 3, height: 3},
+  padding: 5,
+  marginVertical: 4
+
 },
 
 commentPicAndTextRow: {
@@ -601,7 +625,7 @@ commentPic: {
 },
 
 commentName: {
-  color: highlightGreen,
+  color: lightPurple,
   fontSize: 16,
   fontWeight: "500",
   textAlign: "left"
@@ -621,8 +645,8 @@ commentTimeRow: {
 
 commentTime: {
   textAlign: "right",
-  fontSize: 16,
-  color: iOSColors.black
+  fontSize: 12,
+  // color: iOSColors.black
 },
 
 rowContainer: {

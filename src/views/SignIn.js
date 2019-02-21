@@ -24,7 +24,7 @@ import {avenirNextText} from '../constructors/avenirNextText'
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
-import {lightGray, treeGreen, highlightGreen, lightGreen} from '../colors'
+import {lightGray, treeGreen, highlightGreen, lightGreen, tabIconYellow, citrusOrange, lightPurple} from '../colors'
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 // import { withNavigation } from 'react-navigation';
 // const {width,} = Dimensions.get('window');
@@ -482,7 +482,7 @@ class SignIn extends Component {
 
                 
                     <View style={styles.companyLogoContainer}>
-                        <Image source={require('../images/companyLogo2.jpg')} style={styles.companyLogo}/>
+                        <Image source={require('../images/poco/fullLogo.png')} style={styles.companyLogo}/>
                     </View>
                     
                     <View style={styles.twoTextInputsContainer}>
@@ -498,7 +498,7 @@ class SignIn extends Component {
                                 // this is used to set backgroundColor of label mask.
                                 // please pass the backgroundColor of your TextInput container.
                                 // maskColor={"#120221"}
-                                inputStyle={new avenirNextText(lightGreen, 19, "300")}
+                                inputStyle={new avenirNextText('#fff', 19, "300")}
                             />
                         </View>    
                         <View style={{paddingVertical: 2}}>
@@ -542,9 +542,9 @@ class SignIn extends Component {
                             <View style={{ paddingVertical: 10 }}>
                             <Button
                                 title='Sign In' 
-                                titleStyle={{ fontWeight: "700" }}
+                                titleStyle={{ fontWeight: "300", color: "red", fontSize: 29  }}
                                 buttonStyle={{
-                                backgroundColor: lightGreen,
+                                backgroundColor: lightPurple,
                                 //#2ac40f
                                 //#45bc53
                                 //#16994f
@@ -563,7 +563,7 @@ class SignIn extends Component {
                                 title='Create Account' 
                                 titleStyle={styles.authButtonText}
                                 buttonStyle={{
-                                backgroundColor: '#368c93',
+                                backgroundColor: lightPurple,
                                 //#2ac40f
                                 borderColor: "#226b13",
                                 borderWidth: 0,

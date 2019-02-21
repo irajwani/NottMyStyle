@@ -17,12 +17,12 @@ import firebase from '../cloud/firebase.js';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue } from '../colors';
+import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, lightPurple, darkPurple } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
 
-
+const chevronColor = lightPurple;
 // const darkGreen = '#0d4f10';
 // const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
@@ -458,9 +458,9 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         return (
             <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
                 <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
-                    <LoadingIndicator isVisible={isUploading} color={fbBlue} type={'Wordpress'}/>
+                    <LoadingIndicator isVisible={isUploading} color={lightPurple} type={'Wordpress'}/>
                     <WhiteSpace height={20}/>
-                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: fbBlue, textAlign: 'center'}}>
+                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: lightPurple, textAlign: 'center'}}>
                         Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
                     </Text>
                 </View>
@@ -479,7 +479,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
         
-            <Text style={{fontFamily: avenirNext, textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
+            <Text style={{fontFamily: avenirNext, textAlign: 'center', color: lightPurple}}>Picture(s):</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
@@ -530,7 +530,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     <Icon 
                     name="chevron-right"
                     size={40}
-                    color='black'
+                    color={chevronColor}
                     />
                 </View>
 
@@ -619,7 +619,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     <Icon 
                     name="chevron-right"
                     size={40}
-                    color='black'
+                    color={chevronColor}
                     />
                 </View>
 
@@ -650,7 +650,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     <Icon 
                     name="chevron-right"
                     size={40}
-                    color='black'
+                    color={chevronColor}
                     />
                 </View>
 
@@ -716,7 +716,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                             <Icon 
                             name="chevron-right"
                             size={40}
-                            color='black'
+                            color={chevronColor}
                             />
                         </View>
 
@@ -750,7 +750,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     <Icon 
                     name="chevron-right"
                     size={40}
-                    color='black'
+                    color={chevronColor}
                     />
                 </View>
 
@@ -807,7 +807,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                         <Icon 
                         name="chevron-right"
                         size={40}
-                        color='black'
+                        color={chevronColor}
                         />
                     </View>
                     <GrayLine/>
@@ -822,19 +822,21 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <WhiteSpace height={15} />       
             
             <View style={{alignItems: 'center'}}>
+
                 <Button
                 large
                 disabled = { partialConditionMet ? false : true}
+                customTextStyle={{fontSize: 25}}
                 buttonStyle={{
-                    backgroundColor: conditionMet ? "#22681d" : highlightYellow,
+                    backgroundColor: conditionMet ? lightPurple : darkPurple,
                     width: 280,
                     height: 80,
                     borderColor: "transparent",
                     borderWidth: 0,
                     borderRadius: 5,
                 }}
-                icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
-                title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
+                // icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
+                title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit'}
                 onPress={() => {
                     conditionMet ?
                         this.state.editItemBoolean ?
@@ -983,7 +985,7 @@ const styles = StyleSheet.create({
     detailHeader: {
         fontFamily: 'Avenir Next',
         fontWeight: '400',
-        fontSize: 22,
+        fontSize: 16,
     },
 
     displayedPriceContainer: {
@@ -1064,10 +1066,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Avenir Next',
         fontSize: 14,
         fontWeight: '300',
+        // color: "#fff"
     },
 
     buttonGroupSelectedText: {
-        color: 'black'
+        color: '#fff'
     },
 
     buttonGroupContainer: {
@@ -1076,7 +1079,7 @@ const styles = StyleSheet.create({
     },
     
     buttonGroupSelectedContainer: {
-        backgroundColor: aquaGreen
+        backgroundColor: lightPurple
     },
 
     actionButtonContainer: {padding: 5, alignItems: 'center'},

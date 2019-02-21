@@ -8,7 +8,7 @@ import { marketToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/
 import { multipleAddButtonToMultiplePictureCameraToCreateItemStack } from '../stackNavigators/createItemToPictureCameraStack';
 import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/wishListToProductDetailsOrChatOrCommentsStack';
 import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
-import { highlightGreen } from '../colors';
+import { highlightGreen, tabPurple, tabIconYellow, actualTabIcon } from '../colors';
 
 const HomeScreen = TabNavigator(
             {
@@ -57,8 +57,11 @@ const HomeScreen = TabNavigator(
               tabBarComponent: TabBarBottom,
               tabBarPosition: 'bottom',
               tabBarOptions: {
-                activeTintColor: highlightGreen,
-                inactiveTintColor: 'black',
+                activeTintColor: actualTabIcon,
+                inactiveTintColor: '#fff',
+                style: {
+                  backgroundColor: tabPurple
+                }
               },
               animationEnabled: false,
               swipeEnabled: false,

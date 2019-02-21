@@ -3,7 +3,7 @@ import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import { withNavigation } from 'react-navigation';
-import { lightGreen, highlightGreen, darkBlue, optionLabelBlue } from '../colors';
+import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, lightPurple } from '../colors';
 
 class MultipleAddButton extends Component {
   constructor(props) {
@@ -222,7 +222,7 @@ const styles = StyleSheet.create( {
     // resizeMode: 'cover',
     // alignSelf: 'stretch',
     borderRadius: 10,
-    borderColor: optionLabelBlue,
+    borderColor: lightPurple,
     borderWidth: 0.5,
     
   },
@@ -255,7 +255,7 @@ const styles = StyleSheet.create( {
     height: 110,
     // alignSelf: 'stretch',
     borderRadius: 5,
-    borderColor: optionLabelBlue,
+    borderColor: lightPurple,
     borderWidth: 1,
   },
 

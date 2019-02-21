@@ -5,7 +5,7 @@ import firebase from '../cloud/firebase';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {material} from 'react-native-typography';
 
-import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoundPink, rejectRed, logoGreen } from '../colors';
+import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoundPink, rejectRed, logoGreen, lightPurple } from '../colors';
 import {avenirNextText} from '../constructors/avenirNextText'
 
 import NothingHereYet from '../components/NothingHereYet';
@@ -468,7 +468,7 @@ class Chats extends Component {
     if(this.state.isGetting) {
       return ( 
         <View style={styles.LoadingIndicatorContainer}>
-          <LoadingIndicator isVisible={this.state.isGetting} color={'black'} type={'Wordpress'}/>
+          <LoadingIndicator isVisible={this.state.isGetting} color={lightPurple} type={'Wordpress'}/>
         </View>  
         
       )
@@ -756,7 +756,7 @@ class Notifications extends Component {
       if(isGetting) {
           return (
             <View style={styles.LoadingIndicatorContainer}>
-                <LoadingIndicator isVisible={isGetting} color={'black'} type={'Wordpress'}/>
+                <LoadingIndicator isVisible={isGetting} color={lightPurple} type={'Wordpress'}/>
             </View>
               
             

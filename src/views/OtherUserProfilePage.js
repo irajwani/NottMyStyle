@@ -10,7 +10,7 @@ import { iOSColors, iOSUIKit, human,  } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 // import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import { bobbyBlue, lightGreen, highlightGreen, graphiteGray, flashOrange, avenirNext, coolBlack } from '../colors.js';
+import { bobbyBlue, lightGreen, highlightGreen, graphiteGray, flashOrange, avenirNext, coolBlack, lightPurple, gradientColors, bgGray, darkPurple } from '../colors.js';
 
 import {removeFalsyValuesFrom} from '../localFunctions/arrayFunctions.js'
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
@@ -186,14 +186,14 @@ class OtherUserProfilePage extends Component {
     // const {uid} = params; //otherUserUid
     // console.log(usersBlocked, uid, usersBlocked.includes(uid));
 
-    const gradientColors = ["#c8f966", "#307206", "#1c3a09"]; 
+    
     // const gradientColors = ['#7de853','#0baa26', '#064711'];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     if(this.state.isGetting) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, marginTop: 22}}>
-          <LoadingIndicator isVisible={this.state.isGetting} color={'#1c3a09'} type={'Wordpress'}/>
+          <LoadingIndicator isVisible={this.state.isGetting} color={lightPurple} type={'Wordpress'}/>
         </View>
       )
     }
@@ -434,8 +434,19 @@ class OtherUserProfilePage extends Component {
 export default OtherUserProfilePage;
 
 const styles = StyleSheet.create({
-  halfPageScroll: {
+
+  halfPageScrollContainer: {
+    flex: 1,
+    width: width,
+    backgroundColor: bgGray,
     
+  },
+  halfPageScroll: {
+    backgroundColor: bgGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    justifyContent: 'space-evenly'
   },
   mainContainer: {
     flex: 1,
@@ -443,7 +454,7 @@ const styles = StyleSheet.create({
     padding: 0
   },
   headerContainer: {
-    flex: 4,
+    flex: 4, //4/7
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     // backgroundColor: 'pink'
@@ -457,19 +468,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     // justifyContent: 'center',
-    padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+    padding: 5, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
     // backgroundColor: 'white',
     height: height/1.8,
   },
 
   gearAndPicColumn: {
-    flex: 3,
+    flex: 0.6818,
     flexDirection: 'column',
     // flex: 1.0,
     // flexDirection: 'row',
     // justifyContent: 'space-evenly',
     // alignItems: 'center',
-    marginTop:10,
+    marginTop: 20,
     // width: width - 40,
     // paddingRight: 0,
     // backgroundColor: 'blue',
@@ -477,17 +488,16 @@ const styles = StyleSheet.create({
   },
 
   gearRow: {
-    // flex: 1,
+    flex: 0.2,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignContent: 'flex-start',
-    margin: 2
+    // alignContent: 'flex-start',
     // backgroundColor: 'white'
   },
 
   picRow: {
     width: 250,
-    // flex: 3.5,
+    flex: 0.8,
     // flexDirection: 'row',
     justifyContent: 'center',
     // alignContent: 'flex-start',
@@ -497,7 +507,7 @@ const styles = StyleSheet.create({
   },
 
   profileTextColumn: {
-    flex: 1.4,
+    flex: 0.318,
     flexDirection: 'column',
     alignItems: 'center',
     // paddingTop: 15,
@@ -505,14 +515,12 @@ const styles = StyleSheet.create({
 
   },
 
-  profileText: new avenirNextText("#fff", 18, "300"),
-
   midContainer: {
     flex: 1,
     flexDirection: 'row',
     // width: width,
     // height: height/7.5,
-    backgroundColor: '#cdcdd6',
+    backgroundColor: lightPurple,
     justifyContent: 'center'
   },
 
@@ -537,14 +545,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Avenir Next',
     fontSize: 18,
     fontWeight: '400',
-    color: graphiteGray,
+    color: '#fff',
   },
 
   footerContainer: {
     flex: 2,
+    width: width,
     flexDirection: 'column',
     padding: 2,
-    backgroundColor: '#fff'
+    backgroundColor: bgGray
   },
 
   headerBackground: {
@@ -552,13 +561,6 @@ const styles = StyleSheet.create({
     width: null,
     alignSelf: 'stretch',
     justifyContent: 'space-between'
-  },
-  header: {
-    flex: 1.4,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    //backgroundColor: 'black'
   },
 
   gear: {
@@ -571,7 +573,7 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     marginLeft: 0
   },
-
+  
   profilepicWrap: {
     backgroundColor: 'black',
     width: 130,
@@ -599,7 +601,7 @@ const styles = StyleSheet.create({
   numberProducts: {
     fontFamily: avenirNext,
     fontSize: 28,
-    color: graphiteGray,
+    color: '#FFF',
     fontWeight: 'normal'
   },
   soldProducts: {
@@ -613,16 +615,17 @@ const styles = StyleSheet.create({
     fontFamily: avenirNext,
     fontSize: 18,
     color: '#fff',
-    fontWeight: '600',
-    fontStyle: 'italic'
+    fontWeight: '300',
+    // fontStyle: 'italic'
   },
   insta: {
     fontFamily: avenirNext,
     fontSize: 18,
     color: '#fff',
-    fontWeight: '600',
-    fontStyle: 'italic'
-  },  
+    fontWeight: '300',
+    // fontStyle: 'italic'
+  },
+
   companyLogoContainer: {
     justifyContent: 'center',
     alignContent: 'center',
@@ -657,22 +660,27 @@ title: {
   color: '#656565'
 },
 
-reviewsHeaderContainer: {
-  flexDirection: 'row',
-  paddingTop: 5,
-  width: width-15,
-  justifyContent: 'space-between'
-},
-
 reviewsHeader: {
   fontFamily: 'Avenir Next',
-  fontSize: 24,
+  fontSize: 20,
   fontWeight: "normal",
-  paddingLeft: 10
+  paddingLeft: 10,
+  textAlign: 'left',
+  color: darkPurple
 },
 
 commentContainer: {
   flexDirection: 'column',
+  borderRadius: 10,
+  width: width - 15,
+  backgroundColor: "#fff",
+  shadowOpacity: 0.1,
+  shadowRadius: 0.4,
+  shadowColor: 'black',
+  shadowOffset: {width: 3, height: 3},
+  padding: 5,
+  marginVertical: 4
+
 },
 
 commentPicAndTextRow: {
@@ -692,7 +700,7 @@ commentPic: {
 },
 
 commentName: {
-  color: highlightGreen,
+  color: lightPurple,
   fontSize: 16,
   fontWeight: "500",
   textAlign: "left"
@@ -712,9 +720,291 @@ commentTimeRow: {
 
 commentTime: {
   textAlign: "right",
-  fontSize: 16,
-  color: iOSColors.black
+  fontSize: 12,
+  // color: iOSColors.black
 },
+
+//   halfPageScroll: {
+    
+//   },
+//   mainContainer: {
+//     flex: 1,
+//     flexDirection: 'column',
+//     padding: 0
+//   },
+//   headerContainer: {
+//     flex: 4,
+//     flexDirection: 'column',
+//     justifyContent: 'space-evenly',
+//     // backgroundColor: 'pink'
+//   },
+
+//   linearGradient: {
+//     flex: 1,
+//   },
+
+//   header: {
+//     flex: 1,
+//     alignItems: 'center',
+//     // justifyContent: 'center',
+//     padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+//     // backgroundColor: 'white',
+//     height: height/1.8,
+//   },
+
+//   gearAndPicColumn: {
+//     flex: 3,
+//     flexDirection: 'column',
+//     // flex: 1.0,
+//     // flexDirection: 'row',
+//     // justifyContent: 'space-evenly',
+//     // alignItems: 'center',
+//     marginTop:10,
+//     // width: width - 40,
+//     // paddingRight: 0,
+//     // backgroundColor: 'blue',
+//     // width: width
+//   },
+
+//   gearRow: {
+//     // flex: 1,
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignContent: 'flex-start',
+//     margin: 2
+//     // backgroundColor: 'white'
+//   },
+
+//   picRow: {
+//     width: 250,
+//     // flex: 3.5,
+//     // flexDirection: 'row',
+//     justifyContent: 'center',
+//     // alignContent: 'flex-start',
+//     // height: height/5,
+//     // backgroundColor: 'yellow'
+//     // alignItems: 'flex-start',
+//   },
+
+//   profileTextColumn: {
+//     flex: 1.4,
+//     flexDirection: 'column',
+//     alignItems: 'center',
+//     // paddingTop: 15,
+//     // backgroundColor: 'red'
+
+//   },
+
+//   profileText: new avenirNextText("#fff", 18, "300"),
+
+//   midContainer: {
+//     flex: 1,
+//     flexDirection: 'row',
+//     // width: width,
+//     // height: height/7.5,
+//     backgroundColor: '#cdcdd6',
+//     justifyContent: 'center'
+//   },
+
+//   numberCard: {
+//     flex: 79.5,
+//     justifyContent: 'center',
+//     alignContent: 'center',
+//     alignItems: 'center',
+//     // width: width/2 - 20,
+//     // height: 60,
+//     //55
+//     // paddingTop: 20,
+//     // paddingBottom: 5,
+//     // paddingLeft: 30,
+//     // paddingRight: 30,
+//     borderWidth: 0,
+//     borderColor: '#020202',
+//     borderRadius: 0,
+//   },
+
+//   subText: {
+//     fontFamily: 'Avenir Next',
+//     fontSize: 18,
+//     fontWeight: '400',
+//     color: graphiteGray,
+//   },
+
+//   footerContainer: {
+//     flex: 2,
+//     flexDirection: 'column',
+//     padding: 2,
+//     backgroundColor: '#fff'
+//   },
+
+//   headerBackground: {
+//     flex: 1,
+//     width: null,
+//     alignSelf: 'stretch',
+//     justifyContent: 'space-between'
+//   },
+//   header: {
+//     flex: 1.4,
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//     padding: 20,
+//     //backgroundColor: 'black'
+//   },
+
+//   gear: {
+//     flex: 0,
+//     paddingRight: 60
+//   },
+//   users: {
+//     flex: 0,
+//     paddingLeft: 60,
+//     paddingRight: 0,
+//     marginLeft: 0
+//   },
+
+//   profilepicWrap: {
+//     backgroundColor: 'black',
+//     width: 130,
+//     height: 130,
+//     borderRadius: 65,
+//     borderColor: 'rgba(0,0,0,0.4)',
+//     borderWidth: 0,
+//   },
+//   profilepic: {
+//     //flex: 1,
+//     width: 130,
+//     height: 130,
+//     alignSelf: 'center',
+//     borderRadius: 65,
+//     borderColor: '#fff',
+//     borderWidth: 0
+//   },
+//   name: {
+//     fontFamily: avenirNext,
+//     marginTop: 5,
+//     fontSize: 24,
+//     color: '#fff',
+//     fontWeight: 'normal'
+//   },
+//   numberProducts: {
+//     fontFamily: avenirNext,
+//     fontSize: 28,
+//     color: graphiteGray,
+//     fontWeight: 'normal'
+//   },
+//   soldProducts: {
+//     fontFamily: avenirNext,
+//     fontSize: 16,
+//     color: '#fff',
+//     fontWeight: 'bold'
+//   }
+//   ,
+//   pos: {
+//     fontFamily: avenirNext,
+//     fontSize: 18,
+//     color: '#fff',
+//     fontWeight: '600',
+//     fontStyle: 'italic'
+//   },
+//   insta: {
+//     fontFamily: avenirNext,
+//     fontSize: 18,
+//     color: '#fff',
+//     fontWeight: '600',
+//     fontStyle: 'italic'
+//   },  
+//   companyLogoContainer: {
+//     justifyContent: 'center',
+//     alignContent: 'center',
+//     backgroundColor: '#122021',
+//   },
+//   companyLogo: {
+//     //resizeMode: 'container',
+//     borderWidth:1,
+//     borderColor:'#207011',
+//     alignItems:'center',
+//     justifyContent:'center',
+//     width:40,
+//     height:40,
+//     backgroundColor:'#fff',
+//     borderRadius:0,
+//     borderWidth: 2,
+//     marginLeft: (width/4)-10,
+//     paddingLeft: 25,
+//     paddingRight: 25
+
+// }, 
+// naam: {
+//   ...iOSUIKit.caption2,
+//   fontSize: 11,
+//   color: '#37a1e8'
+
+// },
+
+// title: {
+//   ...human.headline,
+//   fontSize: 20,
+//   color: '#656565'
+// },
+
+// reviewsHeaderContainer: {
+//   flexDirection: 'row',
+//   paddingTop: 5,
+//   width: width-15,
+//   justifyContent: 'space-between'
+// },
+
+// reviewsHeader: {
+//   fontFamily: 'Avenir Next',
+//   fontSize: 24,
+//   fontWeight: "normal",
+//   paddingLeft: 10
+// },
+
+// commentContainer: {
+//   flexDirection: 'column',
+// },
+
+// commentPicAndTextRow: {
+//   flexDirection: 'row',
+//   width: width - 20,
+//   padding: 10
+// },
+
+// commentPic: {
+//   //flex: 1,
+//   width: 70,
+//   height: 70,
+//   alignSelf: 'center',
+//   borderRadius: 35,
+//   borderColor: '#fff',
+//   borderWidth: 0
+// },
+
+// commentName: {
+//   color: highlightGreen,
+//   fontSize: 16,
+//   fontWeight: "500",
+//   textAlign: "left"
+// },
+
+// comment: {
+//   fontSize: 16,
+//   color: 'black',
+//   textAlign: "center",
+// },  
+
+// commentTimeRow: {
+//   justifyContent: 'flex-end',
+//   alignContent: 'flex-end',
+//   alignItems: 'flex-end',
+// },
+
+// commentTime: {
+//   textAlign: "right",
+//   fontSize: 16,
+//   color: iOSColors.black
+// },
 
 rowContainer: {
   flexDirection: 'column',

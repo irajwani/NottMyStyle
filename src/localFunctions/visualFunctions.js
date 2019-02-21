@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text } from 'react-native';
-import { darkGray } from '../colors';
+import { darkGray, bgGray } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
 
-const GrayLine = () => (
-    <View style={{backgroundColor: darkGray, height: 0.5}}/>
+const GrayLine = ({height}) => (
+    <View style={{backgroundColor: bgGray, height: height ? height : 2.5}}/>
 )
 
 const WhiteSpace = ({height}) => (

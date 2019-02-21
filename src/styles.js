@@ -1,5 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native'
 import { material, iOSColors, human } from 'react-native-typography';
+import { darkPurple } from './colors';
 
 const {width, height} = Dimensions.get('window');
 
@@ -28,26 +29,26 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       // justifyContent: 'space-between',
       // alignContent: 'center',
-      backgroundColor: '#122021',
+      backgroundColor: darkPurple,
       //#fff
     },
     companyLogoContainer: {
       flex: 0.25,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#122021',
+      // backgroundColor: darkPurple,
       paddingBottom: 10
     },
     companyLogo: {
       //resizeMode: 'container',
-      borderColor:'#207011',
+      // borderColor:'#207011',
       // alignItems:'center',
       // justifyContent:'center',
-      width:90,
-      height:100,
-      backgroundColor:'#122021',
-      borderRadius:45,
-      borderWidth: 1,
+      width:220,
+      height:80,
+      // backgroundColor:'#122021',
+      // borderRadius:45,
+      // borderWidth: 1,
       //marginLeft: (width/4)-10,
       // paddingLeft: 25,
       // paddingRight: 25
