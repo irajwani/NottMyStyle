@@ -8,12 +8,16 @@ import { marketToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/
 import { multipleAddButtonToMultiplePictureCameraToCreateItemStack } from '../stackNavigators/createItemToPictureCameraStack';
 import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/wishListToProductDetailsOrChatOrCommentsStack';
 import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
+
+import {CartStack} from '../stackNavigators/CartStack';
+
 import { highlightGreen, tabPurple, tabIconYellow, actualTabIcon } from '../colors';
 
-const HomeScreen = TabNavigator(
-            {
+//make so user gets a specific tab based on their auth status.
 
-              
+const HomeScreen = TabNavigator(
+            false ? {
+
               Profile: profileToEditProfileStack,
               
               Market: marketToProductDetailsOrChatOrCommentsStack,
@@ -24,6 +28,18 @@ const HomeScreen = TabNavigator(
               
               WishList: wishListToProductDetailsOrChatOrCommentsStack,
               
+            }
+            :
+            {
+              Profile: profileToEditProfileStack,
+
+              WishList: wishListToProductDetailsOrChatOrCommentsStack,
+
+              Market: marketToProductDetailsOrChatOrCommentsStack,
+              
+              Chats: ChatsToCustomChatStack,
+
+              Cart: CartStack,
             },
             {
               navigationOptions: ({ navigation }) => ({

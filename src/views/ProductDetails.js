@@ -479,6 +479,16 @@ class ProductDetails extends Component {
     // this.setState({isGetting: true});
   }
 
+  addToCart = (data) => {
+    var cartUpdates = {};
+    var postData = {
+      text: data.text,
+      uris: data.uris
+    }
+    cartUpdates['Users/' + this.state.uid + '/cart/' + data.key + '/'] = postData;
+    firebase.database().ref().update(cartUpdates);
+  }
+
   proceedToPayment = (postOrNah) => {
     this.setState({activeScreen: 'paypalModal', postOrNah: postOrNah});
   }
@@ -1367,9 +1377,9 @@ class ProductDetails extends Component {
 
           {primaryButtons.map( (button, index) => (
             <TouchableOpacity
-            disabled={this.state.sold ? true : false} 
+            disabled={this.state.sold || this.state.uid == data.uid ? true : false} 
             style={[styles.purchaseButton, {backgroundColor: index == 0 ? this.state.sold ? graphiteGray : tabIconYellow : citrusOrange}]}
-            onPress={() => {index == 0 ? this.setState({showPurchaseModal: true}) : console.log('cart page coming soon')}} 
+            onPress={() => {index == 0 ? this.setState({showPurchaseModal: true}) : this.addToCart(data)}} 
             >
             <Text style={new avenirNextText(darkPurple,16,"600")}>{index == 0 ? this.state.sold ? "SOLD OUT":"BUY NOW" : "ADD TO CART"}</Text>
           </TouchableOpacity>

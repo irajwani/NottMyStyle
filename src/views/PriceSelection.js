@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Keyboard } from 'react-native'
-import { Jiro } from 'react-native-textinput-effects';
-import { treeGreen, darkGray } from '../colors';
+import { Text, TextInput, StyleSheet, View, Keyboard } from 'react-native'
+// import { Jiro } from 'react-native-textinput-effects';
+import { treeGreen, darkGray, lightGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { avenirNextText } from '../constructors/avenirNextText';
 
@@ -48,10 +48,26 @@ export default class PriceSelection extends Component {
         <View style={{height: 1, backgroundColor: darkGray}}/>
 
         <View style={styles.selectionContainer}>
+
+            <TextInput
+            style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20}}
+            placeholder={typeOfPrice == "sellingPrice" ? 'Selling Price (£)' : typeOfPrice == "retailPrice" ? 'Original price of this item (£)' : 'Estimated cost of postal services (£)'}
+            placeholderTextColor={lightGray}
+            onChangeText={p => {
+                    this.setState(typeOfPrice == "sellingPrice" ? { price: Number(p) } : typeOfPrice == "retailPrice" ? { original_price: Number(p)} : { post_price: Number(p)});
+                    } }
+            value={typeOfPrice == "sellingPrice" ? this.state.price : typeOfPrice == "retailPrice" ? this.state.original_price : this.state.post_price}
+            multiline={false}
+            maxLength={typeOfPrice == "postPrice" ? 2 : 3}
+            keyboardType={'number-pad'}
+            autoCorrect={false}
+            clearButtonMode={'while-editing'}
+            underlineColorAndroid={"transparent"}
+            />
         
-            <Jiro
+            {/* <Jiro
                 label={typeOfPrice == "sellingPrice" ? 'Selling Price (£)' : typeOfPrice == "retailPrice" ? 'Original price of this item (£)' : 'Estimated cost of postal services (£)'}
-                value={typeOfPrice == "sellingPrice" ? this.state.price : typeOfPrice == "retailPrice" ? this.state.original_price : this.state.post_price}
+                
                 maxLength={typeOfPrice == "postPrice" ? 2 : 3}
                 onChangeText={p => {
                     this.setState(typeOfPrice == "sellingPrice" ? { price: Number(p) } : typeOfPrice == "retailPrice" ? { original_price: Number(p)} : { post_price: Number(p)});
@@ -64,7 +80,7 @@ export default class PriceSelection extends Component {
                 backgroundColor={'#F9F7F6'}
                 inputStyle={{ fontFamily: 'Avenir Next', color: 'black' }}
                 keyboardType='number-pad'
-            />
+            /> */}
         
         
             
