@@ -10,12 +10,16 @@ import ProductComments from '../views/ProductComments';
 import CreateItem from '../views/CreateItem';
 import PriceSelection from '../views/PriceSelection';
 import ConditionSelection from '../views/ConditionSelection';
+import MultiplePictureCamera from '../components/MultiplePictureCamera';
+import MultipleAddButton from '../components/MultipleAddButton';
 
 export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     MarketPlace: MarketPlace,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
     CreateItem: CreateItem,
+    MultiplePictureCamera: MultiplePictureCamera,
+    MultipleAddButton: MultipleAddButton,
     PriceSelection: PriceSelection,
     ConditionSelection: ConditionSelection,
     ProductComments: ProductComments,

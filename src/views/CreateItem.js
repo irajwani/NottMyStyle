@@ -59,7 +59,21 @@ class CreateItem extends Component {
       super(props);
 
       //extract data if we came to this screen to edit an existing item:
-      var item = this.props.navigation.getParam('data', false) 
+      var item = this.props.navigation.getParam('data', false);
+    //   console.log("ITEM IS:" + item);
+    //   if(item) {
+    //       this.props.navigation.setParams({
+    //         data: item, //possibly unnecessary
+    //         pictureuris: item.uris.source, 
+    //         price: item.text.price, 
+    //         original_price: item.text.original_price, 
+    //         post_price: item.text.post_price > 0 ? item.text.post_price : 0,
+    //         condition: item.text.condition,
+    //         type: item.text.type,
+    //         size: item.text.size,
+    //         editItemBoolean: true
+    //       })
+    //   } 
 
       this.state = {
           uri: undefined,
@@ -186,7 +200,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             break;
         default:
             gender = 'Men'
-            console.log('no gender was specified')
+            // console.log('no gender was specified')
     }
 
     var postData = {
@@ -218,7 +232,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         actualPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
     }
 
-    updates['/Users/' + uid + '/products/' + actualPostKey + '/'] = postData;
+    updates['/Users/' + uid + '/products/' + actualPostKey + '/text/'] = postData;
     
     
     //this.createRoom(newPostKey);
@@ -236,11 +250,15 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
     pictureuris.forEach(async (uri, index, array) => {
-        console.log("Picture's Original URL:" + uri);
+        // console.log("Picture's Original URL:" + uri);
         //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage: NO it won't, just do simpler thing and
         //don't touch the cloud if these images have not been changed
         if(uri.includes('firebasestorage')) {
-            this.callBackForProductUploadCompletion();
+            picturesProcessed++;
+            if(picturesProcessed == array.length) {
+                this.callBackForProductUploadCompletion();
+            }
+            
         }
 
         else {
@@ -250,7 +268,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
         let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
         let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
         imageUris.forEach((imageUri, imageIndex, imageArray) => {
-            console.log("Picture URL:", imageUri, imageIndex)
+            // console.log("Picture URL:", imageUri, imageIndex)
             const storageUpdates = {};
             const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : uri
 
@@ -261,17 +279,17 @@ uploadToStore = (pictureuris, uid, postKey) => {
             return Blob.build(data, { type: `${mime};BASE64` })
             })
             .then((blob) => {
-            console.log('got to blob')
+            // console.log('got to blob')
             uploadBlob = blob
             return imageRef.put(blob, { contentType: mime })
             })
             .then(() => {
-            console.log('upload successful')
+            // console.log('upload successful')
             uploadBlob.close()
             return imageRef.getDownloadURL()
             })
             .then((url) => {
-                console.log(url);
+                // console.log(url);
                 if(imageIndex == 0) {
                     storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
                 }
@@ -444,8 +462,8 @@ uploadToStore = (pictureuris, uid, postKey) => {
         typing: true,
         isUploading: false,
                  });
-
-    this.state.oldItemPostKey ? this.props.navigation.navigate('Market') : this.props.navigation.navigate('Market'); 
+    // isEditItem ? Navigate to Initial Screen in current Stack : Navigate to different Stack
+    this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market'); 
   }
 
   deleteProduct(uid, key) {
@@ -557,7 +575,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
     var original_price = navigation.getParam('original_price', 0);
     var condition = navigation.getParam('condition', false); 
     var type = navigation.getParam('type', false); 
-    var size = navigation.getParam('size', false)
+    var size = navigation.getParam('size', false);
     var post_price = navigation.getParam('post_price', 0);
     // console.log(pictureuris);
     ////
