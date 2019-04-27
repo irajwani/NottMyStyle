@@ -87,7 +87,7 @@ const SignInTextInput = ({width, placeholder, onChangeText, value, secureTextEnt
 )
 
 const MarketplaceIcon = ({strokeWidth, focused}) => (
-    <View style={{width: 25, height: 30, alignItems: 'center'}}>
+    <View style={{width: 30, height: 30, alignItems: 'center'}}>
       <Svg height={"100%"} width={"100%"} fill={!focused ? "black" : treeGreen} viewBox={!focused ? "0 0 420 420" : "0 0 400 360"}>
           
           <Path 

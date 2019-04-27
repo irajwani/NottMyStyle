@@ -259,7 +259,7 @@ class SignIn extends Component {
             console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
-        .catch( (err) => {alert(err); this.setState({loading: false})})
+        .catch( (err) => {alert("Error is that: " + err); this.setState({loading: false})})
     }
 
     signInWithFacebook = () => {
