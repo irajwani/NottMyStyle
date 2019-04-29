@@ -324,7 +324,7 @@ class Products extends Component {
     firebase.database().ref().on('value', (snapshot) => {
       var {Products, Users} = snapshot.val();
       console.log(Products, typeof Products);
-      if(Products.length < 1) {
+      if(Products == undefined || Products.length < 1) {
         this.setState({isGetting: false, emptyMarket: true});
       }
       else {

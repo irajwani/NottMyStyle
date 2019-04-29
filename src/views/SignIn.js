@@ -453,27 +453,27 @@ class SignIn extends Component {
             }
         }
 
-        // if(notificationsObj.purchaseReceipts) {
-        //     for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
+        if(notificationsObj.purchaseReceipts) {
+            for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
                 
                 
-        //         //send notification 1 hour later
-        //         notificationDate = new Date();
-        //         notificationDate.setHours(notificationDate.getHours() + 1); 
+                //send notification 1 hour later
+                notificationDate = new Date();
+                notificationDate.setHours(notificationDate.getHours() + 1); 
                 
-        //         // console.log(month, date)
+                // console.log(month, date)
 
-        //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-        //         // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-        //         // console.log(message);
-        //         message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
-        //         PushNotification.localNotificationSchedule({
-        //             message: message,// (required)
-        //             date: notificationDate,
-        //             vibrate: false,
-        //         });
-        //     }
-        // }
+                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                // console.log(message);
+                message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
+                PushNotification.localNotificationSchedule({
+                    message: message,// (required)
+                    date: notificationDate,
+                    vibrate: false,
+                });
+            }
+        }
 
         if(notificationsObj.itemsSold) {
             for(var specificNotification of Object.values(notificationsObj.itemsSold)) {
@@ -612,7 +612,7 @@ class SignIn extends Component {
         
         
         return (
-            <SafeAreaView style={[{flex: 1, backgroundColor: "#122021"}, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+            <SafeAreaView style={{flex: 1, backgroundColor: "#122021"}}>
             <View style={styles.signInContainer}>
 
                 
