@@ -19,7 +19,7 @@ import ImageResizer from 'react-native-image-resizer';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightGreen, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen } from '../colors';
+import { highlightGreen,lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -76,32 +76,32 @@ class CreateItem extends Component {
  // } 
 
  this.state = {
-    uri: undefined,
-    name: item ? item.text.name : '',
-    brand: item ? item.text.brand : '', //empty or value selected from list of brands
-    // price: 0,
-    // original_price: 0,
-    // size: 2,
-    // type: 'Trousers',
-    gender: item ? categories.indexOf(item.text.gender) : 1,
-    // condition: 'Slightly Used',
-    // insta: '',
-    description: item ? item.text.description ? item.text.description : '' : '',
-    typing: true,
-    canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
-    isUploading: false,
-    pictureuris: 'nothing here',
-    helpDialogVisible: false,
-    /////////
-    //EDIT ITEM STUFF
-    editItemBoolean: this.props.navigation.getParam('editItemBoolean', false),
-    oldItemPostKey: item ? item.key : false,
-    oldUploadDate: item ? item.text.time : false,
+ uri: undefined,
+ name: item ? item.text.name : '',
+ brand: item ? item.text.brand : '', //empty or value selected from list of brands
+ // price: 0,
+ // original_price: 0,
+ // size: 2,
+ // type: 'Trousers',
+ gender: item ? categories.indexOf(item.text.gender) : 1,
+ // condition: 'Slightly Used',
+ // insta: '',
+ description: item ? item.text.description ? item.text.description : '' : '',
+ typing: true,
+ canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
+ isUploading: false,
+ pictureuris: 'nothing here',
+ helpDialogVisible: false,
+ /////////
+ //EDIT ITEM STUFF
+ editItemBoolean: this.props.navigation.getParam('editItemBoolean', false),
+ oldItemPostKey: item ? item.key : false,
+ oldUploadDate: item ? item.text.time : false,
 
-    /////////
+ /////////
 
-    /////RESIZE IMAGE STUFF
-    resizedImage: false,
+ /////RESIZE IMAGE STUFF
+ resizedImage: false,
 
  }
  }
@@ -468,65 +468,65 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
  deleteProduct(uid, key) {
  
-    let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
-    let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
-    //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
-    let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
+ let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
+ let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+ //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
+ let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
 
-    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
-    .then( ()=>{
-        this.setState({isUploading: false,})
-        alert('Your product has been successfully deleted.');
-        this.props.navigation.popToTop();
-        // this.props.navigation.navigate(`${parentScreenInStack}`);
-        })
-        .then( () => {
-        console.log('product has been successfully removed')
-        })
-        .catch( (err)=> {
-        console.log(err);
-        });
+ Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
+ .then( ()=>{
+ this.setState({isUploading: false,})
+ alert('Your product has been successfully deleted.');
+ this.props.navigation.popToTop();
+ // this.props.navigation.navigate(`${parentScreenInStack}`);
+ })
+ .then( () => {
+ console.log('product has been successfully removed')
+ })
+ .catch( (err)=> {
+ console.log(err);
+ });
 
  }
 
  startOver = () => {
-    this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
-    this.setState({ 
-        uri: undefined,
-        name: '',
-        brand: '',
-        // price: 0,
-        // original_price: 0,
-        // size: 2,
-        // type: 'Trousers',
-        gender: 1,
-        // condition: 'Slightly Used',
-        insta: '',
-        description: '',
-        typing: true,
-        isUploading: false,
-    });
+ this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
+ this.setState({ 
+ uri: undefined,
+ name: '',
+ brand: '',
+ // price: 0,
+ // original_price: 0,
+ // size: 2,
+ // type: 'Trousers',
+ gender: 1,
+ // condition: 'Slightly Used',
+ insta: '',
+ description: '',
+ typing: true,
+ isUploading: false,
+ });
  }
 
  getColorFor = (c) => {
-    var color;
-    switch(c) {
-        case "New With Tags":
-        color = 'black';
-        break;
-        case "New Without Tags":
-        color = 'black';
-        break;
-        case "Slightly Used":
-        color = 'black';
-        break;
-        case "Used":
-        color = 'black'
-        break;
-        default:
-        color = 'black'
-    }
-    return color;
+ var color;
+ switch(c) {
+ case "New With Tags":
+ color = 'black';
+ break;
+ case "New Without Tags":
+ color = 'black';
+ break;
+ case "Slightly Used":
+ color = 'black';
+ break;
+ case "Used":
+ color = 'black'
+ break;
+ default:
+ color = 'black'
+ }
+ return color;
  }
 
 // createRoom(key) {
@@ -603,13 +603,13 @@ uploadToStore = (pictureuris, uid, postKey) => {
  if(isUploading) {
  return (
  <View style={{marginTop: Platform.OS == "ios" ? 22 : 0, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
-    <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
-        <LoadingIndicator isVisible={isUploading} color={lightGreen} type={'Wordpress'}/>
-        <WhiteSpace height={20}/>
-        <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: highlightGreen, textAlign: 'center'}}>
-        Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
-        </Text>
-    </View>
+ <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
+ <LoadingIndicator isVisible={isUploading} color={lightGreen} type={'Wordpress'}/>
+ <WhiteSpace height={20}/>
+ <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: highlightGreen, textAlign: 'center'}}>
+ Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
+ </Text>
+ </View>
  
  </View>
  )
@@ -623,432 +623,432 @@ uploadToStore = (pictureuris, uid, postKey) => {
  contentContainerStyle={styles.contentContainer}
  >
 
-    <Divider style={{ backgroundColor: '#fff', height: 12 }} />
-    
-    <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Picture(s) of Product:</Text>
-    <Divider style={{ backgroundColor: '#fff', height: 8 }} />
-
-    <MultipleAddButton navToComponent={'CreateItem'} pictureuris={pictureuris}/>
-    {/* {pictureuris[1] ? <Image style={{width: 60, height: 60}} source={{uri: pictureuris[1]}} /> : null}
-    {this.state.resizedImage ? <Image style={{width: 60, height: 60}} source={{uri: this.state.resizedImage}}/> : null} */}
-    <WhiteSpace height={10}/>
-    
-    
-    <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Category</Text>
-    <ButtonGroup
-    onPress={ (index) => {
-    if(index != this.state.gender) {
-    navigation.setParams({type: false});
-    // type = '';
-    this.setState({gender: index});
-    }
-    
-    }}
-    selectedIndex={this.state.gender}
-    buttons={ ['Men', 'Women', 'Accessories'] }
-    containerStyle={styles.buttonGroupContainer}
-    buttonStyle={styles.buttonGroup}
-    textStyle={styles.buttonGroupText}
-    selectedTextStyle={styles.buttonGroupSelectedText}
-    selectedButtonStyle={styles.buttonGroupSelectedContainer}
-    />
-    
-    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} 
-    onPress={() => {
-    navigation.setParams({size: false});
-    this.navToFillConditionOrType(this.state.gender, showProductTypes = true);
-    
-    } }>
-    <View style={styles.navToFillDetailRow}>
-    
-    <View style={[styles.detailHeaderContainer, {flex: type ? 0.25 : 0.8}]}>
-    <Text style={styles.detailHeader}>Type</Text>
-    </View>
-
-    {type?
-    <View style={[styles.displayedPriceContainer, {flex: 0.55}]}>
-    <Text style={[styles.displayedCondition, {color: 'black', fontSize: 15, fontWeight: "300"}]}>{type}</Text>
-    </View>
-    :
-    null
-    }
-
-    <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
-    <Icon 
-    name="chevron-right"
-    size={40}
-    color='black'
-    />
-    </View>
-
-    </View>
-    </TouchableHighlight>
-
-    <GrayLine/>
-
-    
-    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
-    <TextInput
-    style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20}}
-    placeholder={"Name (e.g. zip-up hoodie)"}
-    placeholderTextColor={lightGray}
-    onChangeText={(name) => this.setState({name})}
-    value={this.state.name}
-    multiline={false}
-    maxLength={16}
-    autoCorrect={false}
-    autoCapitalize={'words'}
-    clearButtonMode={'while-editing'}
-    underlineColorAndroid={"transparent"}
-    /> 
-    </View>
-
-    <WhiteSpace height={4}/>
-
-    
-    
-    <GrayLine/>
-
-
-    <DismissKeyboardView>
-
-    <View style={styles.descriptionContainer}>
-
-    <View style={styles.descriptionHeaderContainer}>
-    <Text style={styles.descriptionHeader}>Description</Text>
-    </View>
-
-    <WhiteSpace height={1}/>
-
-    <View style={styles.descriptionInputContainer}>
-
-    <TextInput
-    style={styles.descriptionInput}
-    placeholder={"(Optional) For Example, This product has a few flaws which should be evident in the item's pictures"}
-    placeholderTextColor={lightGray}
-    onChangeText={(description) => this.setState({description})}
-    value={this.state.description}
-    multiline={true}
-    numberOfLines={4}
-    scrollEnabled={true}
-    underlineColorAndroid={"transparent"}
-    />
-
-    </View>
-
-    
-
-    </View>
-
-    </DismissKeyboardView>
-
-    <WhiteSpace height={1.5}/>
-
-    <GrayLine/>
-
-    
-    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
-    <View style={styles.navToFillDetailRow}>
-    
-    <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
-    <Text style={styles.detailHeader}>Retail price (Optional)</Text>
-    </View>
-
-    {original_price > 0 ?
-    <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-    <Text style={styles.displayedPrice}>£{original_price}</Text>
-    </View>
-    :
-    null
-    }
-
-    <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
-    <Icon 
-    name="chevron-right"
-    size={40}
-    color='black'
-    />
-    </View>
-
-    </View>
-    </TouchableHighlight>
-
-    <GrayLine/>
-
-    
-
-
-    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("sellingPrice")}>
-    <View style={styles.navToFillDetailRow}>
-    
-    <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
-    <Text style={styles.detailHeader}>Selling price</Text>
-    </View>
-
-    {price > 0 ?
-    <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-    <Text style={[styles.displayedPrice, {color: treeGreen}]}>£{price}</Text>
-    </View>
-    :
-    null
-    }
-
-    <View style={[styles.navToFillDetailIcon, {flex: price > 0 ? 0.2 : 0.2 }]}>
-    <Icon 
-    name="chevron-right"
-    size={40}
-    color='black'
-    />
-    </View>
-
-    </View>
-    </TouchableHighlight>
-
-    <GrayLine/>
-    
-    <View style={styles.priceAdjustmentReminderContainer}>
-    <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
-    </View>
-
-    <GrayLine/>
-
-    
-    
-    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
-    <TextInput
-    style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
-    placeholder={"Brand (e.g. Hollister Co.)"}
-    placeholderTextColor={lightGray}
-    onChangeText={(brand) => this.setState({brand})}
-    value={this.state.brand}
-    multiline={false}
-    maxLength={16}
-    autoCorrect={false}
-    autoCapitalize={'words'}
-    clearButtonMode={'while-editing'}
-    underlineColorAndroid={"transparent"}
-    /> 
-    </View>
-
-    
-
-    <GrayLine/>
-
-    
-
-    
-
-    
-
-    { type && this.state.gender != 2 ?
-    <View>
-    
-
-    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillSizeBasedOn(type, this.state.gender)}>
-    <View style={styles.navToFillDetailRow}>
-    
-    <View style={[styles.detailHeaderContainer, {flex: size ? 0.35 : 0.8}]}>
-    <Text style={styles.detailHeader}>Size</Text>
-    </View>
-
-    
-    <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-    <Text style={[styles.displayedCondition, { color: size ? 'black' : 'gray', fontWeight: "400"}]}>{size ? size : "Select a size"}</Text>
-    </View>
-    
-    
-    
-
-    <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
-    <Icon 
-    name="chevron-right"
-    size={40}
-    color='black'
-    />
-    </View>
-
-    </View>
-    </TouchableHighlight>
-    <GrayLine/>
-    </View>
-    :
-    null
-    }
-
-    
-
-
-    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, false)}>
-    <View style={styles.navToFillDetailRow}>
-    
-    <View style={[styles.detailHeaderContainer, {flex: condition ? 0.35 : 0.8}]}>
-    <Text style={styles.detailHeader}>Condition</Text>
-    </View>
-
-    {condition?
-    <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-    <Text style={styles.displayedCondition}>{condition}</Text>
-    </View>
-    :
-    null
-    }
-
-    <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
-    <Icon 
-    name="chevron-right"
-    size={40}
-    color='black'
-    />
-    </View>
-
-    </View>
-    </TouchableHighlight>
-
-    <GrayLine/>
-    
-    <View style={styles.navToFillDetailRow}>
-
-    <View style={[styles.detailHeaderContainer, {paddingHorizontal: 6,flex: 0.8}]}>
-    <Text style={[styles.detailHeader, {fontSize: 17}]}>Can you post this item?</Text>
-    </View>
-
-    <View style={[styles.checkBoxContainer, {flex: 0.2}]}>
-    <TouchableOpacity 
-    onPress={() => this.setState({canSnailMail: !this.state.canSnailMail})}
-    style={[styles.checkBox, this.state.canSnailMail ? {borderStyle: 'solid'} : {borderStyle: 'dashed'} ]}
-    >
-    {this.state.canSnailMail ?
-    <Icon 
-    name="check"
-    size={35}
-    color={lightGreen}
-    />
-    :
-    null
-    }
-    </TouchableOpacity>
-    </View>
-
-    </View>
-
-    <GrayLine/>
-
-
-    {this.state.canSnailMail ?
-    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("postPrice")}>
-    <View style={styles.navToFillDetailRow}>
-    
-    <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
-    <Text style={styles.detailHeader}>Cost of post</Text>
-    </View>
-
-    {post_price > 0 ?
-    <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-    <Text style={styles.displayedPrice}>£{post_price}</Text>
-    </View>
-    :
-    null
-    }
-
-    <View style={[styles.navToFillDetailIcon, {flex: post_price > 0 ? 0.2 : 0.2 }]}>
-    <Icon 
-    name="chevron-right"
-    size={40}
-    color='black'
-    />
-    </View>
-    <GrayLine/>
-    </View>
-    </TouchableHighlight>
-    :
-    null
-    }
-
-    
-
-    <WhiteSpace height={15} /> 
-    
-    <View style={{alignItems: 'center'}}>
-    <Button
-    large
-    disabled = { partialConditionMet ? false : true}
-    buttonStyle={{
-    backgroundColor: conditionMet ? "#22681d" : highlightYellow,
-    width: 280,
-    height: 80,
-    borderColor: "transparent",
-    borderWidth: 0,
-    borderRadius: 5,
-    }}
-    icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
-    title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
-    onPress={() => {
-    conditionMet ?
-    this.state.editItemBoolean ?
-    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
-    :
-    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
-    :
-    this.helpUserFillDetails();
-    } } 
-    />
-    </View>
-
-    
-
-    {this.state.editItemBoolean ?
-    <View style={styles.actionButtonContainer}>
-    <Button
-    buttonStyle={{
-    backgroundColor: profoundPink,
-    width: 180,
-    height: 80,
-    borderColor: "transparent",
-    borderWidth: 3,
-    borderRadius: 40,
-    }}
-    icon={{name: 'delete-empty', type: 'material-community'}}
-    title='Delete Product'
-    onPress={() => { 
-    this.deleteProduct(uid, this.state.oldItemPostKey);
-    } }
-    />
-    </View>
-    :
-    null
-    }
-
-
-    <Dialog
-    visible={this.state.helpDialogVisible}
-    dialogAnimation={new SlideAnimation({
-    slideFrom: 'top',
-    })}
-    dialogTitle={<DialogTitle title="You forgot to fill in:" titleTextStyle={new avenirNextText('black', 22, "500")} />}
-    actions={[ 
-    <DialogButton
-    text="OK"
-    onPress={() => {this.setState({ helpDialogVisible: false });}}
-    />,
-    ]}
-    onTouchOutside={() => {
-    this.setState({ helpDialogVisible: false });
-    }}
-    >
-    <DialogContent>
-    <View style={styles.dialogContentContainer}>
-    { pictureuris == 'nothing here' ? <TextForMissingDetail detail={'Picture(s) of product'} /> : null }
-    { !this.state.name ? <TextForMissingDetail detail={'Name'} /> : null }
-    { !this.state.brand ? <TextForMissingDetail detail={'Brand'} /> : null }
-    { !price ? <TextForMissingDetail detail={'Selling price'} /> : null }
-    { !type ? <TextForMissingDetail detail={'Type of product'} /> : null }
-    { !size ? <TextForMissingDetail detail={'Size'} /> : null }
-    { !condition ? <TextForMissingDetail detail={'Condition'} /> : null }
-    </View>
-    </DialogContent>
-    </Dialog>
-
-    <Divider style={{ backgroundColor: '#fff', height: 10 }} />
+ <Divider style={{ backgroundColor: '#fff', height: 12 }} />
+ 
+ <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Picture(s) of Product:</Text>
+ <Divider style={{ backgroundColor: '#fff', height: 8 }} />
+
+ <MultipleAddButton navToComponent={'CreateItem'} pictureuris={pictureuris}/>
+ {/* {pictureuris[1] ? <Image style={{width: 60, height: 60}} source={{uri: pictureuris[1]}} /> : null}
+ {this.state.resizedImage ? <Image style={{width: 60, height: 60}} source={{uri: this.state.resizedImage}}/> : null} */}
+ <WhiteSpace height={10}/>
+ 
+ 
+ <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Category</Text>
+ <ButtonGroup
+ onPress={ (index) => {
+ if(index != this.state.gender) {
+ navigation.setParams({type: false});
+ // type = '';
+ this.setState({gender: index});
+ }
+ 
+ }}
+ selectedIndex={this.state.gender}
+ buttons={ ['Men', 'Women', 'Accessories'] }
+ containerStyle={styles.buttonGroupContainer}
+ buttonStyle={styles.buttonGroup}
+ textStyle={styles.buttonGroupText}
+ selectedTextStyle={styles.buttonGroupSelectedText}
+ selectedButtonStyle={styles.buttonGroupSelectedContainer}
+ />
+ 
+ <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} 
+ onPress={() => {
+ navigation.setParams({size: false});
+ this.navToFillConditionOrType(this.state.gender, showProductTypes = true);
+ 
+ } }>
+ <View style={styles.navToFillDetailRow}>
+ 
+ <View style={[styles.detailHeaderContainer, {flex: type ? 0.25 : 0.8}]}>
+ <Text style={styles.detailHeader}>Type</Text>
+ </View>
+
+ {type?
+ <View style={[styles.displayedPriceContainer, {flex: 0.55}]}>
+ <Text style={[styles.displayedCondition, {color: 'black', fontSize: 15, fontWeight: "300"}]}>{type}</Text>
+ </View>
+ :
+ null
+ }
+
+ <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+ <Icon 
+ name="chevron-right"
+ size={40}
+ color='black'
+ />
+ </View>
+
+ </View>
+ </TouchableHighlight>
+
+ <GrayLine/>
+
+ 
+ <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+ <TextInput
+ style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20}}
+ placeholder={"Name (e.g. zip-up hoodie)"}
+ placeholderTextColor={lightGray}
+ onChangeText={(name) => this.setState({name})}
+ value={this.state.name}
+ multiline={false}
+ maxLength={16}
+ autoCorrect={false}
+ autoCapitalize={'words'}
+ clearButtonMode={'while-editing'}
+ underlineColorAndroid={"transparent"}
+ /> 
+ </View>
+
+ <WhiteSpace height={4}/>
+
+ 
+ 
+ <GrayLine/>
+
+
+ <DismissKeyboardView>
+
+ <View style={styles.descriptionContainer}>
+
+ <View style={styles.descriptionHeaderContainer}>
+ <Text style={styles.descriptionHeader}>Description</Text>
+ </View>
+
+ <WhiteSpace height={1}/>
+
+ <View style={styles.descriptionInputContainer}>
+
+ <TextInput
+ style={styles.descriptionInput}
+ placeholder={"(Optional) For Example, This product has a few flaws which should be evident in the item's pictures"}
+ placeholderTextColor={lightGray}
+ onChangeText={(description) => this.setState({description})}
+ value={this.state.description}
+ multiline={true}
+ numberOfLines={4}
+ scrollEnabled={true}
+ underlineColorAndroid={"transparent"}
+ />
+
+ </View>
+
+ 
+
+ </View>
+
+ </DismissKeyboardView>
+
+ <WhiteSpace height={1.5}/>
+
+ <GrayLine/>
+
+ 
+ <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
+ <View style={styles.navToFillDetailRow}>
+ 
+ <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
+ <Text style={styles.detailHeader}>Retail price (Optional)</Text>
+ </View>
+
+ {original_price > 0 ?
+ <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+ <Text style={styles.displayedPrice}>£{original_price}</Text>
+ </View>
+ :
+ null
+ }
+
+ <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+ <Icon 
+ name="chevron-right"
+ size={40}
+ color='black'
+ />
+ </View>
+
+ </View>
+ </TouchableHighlight>
+
+ <GrayLine/>
+
+ 
+
+
+ <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("sellingPrice")}>
+ <View style={styles.navToFillDetailRow}>
+ 
+ <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
+ <Text style={styles.detailHeader}>Selling price</Text>
+ </View>
+
+ {price > 0 ?
+ <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+ <Text style={[styles.displayedPrice, {color: treeGreen}]}>£{price}</Text>
+ </View>
+ :
+ null
+ }
+
+ <View style={[styles.navToFillDetailIcon, {flex: price > 0 ? 0.2 : 0.2 }]}>
+ <Icon 
+ name="chevron-right"
+ size={40}
+ color='black'
+ />
+ </View>
+
+ </View>
+ </TouchableHighlight>
+
+ <GrayLine/>
+ 
+ <View style={styles.priceAdjustmentReminderContainer}>
+ <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
+ </View>
+
+ <GrayLine/>
+
+ 
+ 
+ <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+ <TextInput
+ style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+ placeholder={"Brand (e.g. Hollister Co.)"}
+ placeholderTextColor={lightGray}
+ onChangeText={(brand) => this.setState({brand})}
+ value={this.state.brand}
+ multiline={false}
+ maxLength={16}
+ autoCorrect={false}
+ autoCapitalize={'words'}
+ clearButtonMode={'while-editing'}
+ underlineColorAndroid={"transparent"}
+ /> 
+ </View>
+
+ 
+
+ <GrayLine/>
+
+ 
+
+ 
+
+ 
+
+ { type && this.state.gender != 2 ?
+ <View>
+ 
+
+ <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillSizeBasedOn(type, this.state.gender)}>
+ <View style={styles.navToFillDetailRow}>
+ 
+ <View style={[styles.detailHeaderContainer, {flex: size ? 0.35 : 0.8}]}>
+ <Text style={styles.detailHeader}>Size</Text>
+ </View>
+
+ 
+ <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
+ <Text style={[styles.displayedCondition, { color: size ? 'black' : 'gray', fontWeight: "400"}]}>{size ? size : "Select a size"}</Text>
+ </View>
+ 
+ 
+ 
+
+ <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+ <Icon 
+ name="chevron-right"
+ size={40}
+ color='black'
+ />
+ </View>
+
+ </View>
+ </TouchableHighlight>
+ <GrayLine/>
+ </View>
+ :
+ null
+ }
+
+ 
+
+
+ <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, false)}>
+ <View style={styles.navToFillDetailRow}>
+ 
+ <View style={[styles.detailHeaderContainer, {flex: condition ? 0.35 : 0.8}]}>
+ <Text style={styles.detailHeader}>Condition</Text>
+ </View>
+
+ {condition?
+ <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
+ <Text style={styles.displayedCondition}>{condition}</Text>
+ </View>
+ :
+ null
+ }
+
+ <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+ <Icon 
+ name="chevron-right"
+ size={40}
+ color='black'
+ />
+ </View>
+
+ </View>
+ </TouchableHighlight>
+
+ <GrayLine/>
+ 
+ <View style={styles.navToFillDetailRow}>
+
+ <View style={[styles.detailHeaderContainer, {paddingHorizontal: 6,flex: 0.8}]}>
+ <Text style={[styles.detailHeader, {fontSize: 17}]}>Can you post this item?</Text>
+ </View>
+
+ <View style={[styles.checkBoxContainer, {flex: 0.2}]}>
+ <TouchableOpacity 
+ onPress={() => this.setState({canSnailMail: !this.state.canSnailMail})}
+ style={[styles.checkBox, this.state.canSnailMail ? {borderStyle: 'solid'} : {borderStyle: 'dashed'} ]}
+ >
+ {this.state.canSnailMail ?
+ <Icon 
+ name="check"
+ size={35}
+ color={lightGreen}
+ />
+ :
+ null
+ }
+ </TouchableOpacity>
+ </View>
+
+ </View>
+
+ <GrayLine/>
+
+
+ {this.state.canSnailMail ?
+ <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("postPrice")}>
+ <View style={styles.navToFillDetailRow}>
+ 
+ <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
+ <Text style={styles.detailHeader}>Cost of post</Text>
+ </View>
+
+ {post_price > 0 ?
+ <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+ <Text style={styles.displayedPrice}>£{post_price}</Text>
+ </View>
+ :
+ null
+ }
+
+ <View style={[styles.navToFillDetailIcon, {flex: post_price > 0 ? 0.2 : 0.2 }]}>
+ <Icon 
+ name="chevron-right"
+ size={40}
+ color='black'
+ />
+ </View>
+ <GrayLine/>
+ </View>
+ </TouchableHighlight>
+ :
+ null
+ }
+
+ 
+
+ <WhiteSpace height={15} /> 
+ 
+ <View style={{alignItems: 'center'}}>
+ <Button
+ large
+ disabled = { partialConditionMet ? false : true}
+ buttonStyle={{
+ backgroundColor: conditionMet ? "#22681d" : highlightYellow,
+ width: 280,
+ height: 80,
+ borderColor: "transparent",
+ borderWidth: 0,
+ borderRadius: 5,
+ }}
+ icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
+ title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
+ onPress={() => {
+ conditionMet ?
+ this.state.editItemBoolean ?
+ this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+ :
+ this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
+ :
+ this.helpUserFillDetails();
+ } } 
+ />
+ </View>
+
+ 
+
+ {this.state.editItemBoolean ?
+ <View style={styles.actionButtonContainer}>
+ <Button
+ buttonStyle={{
+ backgroundColor: profoundPink,
+ width: 180,
+ height: 80,
+ borderColor: "transparent",
+ borderWidth: 3,
+ borderRadius: 40,
+ }}
+ icon={{name: 'delete-empty', type: 'material-community'}}
+ title='Delete Product'
+ onPress={() => { 
+ this.deleteProduct(uid, this.state.oldItemPostKey);
+ } }
+ />
+ </View>
+ :
+ null
+ }
+
+
+ <Dialog
+ visible={this.state.helpDialogVisible}
+ dialogAnimation={new SlideAnimation({
+ slideFrom: 'top',
+ })}
+ dialogTitle={<DialogTitle title="You forgot to fill in:" titleTextStyle={new avenirNextText('black', 22, "500")} />}
+ actions={[ 
+ <DialogButton
+ text="OK"
+ onPress={() => {this.setState({ helpDialogVisible: false });}}
+ />,
+ ]}
+ onTouchOutside={() => {
+ this.setState({ helpDialogVisible: false });
+ }}
+ >
+ <DialogContent>
+ <View style={styles.dialogContentContainer}>
+ { pictureuris == 'nothing here' ? <TextForMissingDetail detail={'Picture(s) of product'} /> : null }
+ { !this.state.name ? <TextForMissingDetail detail={'Name'} /> : null }
+ { !this.state.brand ? <TextForMissingDetail detail={'Brand'} /> : null }
+ { !price ? <TextForMissingDetail detail={'Selling price'} /> : null }
+ { !type ? <TextForMissingDetail detail={'Type of product'} /> : null }
+ { !size ? <TextForMissingDetail detail={'Size'} /> : null }
+ { !condition ? <TextForMissingDetail detail={'Condition'} /> : null }
+ </View>
+ </DialogContent>
+ </Dialog>
+
+ <Divider style={{ backgroundColor: '#fff', height: 10 }} />
 
  </ScrollView>
  

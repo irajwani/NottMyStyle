@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TextInput, StyleSheet, View, Keyboard } from 'react-native'
+import { Text, TextInput, StyleSheet, View, Keyboard, Platform } from 'react-native'
 import { Jiro } from 'react-native-textinput-effects';
 import { treeGreen, darkGray, lightGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -62,7 +62,7 @@ export default class PriceSelection extends Component {
                 clearButtonMode={'while-editing'}
                 underlineColorAndroid={"transparent"}
                 
-                keyboardType='number-pad'
+                keyboardType={Platform.OS == "ios" ? 'number-pad' : 'phone-pad'}
             />
         
             {/* <Jiro

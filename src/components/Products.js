@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Platform, Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 // import { Text,  } from 'native-base';
@@ -1327,8 +1327,8 @@ class Products extends Component {
     // console.log('Entered MarketPlace render')
     return (
 
-      
-      <View style={[styles.container, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
+      <SafeAreaView style={[{flex: 1}, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
+      <View style={[styles.container]}>
 
       <ScrollView
           style={{flex: 1}}
@@ -1423,7 +1423,7 @@ class Products extends Component {
             </TouchableOpacity>
           </View>
       </View>
-      
+      </SafeAreaView>
 
     
   

@@ -202,10 +202,12 @@ class SignIn extends Component {
                     // console.log(yourProducts);
                     // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
                     // console.log(yourProducts)
-                    const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
-                    if(notifications) {
-                        this.shouldSendNotifications(user.uid, notifications);
-                    }
+                    
+                    //TODO: move notification count functionality to server side
+                    // const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
+                    // if(notifications) {
+                    //     this.shouldSendNotifications(user.uid, notifications);
+                    // }
                     
                 }
                 
@@ -257,7 +259,7 @@ class SignIn extends Component {
             console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
-        .catch( (err) => {alert(err); this.setState({loading: false})})
+        .catch( (err) => {alert("Error is that: " + err); this.setState({loading: false})})
     }
 
     signInWithFacebook = () => {
@@ -612,7 +614,7 @@ class SignIn extends Component {
         
         
         return (
-            <SafeAreaView style={{flex: 1, backgroundColor: "#122021"}}>
+            <SafeAreaView style={[{flex: 1, backgroundColor: "#122021"}]}>
             <View style={styles.signInContainer}>
 
                 
