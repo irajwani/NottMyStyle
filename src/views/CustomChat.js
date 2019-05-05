@@ -208,9 +208,9 @@ class CustomChat extends Component {
     });
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, message),
-    }), () => {
+    }), async () => {
       if(this.state.otherUserPresence == "offline") {
-        this.markMessageAsUnread();
+        await this.markMessageAsUnread();
       }
       const {params} = this.props.navigation.state;
       const buyerIdentification = params.buyerIdentification;
@@ -238,6 +238,7 @@ class CustomChat extends Component {
   markMessageAsUnread = () => {
     let unreadUpdate = {};
     unreadUpdate['/Users/' + this.otherUser + '/conversations/' + this.roomId + '/unread/'] = true; 
+    firebase.database().ref().update(unreadUpdate);
   }
 
   navToOtherUserProfilePage = (uid) => {

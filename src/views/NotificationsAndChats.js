@@ -386,16 +386,26 @@ class Chats extends Component {
 
           <View  style={styles.specificChatContainer}>
 
-            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
-              <Image 
-              source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
-              style={[styles.picture, {borderRadius: pictureBorderRadius}]} />
+            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={[styles.pictureContainer, {flexDirection: 'row'}]}>
+              <View style={[styles.unreadDotContainer, {flex: 0.1}]}>
+                  {chat.unread == true ? 
+                    <View style={styles.unreadDot}/>
+                    :
+                    null
+                  }
+              </View>
+              <View style={{flex: 0.9, alignItems: 'stretch', marginHorizontal: 4}}>
+                <Image 
+                source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
+                style={[styles.picture, {borderRadius: pictureBorderRadius}]} />
+              </View>
+              
             </TouchableOpacity>
 
             <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.textContainer}>
                 {/* Name of message sender */}
-              <Text style={styles.otherPersonName}>{this.state.yourUid == chat.buyerIdentification ? (chat.seller.split(' '))[0] : (chat.buyer.split(' '))[0] }</Text>
-              <Text style={styles.lastMessageText}>
+              <Text style={[styles.otherPersonName, chat.unread == true ? {fontSize: 16, fontWeight: "700"} : null]}>{this.state.yourUid == chat.buyerIdentification ? (chat.seller.split(' '))[0] : (chat.buyer.split(' '))[0] }</Text>
+              <Text style={[styles.lastMessageText, chat.unread == true ? {fontSize: 14, fontWeight: "700"} : null]}>
               {chat.lastMessage.lastMessageText ? (this.state.yourUid == chat.lastMessage.lastMessageSenderIdentification && this.state.yourUid == chat.sellerIdentification) ? `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
               </Text>
               <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessage.lastMessageDate]}</Text>
