@@ -66,6 +66,7 @@ class ProfilePage extends Component {
   componentWillMount() {
     setTimeout(() => {
       const uid = firebase.auth().currentUser.uid;
+      this.uid = uid;
       this.getProfileAndCountOfProductsOnSaleAndSoldAndComments(uid);
     }, 200);
     
@@ -152,6 +153,15 @@ class ProfilePage extends Component {
 
     //////
     
+  }
+
+  logOut = () => {
+    firebase.auth().signOut().then( async () => {
+      var statusUpdate = {};
+      statusUpdate['Users/' + this.uid + '/status/'] = "offline";
+      await firebase.database().ref().update(statusUpdate);
+      this.props.navigation.navigate('SignIn');
+    })
   }
 
 //   getComments(uid) {
@@ -282,9 +292,7 @@ class ProfilePage extends Component {
               
               <TouchableOpacity
               underlayColor={'transparent'} 
-              onPress={() => {
-                  firebase.auth().signOut().then( () => {this.props.navigation.navigate('SignIn');})
-                }}  
+              onPress={this.logOut}  
               style={styles.popDownMenu}>
               <Text
                   

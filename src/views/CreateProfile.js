@@ -285,6 +285,8 @@ class CreateProfile extends Component {
         country: data.city + ", " + data.country,
         // size: data.size,
         insta: data.insta,
+
+        status: 'online'
         //TODO: Add user uid here to make navigation to their profile page easier. 
         //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
     }
@@ -438,10 +440,11 @@ class CreateProfile extends Component {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.city + ", " + data.country,
         size: data.size,
-        insta: data.insta
+        insta: data.insta,
+        status: "online"
     }
 
-    updates['/Users/' + uid + '/profile/' + '/'] = postData;
+    updates['/Users/' + uid + '/profile/'] = postData;
 
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 

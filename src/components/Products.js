@@ -381,6 +381,7 @@ class Products extends Component {
           var brands = [];
           var typesForCategory = {Men: [], Women: [], Accessories: []};
           var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
+          //Default Sizes
           var sizes = womenUpperWear;
           //Now because there's a fixed number of values of SIZE for each TYPE, 
           //just generate the sizes based on the type selected by the person when they tap the category
@@ -441,9 +442,10 @@ class Products extends Component {
 
   filterMarketPlace = () => {
     // this.setState({isGetting: true});
+    console.log("Filtering Marketplace");
     const {...state} = this.state;
     const {selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize} = state;
-
+    console.log(selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize);
     state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
     state.leftProducts = state.leftProducts.filter( (product) => selectedCategory == product.text.gender);
     state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type ) : state.leftProducts;
@@ -1255,14 +1257,14 @@ class Products extends Component {
         <View style={styles.filterModalFooter}>
           <Text
           onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) == true ?
-            () => {
-              this.getMarketPlace(this.state.uid); 
-              this.filterMarketPlace();
+            async () => {
+              await this.getMarketPlace(this.state.uid); 
+              await this.filterMarketPlace();
               this.setState({showFilterModal: false});
             }
             :
-            () => {
-              this.getMarketPlace(this.state.uid); 
+            async () => {
+              await this.getMarketPlace(this.state.uid); 
               this.setState({showFilterModal: false});
             }
             

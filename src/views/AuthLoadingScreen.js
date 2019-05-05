@@ -7,13 +7,65 @@ import firebase from '../cloud/firebase';
 export default class AuthLoadingScreen extends Component {
   constructor(props) {
       super(props);
-      this.showAppOrAuth();
+      
+  }
+
+  componentDidMount = () => {
+    this.showAppOrAuth();
+  }
+
+  updateOnConnect = () => {
+    var connectionRef = firebase.database().ref('.info/connected');
+    // var disconnectionRef = firebase.database().ref().onDisconnect();
+    connectionRef.on('value', (snap)=>{
+      if(snap.val() === true) {
+        this.updateStatus('online');
+      }
+      
+    })
+
+    // let update = {};
+    // update['/Users/' + this.uid + '/status/'] = "offline";
+    // disconnectionRef.update(update);
+
+
+    // firebase.database().ref('/Users/' + this.uid + '/').onDisconnect( (connectionStatus) => {
+    //   console.log('CONNECTION STATUS: ' + connectionStatus);
+    //   let status = 'online';
+    //   this.updateStatus(status);
+    // })
+  }
+
+  updateStatus = (status) => {
+    console.log("CONNECTION STATUS: " + status);
+    var statusUpdate = {};
+    statusUpdate['/Users/' + this.uid + '/status/'] = status;
+    firebase.database().ref().update(statusUpdate);
+    // if(!this.uid) {
+    //   return
+    // }
+    // else {
+    //   var statusUpdate = {};
+    //   statusUpdate['/Users/' + this.uid + '/status/'] = status;
+    //   firebase.database().ref().update(statusUpdate);
+    // }
   }
 
   showAppOrAuth = () => {
-    var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
+    var unsubscribe = firebase.auth().onAuthStateChanged( async ( user ) => {
         unsubscribe();
-        this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
+        if(user) {
+          console.log("USER IS: " + user);
+          this.uid = await user.uid;
+          await this.updateOnConnect();
+          this.props.navigation.navigate('AppStack');
+        }
+        else {
+          console.log("USER DISCONNECTED")
+          await this.updateOnConnect();
+          this.props.navigation.navigate('AuthStack');
+        }
+        // this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
         // if(user) {
           
         //   var unreadCount = false

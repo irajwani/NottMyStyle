@@ -11,6 +11,7 @@ import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { treeGreen, mantisGreen, darkGreen, logoGreen } from '../colors';
 import { LoadingIndicator, DismissKeyboardView } from '../localFunctions/visualFunctions';
+// import { Firebase } from 'react-native-firebase';
 
 
 
@@ -26,15 +27,29 @@ class CustomChat extends Component {
     this.state = {
       messages: [],
       isGetting: true,
+      otherUserPresence: "offline"
     }
   }
 
   componentDidMount() {
     var username = firebase.auth().currentUser.uid;
+    this.uid = username;
+    const {params} = this.props.navigation.state;
+    const id = params ? params.id : null;
+    this.roomId = id;
+    const buyerIdentification = params.buyerIdentification;
+    const buyerAvatar = params.buyerAvatar;
+    const sellerIdentification = params.sellerIdentification;
+    const sellerAvatar = params.sellerAvatar;
+
+    const otherUser = username == buyerIdentification ? sellerIdentification : buyerIdentification;
+    this.otherUser = otherUser;
     setTimeout(() => {
-      this.getConversation(username);
+      this.getConversation(username, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar);
+      this.getOtherUserPresence(otherUser);
       this.conversationTimer = setInterval(() => {
-        this.getConversation(username);
+        this.getConversation(username, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar);
+        this.getOtherUserPresence(otherUser);
       }, 20000); //TODO: bad idea possibly?
     }, 1000);
   }
@@ -43,16 +58,24 @@ class CustomChat extends Component {
     clearInterval(this.conversationTimer);
   }
 
-  getConversation(CHATKIT_USER_NAME) {
+  getOtherUserPresence = (otherUser) => {
+    
+    firebase.database().ref('/Users/' + otherUser + '/status/').on('value', (snap)=>{
+      var userStatus = snap.val();
+      console.log("OTHER USER STATUS: " + userStatus);
+      if(userStatus == "offline") {
+        this.setState({otherUserPresence: "offline"});
+      }
+      else {
+        this.setState({otherUserPresence: "online"});
+      }
+    })
+  }
+
+  getConversation(CHATKIT_USER_NAME, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar) {
 
     // const CHATKIT_USER_NAME; 
-    const {params} = this.props.navigation.state;
     
-    const id = params ? params.id : null;
-    const buyerIdentification = params.buyerIdentification;
-    const buyerAvatar = params.buyerAvatar;
-    const sellerIdentification = params.sellerIdentification;
-    const sellerAvatar = params.sellerAvatar
     
     // console.log(buyerIdentification, sellerIdentification, id)
 
@@ -85,7 +108,8 @@ class CustomChat extends Component {
       // const cursor = this.currentUser.readCursor({
       //   roomId: id
       // })
-      // console.log(cursor); 
+      // console.log(cursor);
+      // new Firebase()
       this.currentUser.subscribeToRoom({
         //roomId: this.currentUser.rooms[0].id,
         roomId: id,
@@ -185,10 +209,12 @@ class CustomChat extends Component {
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, message),
     }), () => {
+      if(this.state.otherUserPresence == "offline") {
+        this.markMessageAsUnread();
+      }
       const {params} = this.props.navigation.state;
       const buyerIdentification = params.buyerIdentification;
       const sellerIdentification = params.sellerIdentification;
-      
       this.updateLastMessageInCloud(message, buyerIdentification, sellerIdentification, id);
     });
     // console.log(message);
@@ -207,6 +233,11 @@ class CustomChat extends Component {
     firebase.database().ref().update(updates);
     updates['Users/' + sellerIdentification + '/conversations/' + roomId + '/lastMessage/' ] = lastMessageObj;
     firebase.database().ref().update(updates);
+  }
+
+  markMessageAsUnread = () => {
+    let unreadUpdate = {};
+    unreadUpdate['/Users/' + this.otherUser + '/conversations/' + this.roomId + '/unread/'] = true; 
   }
 
   navToOtherUserProfilePage = (uid) => {

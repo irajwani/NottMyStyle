@@ -53,6 +53,7 @@ class Chats extends Component {
       var chats = d.Users[your_uid].conversations ? d.Users[your_uid].conversations : false;
       chats = chats ? Object.values(chats) : false;
       // console.log(chats);
+      
       this.leaveYourRooms(your_uid);
       this.setState({chats, yourUid: your_uid, noChats: chats ? true : false , isGetting: false});
     })
@@ -392,9 +393,10 @@ class Chats extends Component {
             </TouchableOpacity>
 
             <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.textContainer}>
-              <Text style={styles.otherPersonName}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0] }</Text>
+                {/* Name of message sender */}
+              <Text style={styles.otherPersonName}>{this.state.yourUid == chat.buyerIdentification ? (chat.seller.split(' '))[0] : (chat.buyer.split(' '))[0] }</Text>
               <Text style={styles.lastMessageText}>
-              {chat.lastMessage.lastMessageText ? this.state.yourUid == chat.sellerIdentification ? `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
+              {chat.lastMessage.lastMessageText ? (this.state.yourUid == chat.lastMessage.lastMessageSenderIdentification && this.state.yourUid == chat.sellerIdentification) ? `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
               </Text>
               <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessage.lastMessageDate]}</Text>
             </TouchableOpacity>
