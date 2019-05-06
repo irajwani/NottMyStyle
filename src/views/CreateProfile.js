@@ -16,8 +16,12 @@ import {WhiteSpace, GrayLine, LoadingIndicator, CustomTextInput} from '../localF
 import { shadow } from '../constructors/shadow.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 import { center } from '../constructors/center.js';
+import ImageResizer from 'react-native-image-resizer';
 
 const {width} = Dimensions.get('window');
+
+// TODO: store these in common file as thumbnail spec for image resizing
+const maxWidth = 320, maxHeight = 320, suppressionLevel = 0;
 // const inputHeightBoost = 4;
 const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
@@ -248,35 +252,13 @@ class CreateProfile extends Component {
 //     //otherwise this function does nothing;
 //   }
 
+  //Invoked when one creates a profile for the very first time
   updateFirebase(data, uri, mime = 'image/jpg', uid) {
       console.log('Initiate Firebase Update')
     //TODO: size shouldn't be here
     var updates = {};
     var updateEmptyProducts = {};
-    // switch(data.size) {
-    //     case 0:
-    //         data.size = 'Extra Small'
-    //         break; 
-    //     case 1:
-    //         data.size = 'Small'
-    //         break;
-    //     case 2:
-    //         data.size = 'Medium'
-    //         break;
-    //     case 3:
-    //         data.size = 'Large'
-    //         break;
-    //     case 4:
-    //         data.size = 'Extra Large'
-    //         break;
-    //     case 5:
-    //         data.size = 'Extra Extra Large'
-    //         break;
-    //     default:
-    //         data.size = 'Medium'
-    //         console.log('no gender was specified')
-    // }
-
+    
     //In case user enters a handle with an @ preceding it,
     data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
 
@@ -286,34 +268,20 @@ class CreateProfile extends Component {
         // size: data.size,
         insta: data.insta,
 
-        status: 'online'
         //TODO: Add user uid here to make navigation to their profile page easier. 
         //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
     }
+    //Now we have all information for profile branch of a user
 
-    var emptyProductPostData = {
-        products: '',
-    }
-
-    updates['/Users/' + uid + '/profile/'] = postData; //TODO: The above should be a constructor function that returns a value here
-
-    updateEmptyProducts['/Users/' + uid + '/'] = emptyProductPostData;
-
-    // let promiseToUploadGooglePhoto = new Promise((resolve, reject) => {
-                
-    //     console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
-    //     const uploadUri = uri;
-    //     // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-    //     var profileUpdates = {};
-    //     profileUpdates['/Users/' + uid + '/profile/' + 'uri/'] = uploadUri ;
-    //     firebase.database().ref().update(profileUpdates);
-    //     resolve(uploadUri);
-        
-        
-    //     }
-    // )
+    
+    updates['/Users/' + uid + '/profile/'] = postData; 
+    updates['/Users/' + uid + '/status/'] = 'offline';
+    updates['/Users' + uid + '/products/'] = '';
+    //Now we have a user who may go through the app without components crashing
     
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
+        //We want to take a user's uri, resize the photos (necessary when picture is locally taken),
+        //and then upload them to cloud storage, and store the url refs on cloud db;
 
         if(uri.includes('googleusercontent') || uri.includes('facebook')) {
             console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
@@ -323,7 +291,8 @@ class CreateProfile extends Component {
         }
         else {
             console.log('user has chosen picture manually through photo lib or camera.')
-            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')
@@ -356,7 +325,6 @@ class CreateProfile extends Component {
     
 
     return {
-        databaseProducts: firebase.database().ref().update(updateEmptyProducts),
         databaseProfile: firebase.database().ref().update(updates), 
         storage: promiseToUploadPhoto.then((url) => {
             //update db with profile picture url
@@ -412,51 +380,54 @@ class CreateProfile extends Component {
     
     this.setState({createProfileLoading: true});
     var updates = {};
-    switch(data.size) {
-        case 0:
-            data.size = 'Extra Small'
-            break; 
-        case 1:
-            data.size = 'Small'
-            break;
-        case 2:
-            data.size = 'Medium'
-            break;
-        case 3:
-            data.size = 'Large'
-            break;
-        case 4:
-            data.size = 'Extra Large'
-            break;
-        case 5:
-            data.size = 'Extra Extra Large'
-            break;
-        default:
-            data.size = 'Medium'
-            console.log('no gender was specified')
-    }
+    // switch(data.size) {
+    //     case 0:
+    //         data.size = 'Extra Small'
+    //         break; 
+    //     case 1:
+    //         data.size = 'Small'
+    //         break;
+    //     case 2:
+    //         data.size = 'Medium'
+    //         break;
+    //     case 3:
+    //         data.size = 'Large'
+    //         break;
+    //     case 4:
+    //         data.size = 'Extra Large'
+    //         break;
+    //     case 5:
+    //         data.size = 'Extra Extra Large'
+    //         break;
+    //     default:
+    //         data.size = 'Medium'
+    //         console.log('no gender was specified')
+    // }
+
+    data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
 
     var postData = {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.city + ", " + data.country,
-        size: data.size,
+        // size: data.size,
         insta: data.insta,
-        status: "online"
     }
 
-    updates['/Users/' + uid + '/profile/'] = postData;
+    updates['/Users/' + uid + '/profile/'] = postData; 
+    updates['/Users/' + uid + '/status/'] = 'online'; //TODO: Leave for later. Originally made to check if a person is in the chat room
 
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
         if(uri.includes('googleusercontent') || uri.includes('facebook') || uri.includes('firebasestorage')) {
-            // console.log(`We already have a url for this image: ${uri}, so need for interaction with cloud storage`)
+            console.log(`We already have a url for this image: ${uri}, so need for interaction with cloud storage, just store URL in cloud db`);
             
             // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             resolve(uri);
         }
         else {
-            console.log('user has chosen picture manually through photo lib or camera.')
-            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+            console.log('user has chosen picture manually through photo lib or camera, store it on cloud and generate a URL for it.')
+            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')
