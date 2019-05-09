@@ -275,7 +275,7 @@ class CreateProfile extends Component {
 
     
     updates['/Users/' + uid + '/profile/'] = postData; 
-    updates['/Users/' + uid + '/status/'] = 'offline';
+    // updates['/Users/' + uid + '/status/'] = 'offline';
     updates['/Users' + uid + '/products/'] = '';
     //Now we have a user who may go through the app without components crashing
     
@@ -291,7 +291,7 @@ class CreateProfile extends Component {
         }
         else {
             console.log('user has chosen picture manually through photo lib or camera.')
-            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
             const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
@@ -414,7 +414,7 @@ class CreateProfile extends Component {
     }
 
     updates['/Users/' + uid + '/profile/'] = postData; 
-    updates['/Users/' + uid + '/status/'] = 'online'; //TODO: Leave for later. Originally made to check if a person is in the chat room
+    // updates['/Users/' + uid + '/status/'] = 'online'; //TODO: Leave for later. Originally made to check if a person is in the chat room
 
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
@@ -426,7 +426,7 @@ class CreateProfile extends Component {
         }
         else {
             console.log('user has chosen picture manually through photo lib or camera, store it on cloud and generate a URL for it.')
-            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
             const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
@@ -480,7 +480,7 @@ class CreateProfile extends Component {
                     }
                     
                 })
-}
+    }
   }
 
   toggleShowCountrySelect = () => {

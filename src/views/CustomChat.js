@@ -44,23 +44,37 @@ class CustomChat extends Component {
 
     const otherUser = username == buyerIdentification ? sellerIdentification : buyerIdentification;
     this.otherUser = otherUser;
-    setTimeout(() => {
-      this.getConversation(username, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar);
-      this.getOtherUserPresence(otherUser);
-      this.conversationTimer = setInterval(() => {
-        this.getConversation(username, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar);
-        this.getOtherUserPresence(otherUser);
+    setTimeout(async () => {
+      await this.setUserPresenceTo('online');
+      await this.getConversation(username, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar);
+      await this.markMessageAs(this.uid,false)
+      await this.getOtherUserPresence(otherUser);
+      this.conversationTimer = setInterval(async () => {
+        await this.getConversation(username, id, buyerIdentification, buyerAvatar, sellerIdentification, sellerAvatar);
+        await this.getOtherUserPresence(otherUser);
       }, 20000); //TODO: bad idea possibly?
     }, 1000);
   }
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
+    this.setUserPresenceTo('offline');
     clearInterval(this.conversationTimer);
+  }
+
+  // markMessagesAsRead = () => {
+  //   var readUpdate = {};
+  //   readUpdate['/Users/' + this.uid + '/conversations' + this.roomId + '']
+  // }
+
+  setUserPresenceTo = (status) => {
+    var updates = {};
+    updates['/Users/' + this.uid + '/conversations/' + this.roomId + '/presence/'] = status;
+    firebase.database().ref().update(updates);
   }
 
   getOtherUserPresence = (otherUser) => {
     
-    firebase.database().ref('/Users/' + otherUser + '/status/').on('value', (snap)=>{
+    firebase.database().ref('/Users/' + otherUser + '/conversations/' + this.roomId + '/presence/' ).on('value', (snap)=>{
       var userStatus = snap.val();
       console.log("OTHER USER STATUS: " + userStatus);
       if(userStatus == "offline") {
@@ -209,8 +223,8 @@ class CustomChat extends Component {
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, message),
     }), async () => {
-      if(this.state.otherUserPresence == "offline") {
-        await this.markMessageAsUnread();
+      if(this.state.otherUserPresence != "online") {
+        await this.markMessageAs(this.otherUser,true);
       }
       const {params} = this.props.navigation.state;
       const buyerIdentification = params.buyerIdentification;
@@ -235,9 +249,10 @@ class CustomChat extends Component {
     firebase.database().ref().update(updates);
   }
 
-  markMessageAsUnread = () => {
+  markMessageAs = (uid, isUnread) => {
+    //By default, mark any sent message as unread, unless the other person is already in the chat room
     let unreadUpdate = {};
-    unreadUpdate['/Users/' + this.otherUser + '/conversations/' + this.roomId + '/unread/'] = true; 
+    unreadUpdate['/Users/' + uid + '/conversations/' + this.roomId + '/unread/'] = isUnread; 
     firebase.database().ref().update(unreadUpdate);
   }
 

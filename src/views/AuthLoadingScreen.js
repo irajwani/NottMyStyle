@@ -54,18 +54,23 @@ export default class AuthLoadingScreen extends Component {
   showAppOrAuth = () => {
     var unsubscribe = firebase.auth().onAuthStateChanged( async ( user ) => {
         unsubscribe();
-        if(user) {
-          console.log("USER IS: " + user);
-          this.uid = await user.uid;
-          await this.updateOnConnect();
-          this.props.navigation.navigate('AppStack');
-        }
-        else {
-          console.log("USER DISCONNECTED")
-          await this.updateOnConnect();
-          this.props.navigation.navigate('AuthStack');
-        }
-        // this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
+        this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
+        //If you want to re-enable presence checker in future
+        // if(user) {
+        //   console.log("USER IS: " + user);
+        //   this.uid = await user.uid;
+        //   await this.updateOnConnect();
+        //   this.props.navigation.navigate('AppStack');
+        // }
+        // else {
+        //   console.log("USER DISCONNECTED")
+        //   await this.updateOnConnect();
+        //   this.props.navigation.navigate('AuthStack');
+        // }
+
+        
+
+
         // if(user) {
           
         //   var unreadCount = false

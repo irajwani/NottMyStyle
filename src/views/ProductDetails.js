@@ -478,6 +478,8 @@ class ProductDetails extends Component {
                   seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, 
                   buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri,
                   lastMessage: {lastMessageText, lastMessageDate, lastMessageSenderIdentification},
+                  unread: false,
+                  presence: "offline", //isUserInChatRoom
                 };
           newConversationUpdate['/Users/' + CHATKIT_USER_NAME + '/conversations/' + room.id + '/'] = newConversation; 
           firebase.database().ref().update(newConversationUpdate);
