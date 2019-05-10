@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Text, TouchableOpacity, View, Image, StyleSheet, Dimensions} from 'react-native';
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
+import Lightbox from 'react-native-lightbox';
 import { graphiteGray, treeGreen, optionLabelBlue, lightPurple } from '../colors';
 
 const {width} = Dimensions.get('window')
@@ -36,8 +37,9 @@ class CustomCarousel extends Component {
         
         >
           
-          
+            <Lightbox>
             <Image source={{ uri: item }} style={styles.image}/>
+            </Lightbox>
 
             <View style={{alignItems: 'center',bottom: 0,position: "absolute"}}>
             {this.pagination}

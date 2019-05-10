@@ -1025,7 +1025,7 @@ class NotificationsAndChats extends Component {
           </View>
         )
       }
-
+// TODO: flex values are messed up here, renderUpperNavTab should also be with LoadingIndicator
     render() {
         if(this.state.isGetting) {
           return (
@@ -1081,7 +1081,9 @@ const styles = StyleSheet.create({
     flex: 0.5,
     padding: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderBottomWidth:1,
+    borderBottomColor: '#fff'
   },
 
   upperNavTabText: new avenirNextText('black', 18, "300"),
