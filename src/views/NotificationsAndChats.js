@@ -406,7 +406,7 @@ class Chats extends Component {
                 {/* Name of message sender */}
               <Text style={[styles.otherPersonName, chat.unread == true ? {fontSize: 16, fontWeight: "700"} : null]}>{this.state.yourUid == chat.buyerIdentification ? (chat.seller.split(' '))[0] : (chat.buyer.split(' '))[0] }</Text>
               <Text style={[styles.lastMessageText, chat.unread == true ? {fontSize: 14, fontWeight: "700"} : null]}>
-              {chat.lastMessage.lastMessageText ? (this.state.yourUid == chat.lastMessage.lastMessageSenderIdentification && this.state.yourUid == chat.sellerIdentification) ? `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
+              {chat.lastMessage.lastMessageText ? chat.lastMessage.lastMessageSenderIdentification == chat.sellerIdentification ? `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
               </Text>
               <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessage.lastMessageDate]}</Text>
             </TouchableOpacity>

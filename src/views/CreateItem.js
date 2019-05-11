@@ -587,9 +587,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
     //When the condition to submit a product has partially been satisfied:
     var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) && (price < 1001) ) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
-    var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
+    var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) );
+    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition);
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -984,12 +984,12 @@ uploadToStore = (pictureuris, uid, postKey) => {
             title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
             onPress={() => {
             conditionMet ?
-            this.state.editItemBoolean ?
-            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
-            :
-            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
-            :
-            this.helpUserFillDetails();
+                this.state.editItemBoolean ?
+                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+                    :
+                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
+                :
+                this.helpUserFillDetails();
             } } 
             />
             </View>

@@ -444,6 +444,7 @@ class Products extends Component {
     // this.setState({isGetting: true});
     console.log("Filtering Marketplace");
     const {...state} = this.state;
+    console.log(state.leftProducts.concat(state.rightProducts));
     const {selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize} = state;
     console.log(selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize);
     state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
@@ -457,7 +458,7 @@ class Products extends Component {
     state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type ) : state.rightProducts;
     state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
     state.rightProducts = selectedSize ? state.rightProducts.filter( (product) => selectedSize == product.text.size ) : state.rightProducts;
-    console.log(state.leftProducts, state.rightProducts);
+    console.log(state.leftProducts.concat(state.rightProducts));
     state.noResultsFromFilter = state.leftProducts.length > 0 ? false : true;
 
     this.setState(state);
@@ -1256,7 +1257,7 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) == true ?
+          onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) ?
             async () => {
               await this.getMarketPlace(this.state.uid); 
               await this.filterMarketPlace();

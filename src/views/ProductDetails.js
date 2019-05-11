@@ -1438,14 +1438,14 @@ class ProductDetails extends Component {
           
         <View style={styles.carouselContainer}>        
           <CustomCarousel data={params.data.uris.pd} />
-          <View style={{position: 'absolute', right: 10, top: 10}}>
+          {/* <View style={{position: 'absolute', right: 10, top: 10}}>
             <Icon 
             name={'arrow-expand'}
             size={35} 
             color={'#fff'} 
             onPress={() => this.setState({showPictureModal: true})}
             />
-          </View>
+          </View> */}
         </View>
         
           {/* Product Name (Not Brand) and Price Row */}

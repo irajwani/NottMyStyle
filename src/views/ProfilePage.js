@@ -156,10 +156,10 @@ class ProfilePage extends Component {
   }
 
   logOut = () => {
-    firebase.auth().signOut().then( async () => {
-      var statusUpdate = {};
-      statusUpdate['Users/' + this.uid + '/status/'] = "offline";
-      await firebase.database().ref().update(statusUpdate);
+    firebase.auth().signOut().then(() => {
+      // var statusUpdate = {};
+      // statusUpdate['Users/' + this.uid + '/status/'] = "offline";
+      // await firebase.database().ref().update(statusUpdate);
       this.props.navigation.navigate('SignIn');
     })
   }

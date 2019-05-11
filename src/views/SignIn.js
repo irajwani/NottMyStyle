@@ -173,7 +173,7 @@ class SignIn extends Component {
     successfulLoginCallback = (user, googleUserBoolean, facebookUserBoolean) => {
         firebase.database().ref().once('value', (snapshot) => {
             var d = snapshot.val();
-            var all = d.Products;
+            // var all = d.Products;
             //If NottMyStyle does not know you yet, prompt them to enter details:
             // - Location
             // - Insta
@@ -584,11 +584,9 @@ class SignIn extends Component {
                         <TouchableOpacity 
                         onPress={()=> {
                             firebase.auth().sendPasswordResetEmail(this.state.email)
-                            .then( () => {
-                                this.setState({showPasswordReset: false}, ()=>{
-                                    alert('Password Reset Email successfully sent! Please check your inbox for instructions on how to reset your password');
-                                })
-                                
+                            .then( async () => {
+                                await this.toggleShowPasswordReset;
+                                alert('Password Reset Email successfully sent! Please check your inbox for instructions on how to reset your password');
                             })
                             .catch( () => {
                                 alert('Please input a valid email address');
@@ -771,7 +769,7 @@ class SignIn extends Component {
                                 title='Sign In' 
                                 titleStyle={{ fontWeight: "700" }}
                                 buttonStyle={{
-                                backgroundColor: lightGreen,
+                                backgroundColor: logoGreen,
                                 //#2ac40f
                                 //#45bc53
                                 //#16994f
@@ -790,7 +788,7 @@ class SignIn extends Component {
                                 title='Create Account' 
                                 titleStyle={styles.authButtonText}
                                 buttonStyle={{
-                                backgroundColor: '#368c93',
+                                backgroundColor: logoGreen,
                                 //#2ac40f
                                 borderColor: "#226b13",
                                 borderWidth: 0,
@@ -831,9 +829,9 @@ class SignIn extends Component {
 
                     
                     
-            
-            </View>
             {this.renderPasswordResetModal()}
+            </View>
+            
             </SafeAreaView>
                     )
 

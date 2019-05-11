@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Dimensions, Text, Modal, StyleSheet, ScrollView, View, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { withNavigation } from 'react-navigation';
 
+import firebase from '../cloud/firebase.js';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 
@@ -43,6 +45,15 @@ class Settings extends Component {
       collapsed: true,
       modalVisible: false,
     };
+  }
+
+  logOut = () => {
+    firebase.auth().signOut().then( async () => {
+      var statusUpdate = {};
+      statusUpdate['Users/' + this.uid + '/status/'] = "offline";
+      await firebase.database().ref().update(statusUpdate);
+      this.props.navigation.navigate('SignIn');
+    })
   }
 
   setModalVisible(visible) {
@@ -160,6 +171,10 @@ class Settings extends Component {
             duration={100}
             onChange={this.setSection}
           />
+
+          <View style={styles.headerCard}>
+            <Text style={styles.headerText} onPress={this.logOut}>Log out</Text>
+          </View>
 
         </View>
 
