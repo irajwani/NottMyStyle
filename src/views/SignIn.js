@@ -25,7 +25,7 @@ import {shadow} from '../constructors/shadow'
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
-import {lightGray, treeGreen, highlightGreen, lightGreen, logoGreen, mantisGreen, almostWhite} from '../colors'
+import {lightGray, treeGreen, highlightGreen, lightGreen, logoGreen, mantisGreen, almostWhite, darkGreen} from '../colors'
 import { LoadingIndicator, SignInTextInput, CustomTextInput } from '../localFunctions/visualFunctions.js';
 import { filterObjectByKeys } from '../localFunctions/arrayFunctions.js';
 import Svg, { Path } from 'react-native-svg';
@@ -769,7 +769,7 @@ class SignIn extends Component {
                                 title='Sign In' 
                                 titleStyle={{ fontWeight: "700" }}
                                 buttonStyle={{
-                                backgroundColor: logoGreen,
+                                backgroundColor: darkGreen,
                                 //#2ac40f
                                 //#45bc53
                                 //#16994f
@@ -788,7 +788,7 @@ class SignIn extends Component {
                                 title='Create Account' 
                                 titleStyle={styles.authButtonText}
                                 buttonStyle={{
-                                backgroundColor: logoGreen,
+                                backgroundColor: darkGreen,
                                 //#2ac40f
                                 borderColor: "#226b13",
                                 borderWidth: 0,

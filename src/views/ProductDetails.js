@@ -55,7 +55,7 @@ const addressFields = [
 
 const paymentText = "Pay with PayPal";
 const successfulTransactionText = "Your transaction has been processed successfully.";
-const cancelTransactionText = "Transaction process has been terminated.";
+const cancelTransactionText = "Transaction Canceled."
 const chatButtonWidth = 210;
 const paymentButtonWidth = 200;
 
@@ -149,7 +149,7 @@ class ProductDetails extends Component {
     firebase.database().ref().once("value", (snapshot) => {
       var d = snapshot.val();
       var cloudDatabaseUsers = d.Users;
-
+      console.log("OVER HEREEEE:" + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail);
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
 
@@ -222,7 +222,7 @@ class ProductDetails extends Component {
       this.setState( {
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
-        productPictureURLs: d.Users[data.uid].products[data.key].uris.thumbnail,
+        productPictureURLs: cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail,
         sold: data.text.sold,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
         chat,
@@ -629,16 +629,20 @@ class ProductDetails extends Component {
 
   handleResponse = (data) => {
     if(data.title == "success") {
-      // console.log("Payment successfully went through");
-      this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"});
       // this.initializePushNotifications();
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris.thumbnail[0],
         price: this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price,
+        sellerId: this.state.otherUserUid,
         sellerName: this.state.profile.name,
+        buyerId: this.state.uid,
         buyerName: this.state.yourProfile.name,
-        address: this.state.postOrNah == 'post' ? this.state.selectedAddress : false,
+        address: this.state.selectedAddress,  
+        // TODO: address: this.state.postOrNah == 'post' ? this.state.selectedAddress : false,
         //the message should be different for buyer and seller, so we handle that in SignIn.js
+
+        //deliveryStatus
+        deliveryStatus: 'pending',
 
         //as this is a new notification, mark it as unread
 
@@ -658,30 +662,36 @@ class ProductDetails extends Component {
 
       var updates={};
     // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
-      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/sold/'] = true;
-      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/dateSold/'] = new Date;
+      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/text/sold/'] = true;
+      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/text/dateSold/'] = new Date;
       // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
       let promiseToSetProductAsSold = firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
       
       Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller, promiseToSetProductAsSold])
       .then( () => {
-        const {params} = this.props.navigation.state;
-        this.getUserAndProductAndOtherUserData(params.data);
-        // console.log("Notifications updated for buyer and seller")
-        // send notification 1 hour later
-        let notificationDate = new Date();
-        notificationDate.setHours(notificationDate.getHours() + 1);
-
-        //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-        //         // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-        //         // console.log(message);
-        let message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
-        PushNotification.localNotificationSchedule({
-            message: message,// (required)
-            date: notificationDate,
-            vibrate: false,
+        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, ()=> {
+          const {params} = this.props.navigation.state;
+          this.getUserAndProductAndOtherUserData(params.data);
+          // console.log("Notifications updated for buyer and seller")
+          // send notification 1 hour later
+          let notificationDate = new Date();
+          notificationDate.setHours(notificationDate.getHours() + 1);
+  
+          //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+          //         // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+          //         // console.log(message);
+          let message = this.state.postOrNah == 'post' ? `Your product: ${this.state.name} is being posted over by ${this.state.profile.name}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.` : `Please get in touch with ${this.state.profile.name} regarding your acquisition of their ${this.state.name}.`
+          PushNotification.localNotificationSchedule({
+              message: message,// (required)
+              date: notificationDate,
+              vibrate: false,
+          });
         });
+        
+
+        // console.log("Payment successfully went through");
+        
 
         // this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
         
@@ -693,7 +703,7 @@ class ProductDetails extends Component {
     }
 
     else if(data.title == "cancel") {
-        this.setState({showModal: "afterPaymentScreen", paymentStatus: "canceled"}, () => this.getUserAndProductAndOtherUserData(params.data));
+        this.setState({showModal: "afterPaymentScreen", paymentStatus: "canceled"}, () => this.getUserAndProductAndOtherUserData(this.props.navigation.state.params.data));
     }
     else {
         return;
@@ -868,12 +878,8 @@ class ProductDetails extends Component {
   
                 
                   {this.state.deliveryOptions.map( (option, index) => (
-                    <View style={deliveryOptionContainer} key={index}>
-  
-                      <View style={styles.radioButtonContainer}>
-                        <TouchableOpacity 
-                        style={radioButton} 
-                        onPress={() => {
+                    <TouchableOpacity 
+                    onPress={() => {
                           //Select this option and if another option is selected, deselect it
                           this.state.deliveryOptions[index].selected = !this.state.deliveryOptions[index].selected;
                           if(index == 0) {
@@ -892,15 +898,20 @@ class ProductDetails extends Component {
                           
                           this.setState({deliveryOptions: this.state.deliveryOptions});
                         }}
+                    style={deliveryOptionContainer} key={index}>
+  
+                      <View style={styles.radioButtonContainer}>
+                        <View 
+                        style={radioButton} 
                         >
                         {option.selected ? <SelectedOptionBullet/> : null}
-                        </TouchableOpacity>
+                        </View>
                       </View>
                       
                       <View style={styles.deliveryOptionTextContainer}>
                         <Text style={new avenirNextText('black', 20, "400")}>{option.text}</Text>
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 
   
@@ -1154,7 +1165,8 @@ class ProductDetails extends Component {
 
                 <TouchableOpacity 
                 disabled={this.state.selectedAddress ? false : true}
-                onPress={() => this.proceedToPayment('post')} 
+                // onPress={() => this.proceedToPayment('post')} 
+                onPress={()=>this.handleResponse({title: 'success'})}
                 style={[styles.collectionInPersonButton, {width: paymentButtonWidth }]}
                 >
                 
@@ -1186,7 +1198,7 @@ class ProductDetails extends Component {
     }
 
     else if(activeScreen == "addDeliveryAddress") {
-      var filledOutAddress = (this.state.fullName && this.state.addressOne && this.state.addressTwo && this.state.city);
+      var filledOutAddress = (this.state.fullName && this.state.addressOne && this.state.postCode && this.state.city);
       return (
       <Modal 
       animationType={modalAnimationType}
@@ -1337,7 +1349,7 @@ class ProductDetails extends Component {
               <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
 
                 <View style={{flex: 0.3, justifyContent: 'center', alignItems: 'center'}}>
-                  <Image source={this.state.productPictureURLs.thumbnail[0]} style={styles.successProductImage} />
+                  <Image source={this.state.productPictureURLs[0]} style={styles.successProductImage} />
                 </View>
 
                 <View style={{flex: 0.7, alignItems: 'center'}}>
@@ -1349,16 +1361,15 @@ class ProductDetails extends Component {
                     <Text style={styles.successText}>
                     Your item will be delivered to:
                     {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}.
+                    Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
                     </Text>
                     :
                     <Text style={styles.successText}>
                       You have chosen to collect this item in person.
                     </Text>
                   }
-                  <WhiteSpace height={10}/>
-                  <Text style={styles.successText}>
-                  Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
-                  </Text>
+                  
+                  
                 </View>
 
               </View>    
