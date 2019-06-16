@@ -36,13 +36,13 @@ function removeFalsyValuesFrom(object) {
 }
 
 const NotificationActionButton = ({onPress, text, logo, enabled}) => (
-  <TouchableOpacity style={{width: 200, backgroundColor: enabled ? mantisGreen : darkGray, padding: 5, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly'}} onPress={onPress}>
+  <TouchableOpacity style={{padding: 10, borderRadius: 5, backgroundColor: enabled ? mantisGreen : darkGray, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}} onPress={onPress}>
     <Icon 
       name={logo}
-      size={20}
+      size={35}
       color={enabled ? 'black' : '#fff'}
     />
-    <Text style={{fontFamily: 'Avenir Next', fontWeight: "500", color: enabled ? 'black' : '#fff', fontSize: 18}}>{text}</Text>
+    <Text style={{fontFamily: 'Avenir Next', fontWeight: "500", color: enabled ? 'black' : '#fff', fontSize: 30}}>{text}</Text>
   </TouchableOpacity>
 )
 
@@ -730,36 +730,39 @@ class Notifications extends Component {
           state.notificationKey = key;
           state.notificationType = notificationType;
           state.notifications[notificationTypeProperty][key].unreadCount = false;
-          this.setState({showDetails: true, details, notificationType })
+          this.setState(state);
         })
         .catch(e => console.log("Could not update unreadCount of notification because: " + e))
         
       }
 
       else {
-        this.setState({showDetails: true, details, notificationType })
+        this.setState({showDetails: true, details, notificationKey: key, notificationType })
       }
       
       
     }
 
-    markItemAsSent = (buyerId, sellerId) => {
+    markItemAs = (status,buyerId, sellerId) => {
+      console.log(notificationKey, status,buyerId, sellerId);
       const {notificationKey} = this.state;
       var updates = {};
-      updates['/Users/' + buyerId + '/notifications/itemsSold/' + notificationKey + '/deliveryStatus/'] = 'shipped';
-      updates['/Users/' + sellerId + '/notifications/purchaseReceipts/' + notificationKey + '/deliveryStatus/'] = 'shipped';
-      let promiseToMarkItemAsSent = firebase.database().ref().update(updates);
-      promiseToMarkItemAsSent.then(this.getNotifications);
-    }
-
-    markItemAsReceived = () => {
-
+      updates['/Users/' + buyerId + '/notifications/purchaseReceipts/' + notificationKey + '/deliveryStatus/'] = status;
+      updates['/Users/' + sellerId + '/notifications/itemsSold/' + notificationKey + '/deliveryStatus/'] = status;
+      let promiseToUpdateStatus = firebase.database().ref().update(updates);
+      promiseToUpdateStatus.then(() => {
+        console.log("ALL DONEEEE");
+        this.setState({showDetails: false}, ()=> {
+          this.getNotifications();
+        })
+        
+      });
     }
 
     renderDetailsModal = () => {
 
       const {notificationType, details} = this.state;
-      const {deliveryOptionBody, productImageContainer, buttonContainer} = styles
+      const {deliveryOptionBody, productImageContainer, detailsTextContainer, detailsScroll,buttonContainer} = styles
       
       if(notificationType=="Item Sold!"){
         return (
@@ -796,51 +799,55 @@ class Notifications extends Component {
             <Image source={{uri: details.uri}} style={styles.detailsImage} />
           </View>
 
-          <ScrollView style={{flex: 0.4}} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
+          
 
             { details.deliveryStatus == 'received' ?
-              <Fragment>
-                <Text style={styles.detailsText}>Hi {details.sellerName},</Text>
-                <Text style={styles.detailsText}>
-                Congratulations for successfully selling {details.name}. The payment has been released by our team and should  be processed within 2-3 day working days. If the payment doesn't reach your account, contact us on nottmystyle.help@gmail.com.
-                </Text>
-              </Fragment>
+            <View style={detailsTextContainer}>
+            <ScrollView contentContainerStyle={detailsScroll}>
+              <Text style={styles.detailsText}>Hi {details.sellerName},</Text>
+              <Text style={styles.detailsText}>
+              Congratulations for successfully selling {details.name}. The payment has been released by our team and should  be processed within 2-3 day working days. If the payment doesn't reach your account, contact us on nottmystyle.help@gmail.com.
+              </Text>
+            </ScrollView>
+            </View>
+              
             :
-              <Fragment>
-                <Text style={styles.detailsText}>Hi {details.sellerName},</Text>
+            <View style={detailsTextContainer}>
+            <ScrollView contentContainerStyle={detailsScroll}>
+              <Text style={styles.detailsText}>Hi {details.sellerName},</Text>
+              <Text style={styles.detailsText}>
+              
+              Now that your item, {details.name}, has sold for £{details.price} to {details.buyerName}, please make sure to send it on time so we can transfer your money accordingly.
+              </Text>
+              <WhiteSpace height={10}/>
+              {details.address ?
                 <Text style={styles.detailsText}>
-                
-                Now that your item, {details.name} has sold for £{details.price} to {details.buyerName}, please make sure to send it on time so we can transfer your money accordingly.
+                The buyer's address is:{'\n'}
+                {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}
                 </Text>
-                <WhiteSpace height={10}/>
-                {details.address ?
-                  <Text>
-                  The buyer's address is: {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}
-                  </Text>
-                :
-                  null
-                }
-                
-                {details.address ? <WhiteSpace height={10}/> : null}
-                <Text>
-                Once you've sent the item to the buyer, click on the button below so we can confirm the buyer has received it.
-                </Text>
-              </Fragment>
-
-
+              :
+                null
+              }
+              
+              {details.address ? <WhiteSpace height={10}/> : null}
+              <Text style={styles.detailsText}>
+              Once you've sent the item to the buyer, click on the button below so we can confirm the buyer has received it.
+              </Text>
+              </ScrollView>
+              </View>
             }
 
-          </ScrollView>
+          
           
           <View style={buttonContainer}>
 
-            {details.deliveryStatus == 'received' ?
+            {details.deliveryStatus == 'delivered' ?
                 <Text style={textStyles.information}>Transaction Complete!</Text>
               :
                 details.deliveryStatus == 'shipped' ?
-                  <NotificationActionButton enabled={true} onPress={() => alert('Item cannot be "unsent" after you have marked it as sent!')} text={'Item Sent!'} logo={'truck'}/>
+                  <NotificationActionButton enabled={false} onPress={() => alert('Item cannot be "unsent" after you have marked it as sent!')} text={'Item Sent'} logo={'truck'}/>
                 :
-                  <NotificationActionButton enabled={false} onPress={() => this.markItemAsSent(details.buyerId, details.sellerId)} text={'Item Sent?'} logo={'package-variant-closed'}/>
+                  <NotificationActionButton enabled={true} onPress={() => this.markItemAs('shipped',details.buyerId, details.sellerId)} text={'Item Sent'} logo={'check'}/>
             }
 
           </View>
@@ -890,11 +897,12 @@ class Notifications extends Component {
               <View style={[productImageContainer, {padding: 10}]}>
                 <Image source={{uri: details.uri}} style={styles.detailsImage} />
               </View>
-
-              <ScrollView style={{flex: 0.4}} contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}}>
+              
+              
 
                 {details.deliveryStatus == 'pending' ? 
-                <Fragment>
+                <View style={detailsTextContainer}>
+                <ScrollView contentContainerStyle={detailsScroll}>
                   <Text style={styles.detailsText}>
                   Congratulations! You have successfully bought {details.name} for £{details.price}.
                   </Text>
@@ -907,31 +915,38 @@ class Notifications extends Component {
                   <Text style={styles.detailsText}>
                   Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
                   </Text>
-                </Fragment>
+                </ScrollView>
+                </View>
                 :
-                <Fragment>
+                <View style={detailsTextContainer}>
+                <ScrollView contentContainerStyle={detailsScroll}>
                   <Text style={styles.detailsText}>
                   Hi {details.buyerName},
                   </Text>
                   <WhiteSpace height={10}/>
                   <Text style={styles.detailsText}>
-                  We're happy to tell you that your item, {details.name}, is on its way and will be with you soon. Once you've received the item, don't forget to press the item received button below so we can tranfer the money to {details.sellerName}'s account.
+                  We're happy to tell you that your item, {details.name}, is on its way and will be with you soon. Once you've received the item, don't forget to press the item received button below so we can transfer the money to {details.sellerName}'s account.
                   </Text>
                   <WhiteSpace height={10}/>
                   <Text style={styles.detailsText}>
                   Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
                   </Text>
-                </Fragment>
+                </ScrollView>
+                </View>
+                
                 }
 
-              </ScrollView>
+              
 
               <View style={buttonContainer}>
 
-                { details.deliveryStatus == 'shipped' ?
-                  <NotificationActionButton enabled={true} onPress={()=>this.markItemAsReceived(details)} text={'Item Received'} logo={'truck-check'}/>
+                { details.deliveryStatus == 'pending' ?
+                  <NotificationActionButton enabled={true} onPress={() => alert('Awaiting confirmation from seller that item has been shipped.')} text={'Status'} logo={'truck'}/>
                 :
-                  <NotificationActionButton enabled={false} onPress={() => alert('Awaiting confirmation from seller that item has been shipped.')} text={'Status'} logo={'truck'}/>
+                  details.deliveryStatus == 'shipped' ?
+                    <NotificationActionButton enabled={true} onPress={()=>this.markItemAs('delivered', details.buyerId, details.sellerId)} text={'Item Received'} logo={'check'}/>
+                  :
+                    <NotificationActionButton enabled={false} onPress={()=>alert('You have confirmed your acquisition of this product')} text={'Item Received'} logo={'check-all'}/>
                 }
 
               </View>
@@ -1277,23 +1292,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 
+// Price Reduction
   deliveryOptionBody: {
-    flex: 0.75,
+    flex: 0.9,
     padding: 10,
     alignItems: 'center'
     // backgroundColor: ''
   },
 
+//Purchase Receipts/Items Sold
+
   productImageContainer: {
     flex: 0.3,
     alignItems: 'center',
     margin: 10
-  },
-
-  buttonContainer: {
-    flex: 0.2,
-    alignItems: 'center',
-    margin: 5
   },
 
   logo: {
@@ -1302,11 +1314,28 @@ const styles = StyleSheet.create({
   },
 
   detailsImage: {
-    width: 120,
-    height: 120,
+    width: 150,
+    height: 150,
   },
 
-  detailsText: new avenirNextText("black", 18, "300", "left"),
+  detailsTextContainer: {
+    flex: 0.45
+  },
+
+  detailsScroll: {
+    justifyContent: 'center',
+    margin: 5
+  },
+
+  detailsText: {...textStyles.generic, fontSize: 22,textAlign: "left"},
+
+
+  buttonContainer: {
+    flex: 0.15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2
+  },
 
 
 

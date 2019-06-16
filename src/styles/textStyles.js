@@ -27,7 +27,9 @@ const textStyles = StyleSheet.create({
         fontWeight: "600",
         fontSize: 22,
 
-    }
+    },
+
+    generic: generic
 })
 
 export {textStyles}
