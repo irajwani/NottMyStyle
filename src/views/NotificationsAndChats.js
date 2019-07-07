@@ -35,9 +35,11 @@ function removeFalsyValuesFrom(object) {
   return Object.keys(newObject);
 }
 
-const NotificationTextScroll = ({chidlren}) => (
-  <View style={styles.detailsTextContainer}>
-  <ScrollView contentContainerStyle={styles.detailsScroll}>{children}</ScrollView>
+const NotificationTextScroll = ({children, customFlex}) => (
+  <View style={customFlex ? {flex: customFlex} : styles.detailsTextContainer}>
+  <ScrollView style={{paddingBottom: 5,}} contentContainerStyle={styles.detailsScroll} >
+    {children}
+  </ScrollView>
   </View>
 )
 
@@ -836,8 +838,7 @@ class Notifications extends Component {
             <Image source={{uri: details.uri}} style={styles.detailsImage} />
           </View>
 
-          <View style={detailsTextContainer}>
-          <ScrollView contentContainerStyle={detailsScroll}>
+          <NotificationTextScroll>
             <Text style={styles.detailsText}>Hi {details.sellerName},</Text>
             <Text style={styles.detailsText}>
             
@@ -857,8 +858,8 @@ class Notifications extends Component {
             <Text style={styles.detailsText}>
             Once you've sent the item to the buyer, click on the button below so we can confirm the buyer has received it.
             </Text>
-          </ScrollView>
-          </View>
+          </NotificationTextScroll>
+          
             
           <View style={buttonContainer}>
 
@@ -969,29 +970,28 @@ class Notifications extends Component {
             </View>
   
             
-              <View style={[productImageContainer, {padding: 10}]}>
-                <Image source={{uri: details.uri}} style={styles.detailsImage} />
-              </View>
-              
-              
+            <View style={[productImageContainer, {padding: 10}]}>
+              <Image source={{uri: details.uri}} style={styles.detailsImage} />
+            </View>
+            
+            
 
-                
-              <View style={[detailsTextContainer, {flex: 0.6}]}>
-              <ScrollView contentContainerStyle={detailsScroll}>
-                <Text style={styles.detailsText}>
-                Congratulations! You have successfully bought {details.name} for £{details.price}.
-                </Text>
-                <WhiteSpace height={10}/>
-                <Text style={styles.detailsText}>
-                Your item will be delivered to:
-                {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}.
-                </Text>
-                <WhiteSpace height={10}/>
-                <Text style={styles.detailsText}>
-                Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
-                </Text>
-              </ScrollView>
-              </View>
+              
+            <NotificationTextScroll customFlex={0.6}>
+              <Text style={styles.detailsText}>
+              Congratulations! You have successfully bought {details.name} for £{details.price}.
+              </Text>
+              <WhiteSpace height={10}/>
+              <Text style={styles.detailsText}>
+              Your item will be delivered to:
+              {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}.
+              </Text>
+              <WhiteSpace height={10}/>
+              <Text style={styles.detailsText}>
+              Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
+              </Text>
+            </NotificationTextScroll>
+              
                 
   
           </View>
@@ -1036,12 +1036,7 @@ class Notifications extends Component {
                 <Image source={{uri: details.uri}} style={styles.detailsImage} />
               </View>
               
-              
-
-                
-                
-              <View style={detailsTextContainer}>
-              <ScrollView contentContainerStyle={detailsScroll}>
+              <NotificationTextScroll>
                 <Text style={styles.detailsText}>
                 Hi {details.buyerName},
                 </Text>
@@ -1053,13 +1048,8 @@ class Notifications extends Component {
                 <Text style={styles.detailsText}>
                 Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
                 </Text>
-              </ScrollView>
-              </View>
+              </NotificationTextScroll>
                 
-                
-
-              
-
               <View style={buttonContainer}>
 
                 {details.deliveryStatus == 'shipped' ?
@@ -1069,12 +1059,6 @@ class Notifications extends Component {
                 }
 
               </View>
-            
-
-
-                
-  
-            
   
           </View>
           </Modal>
@@ -1443,7 +1427,8 @@ const styles = StyleSheet.create({
 
   detailsScroll: {
     justifyContent: 'center',
-    margin: 5
+    margin: 5,
+    paddingVertical: 5
   },
 
   detailsText: {...textStyles.generic, fontSize: 22,textAlign: "left"},

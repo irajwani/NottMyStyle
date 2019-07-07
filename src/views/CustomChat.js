@@ -295,7 +295,7 @@ class CustomChat extends Component {
 
         <View style={[styles.topRow, {backgroundColor: '#fff'}]}>
 
-          <View style={styles.backIconContainer}>
+          <View style={[styles.topRowItemContainer, {flex: 0.2}]}>
             <FontAwesomeIcon
               name='arrow-left'
               size={30}
@@ -308,18 +308,17 @@ class CustomChat extends Component {
           </View>
 
           {chattingWithPersonNamed ? 
-          <View style={styles.chatInfoContainer}>
+          <View style={[styles.topRowItemContainer, {flex: 0.6}]}>
             <Text style={styles.chatInfoText}>{(chattingWithPersonNamed.split(' '))[0]}</Text>
           </View>
           :
           null
           }
 
-          {
-            chattingWithPersonThatLooksLike ?
+          {chattingWithPersonThatLooksLike ?
             <TouchableHighlight 
             onPress={()=>this.navToOtherUserProfilePage(chattingWithPersonIdentification)}
-            style={styles.profilePic} underlayColor={'#fff'} >
+            style={[styles.topRowItemContainer, {flex: 0.2}]} underlayColor={'#fff'} >
               <Image source={ {uri: chattingWithPersonThatLooksLike }} style={styles.profilePic} />
             </TouchableHighlight>
             :
@@ -365,17 +364,13 @@ export default withNavigation(CustomChat);
 const styles = StyleSheet.create({
   mainContainer: {flex: 1,},
 
-  topRow: { flex: 0.12, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'space-evenly' },
-  
-  backIconContainer: {
-    flex: 0.3,
-    justifyContent: 'flex-start',
-    alignItems: 'center'
+  topRow: { 
+    flex: 0.12, flexDirection: 'row', paddingHorizontal: 10, 
+    // alignItems: 'center', justifyContent: 'space-evenly' 
   },
-
-  chatInfoContainer: {
-    flex: 0.5,
-    justifyContent: 'flex-start',
+  
+  topRowItemContainer: {
+    justifyContent: 'center',
     alignItems: 'center'
   },
 

@@ -943,7 +943,7 @@ class Products extends Component {
               </View>
               {section.text.sold == true ? 
                 <View style={styles.soldTextContainer}>
-                  <Text style={styles.soldText}>SOLD</Text>
+                  <Text style={[styles.soldText, Platform.OS == "ios" ? {borderWidth: 2,} : null]}>SOLD</Text>
                   <Image 
                   source={{uri: section.uris.pd[0]}}
                   style={styles.productImage} 
@@ -1813,13 +1813,13 @@ const styles = StyleSheet.create({
   boldText: {fontFamily: 'verdana', fontSize: 9, fontWeight: 'bold', color: 'blue'},  
 
   soldText: {
-    fontFamily: 'Iowan Old Style', 
+    fontFamily: 'Avenir Next', 
     fontSize: 25, 
     fontWeight: 'bold',
     color: 'black',
     transform: [{ rotate: '-45deg'}],
     borderColor: "black",
-    borderWidth: 2,
+    // borderWidth: 2,
     borderRadius: 10,
     borderStyle: 'dashed'
   },

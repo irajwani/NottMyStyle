@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, Modal, StyleSheet, ScrollView, View, TouchableOpacity, TouchableHighlight } from 'react-native'
+import { Dimensions, Text, Modal, StyleSheet, ScrollView, SafeAreaView, View, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { withNavigation } from 'react-navigation';
 
 import firebase from '../cloud/firebase.js';
@@ -144,7 +144,7 @@ class Settings extends Component {
     }
     
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
 
         {/* <BackButton action={()=>this.props.navigation.goBack()} /> */}
 
@@ -198,7 +198,7 @@ class Settings extends Component {
           </ScrollView>
         </Modal>
 
-      </View>
+      </SafeAreaView>
     )
   }
 }
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       // justifyContent: 'flex-start',
       // padding: 10,
-      marginTop: 20,
+      // marginTop: 20,
       flex: 1,
     },
 

@@ -2,21 +2,27 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
 //        maven {
 //            url 'https://maven.google.com/'
 //            name 'Google'
 //        }
     }
     ext {
-        googlePlayServicesVersion = "15.0.1"
+        googlePlayServicesVersion = "16.1.0"
+        //used to be 15.0.1
+
         supportVectorDrawableVersion = "27.0.2"
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.google.gms:google-services:4.0.1'
+        //used to be 3.2.1
+        classpath 'com.android.tools.build:gradle:3.4.1'
+
+        //used to be 4.0.1
+        classpath 'com.google.gms:google-services:4.3.0'
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -39,10 +45,12 @@ allprojects {
 //        }
         configurations.all {
             resolutionStrategy {
-                force "com.android.support:support-v4:26.1.0"
+                force "com.android.support:support-v4:27.1.0"
+                force 'com.google.android.gms:play-services-gcm:16.1.0'
                 force "com.google.android.gms:play-services-base:$googlePlayServicesVersion"
                 force "com.google.android.gms:play-services-basement:$googlePlayServicesVersion"
-                force "com.google.android.gms:play-services-tasks:$googlePlayServicesVersion"
+                //play-services-tasks latest is 27.0.0
+                force "com.google.android.gms:play-services-tasks:16.0.1"
                 force "com.android.support:support-vector-drawable:$supportVectorDrawableVersion"
                 force "com.android.support:animated-vector-drawable:$supportVectorDrawableVersion"
                 force "com.android.support:support-core-utils:$supportVectorDrawableVersion"
@@ -59,7 +67,7 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 27
+                compileSdkVersion 28
                 buildToolsVersion "28.0.3"
             }
         }

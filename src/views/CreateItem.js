@@ -233,6 +233,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
  }
 
  updates['/Users/' + uid + '/products/' + actualPostKey + '/text/'] = postData;
+ updates['/Users/' + uid + '/profile/isNoob/'] = false;
  
  
  //this.createRoom(newPostKey);

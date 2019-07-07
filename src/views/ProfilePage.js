@@ -5,6 +5,8 @@ import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
 
+import PushNotification from 'react-native-push-notification';
+
 import ActionSheet from 'react-native-actionsheet'
 
 import { iOSColors, iOSUIKit, human } from 'react-native-typography';
@@ -78,14 +80,34 @@ class ProfilePage extends Component {
     //read the value of refreshed cloud db so a user may seamlessly transition from registration to profile page
     firebase.database().ref().on("value", (snapshot) => {
       var d = snapshot.val();
+      let currentUser = d.Users[your_uid];
       // console.log(d.val(), d.Users, your_uid);
+
+      //check if whether this person deserves Upload Item notification
+      if(currentUser.profile.isNoob == true) {
+        console.log('Send Upload item Notification')
+        let message = `Hey ${Users[user.uid].profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
+        notificationDate = new Date();
+        notificationDate.setMinutes(notificationDate.getMinutes() + 3);
+        PushNotification.localNotificationSchedule({
+            message: message,// (required)
+            date: notificationDate,
+            vibrate: false,
+        });
+        
+      }
+
+      if(currentUser.notifications) {
+        this.shouldSendNotifications(currentUser.notifications);
+      }
+
       var soldProducts = 0;
       var numberProducts=0;
       //relies on fact that when user profile was initially created,
       //we appended a products: '' entry under a particular uid's branch
       //TODO: Make these values a part of the person's profile in case they delete products they've earlier sold.
-      if(d.Users[your_uid].products) {
-        for(var p of Object.values(d.Users[your_uid].products)) {
+      if(currentUser.products) {
+        for(var p of Object.values(currentUser.products)) {
           if(p.sold) {
             soldProducts++
           }
@@ -100,11 +122,11 @@ class ProfilePage extends Component {
       // }
       
       
-      var {country, insta, name, size, uri} = d.Users[your_uid].profile
+      var {country, insta, name, size, uri} = currentUser.profile
 
       var comments;
-      if(d.Users[your_uid].comments) {
-        comments = d.Users[your_uid].comments;
+      if(currentUser.comments) {
+        comments = currentUser.comments;
         this.setState({ name, country, uri, insta, numberProducts, soldProducts, comments, isGetting: false })
         // this.setState({comments})
       }
@@ -154,6 +176,53 @@ class ProfilePage extends Component {
     //////
     
   }
+
+  shouldSendNotifications(notificationsObj) {
+    // var tasks = Object.keys(notificationsObj)
+    // tasks.forEach
+    var message;
+    // var notificationData;
+    if(notificationsObj.priceReductions) {
+        for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
+            if(specificNotification.localNotificationSent == false) {
+                let localNotificationProperty = {};
+                localNotificationProperty[`/Users/${specificNotification.uid}/notifications/priceReductions/${specificNotification.key}/localNotificationSent/`] = true;
+                let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+                promiseToScheduleNotification.then( () => {
+                    // var month = new Date().getMonth() + 1;
+                    // var date= new Date().getDate();
+                    // var year = new Date().getFullYear();
+                    
+                    //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+                    // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                    let d = new Date();
+                    // notificationDate = d.setDate(d.getDate() + 4)
+                    notificationDate = d.setMinutes(d.getMinutes() + 1);
+                    // console.log(month, date)
+    
+                    //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                    // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                    // console.log(message);
+                    PushNotification.localNotificationSchedule({
+                        message: specificNotification.message,// (required)
+                        date: notificationDate,
+                        vibrate: false,
+                    });
+                })
+                    
+            }
+
+            else {
+                console.log('doing nothing')
+            }
+            
+        }
+    }
+
+    //TODO: Mirror this for itemSold notification
+
+
+}
 
   logOut = () => {
     firebase.auth().signOut().then(() => {

@@ -136,6 +136,51 @@ class SignIn extends Component {
         clearInterval(this.colorRefreshId);
     }
 
+    initializePushNotifications = () => {
+        PushNotification.configure({
+    
+          // (optional) Called when Token is generated (iOS and Android)
+          onRegister: function(token) {
+              console.log( 'TOKEN:', token );
+          },
+      
+          // (required) Called when a remote or local notification is opened or received
+          onNotification: function(notification) {
+              const {userInteraction} = notification;
+              console.log( 'NOTIFICATION:', notification, userInteraction );
+            //   if(userInteraction) {
+            //     //this.props.navigation.navigate('YourProducts');
+            //     alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
+            //   }
+              
+              //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
+          },
+      
+          // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
+          //senderID: "YOUR GCM SENDER ID",
+      
+          // IOS ONLY (optional): default: all - Permissions to register.
+          permissions: {
+              alert: true,
+              badge: true,
+              sound: true
+          },
+      
+          // Should the initial notification be popped automatically
+          // default: true
+          popInitialNotification: true,
+      
+          /**
+            * (optional) default: true
+            * - Specified if permissions (ios) and token (android and ios) will requested or not,
+            * - if not, you must call PushNotificationsHandler.requestPermissions() later
+            */
+          requestPermissions: false,
+      });
+    
+    
+      }
+
     // saveEmailForFuture = async email => {
     //     try {
     //       await AsyncStorage.setItem('previousEmail', email);
@@ -171,8 +216,8 @@ class SignIn extends Component {
     // that is when user presses Sign In Button, or when they choose to sign up or sign in through Google 
     //The G and F UserBooleans are used only in the attemptSignUp function to determine what data to navigate with to the CreateProfile Screen.
     successfulLoginCallback = (user, googleUserBoolean, facebookUserBoolean) => {
-        firebase.database().ref().once('value', (snapshot) => {
-            var d = snapshot.val();
+        firebase.database().ref('/Users').once('value', (snapshot) => {
+            var Users = snapshot.val();
             // var all = d.Products;
             //If NottMyStyle does not know you yet, prompt them to enter details:
             // - Location
@@ -185,32 +230,33 @@ class SignIn extends Component {
             // TODO: trying to sign in with google
             // or
             // just doesn't exist in the database yet):
-            var {Users} = d
-            console.log(`${!Object.keys(Users).includes(user.uid)} that user is NOT in database, and needs to Sign Up`)
+            // var {Users} = d
+            // console.log(`${!Object.keys(Users).includes(user.uid)} that user is NOT in database, and needs to Sign Up`)
             if(!Object.keys(Users).includes(user.uid)) {
-
                 this.attemptSignUp(user, googleUserBoolean, facebookUserBoolean)
-
             } 
             else {
-            //if the user isn't new, then re update their notifications (if any)
-                if(d.Users[user.uid].products) {
-                    console.log('updating notifications a person should receive based on their products', d.Users[user.uid].products )
-                    // var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
-                    // console.log("Maybe we need a new method to find subset of Products Here: " + JSON.stringify(all), typeof all)
-                    // var yourProducts = filterObjectByKeys(all, productKeys);
-                    // console.log(yourProducts);
-                    // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-                    // console.log(yourProducts)
-                    
-                    //TODO: move notification count functionality to server side
-                    // const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
-                    // if(notifications) {
-                    //     this.shouldSendNotifications(user.uid, notifications);
-                    // }
-                    
-                }
                 
+            //if the user isn't new, then re update their notifications (if any)
+            
+                // if(Users[user.uid].products) {
+                //     // console.log('updating notifications a person should receive based on their products', d.Users[user.uid].products )
+
+                //     // var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+                //     // console.log("Maybe we need a new method to find subset of Products Here: " + JSON.stringify(all), typeof all)
+                //     // var yourProducts = filterObjectByKeys(all, productKeys);
+                //     // console.log(yourProducts);
+                //     // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+                //     // console.log(yourProducts)
+                    
+                //     //TODO: move notification count functionality to server side
+                //     // const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
+                //     // if(notifications) {
+                //     //     this.shouldSendNotifications(user.uid, notifications);
+                //     // }
+                    
+                // }
+                // this.setState({loading: false});
                 this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
                 // this.props.navigation.navigate('HomeScreen');
                 
@@ -369,51 +415,6 @@ class SignIn extends Component {
     arrayToObject(arr, keyField) {
         Object.assign({}, ...arr.map(item => ({[item[keyField]]: item})))
     }
-
-    initializePushNotifications = () => {
-        PushNotification.configure({
-    
-          // (optional) Called when Token is generated (iOS and Android)
-          onRegister: function(token) {
-              console.log( 'TOKEN:', token );
-          },
-      
-          // (required) Called when a remote or local notification is opened or received
-          onNotification: function(notification) {
-              const {userInteraction} = notification;
-              console.log( 'NOTIFICATION:', notification, userInteraction );
-            //   if(userInteraction) {
-            //     //this.props.navigation.navigate('YourProducts');
-            //     alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
-            //   }
-              
-              //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
-          },
-      
-          // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
-          //senderID: "YOUR GCM SENDER ID",
-      
-          // IOS ONLY (optional): default: all - Permissions to register.
-          permissions: {
-              alert: true,
-              badge: true,
-              sound: true
-          },
-      
-          // Should the initial notification be popped automatically
-          // default: true
-          popInitialNotification: true,
-      
-          /**
-            * (optional) default: true
-            * - Specified if permissions (ios) and token (android and ios) will requested or not,
-            * - if not, you must call PushNotificationsHandler.requestPermissions() later
-            */
-          requestPermissions: true,
-      });
-    
-    
-      }
 
     shouldSendNotifications(your_uid, notificationsObj) {
         // var tasks = Object.keys(notificationsObj)

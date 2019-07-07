@@ -124,7 +124,7 @@ class ProductDetails extends Component {
 
   componentDidMount() {
     const {params} = this.props.navigation.state;
-    this.initializePushNotifications();
+    // this.initializePushNotifications();
     setTimeout(() => {
       this.getUserAndProductAndOtherUserData(params.data);
     }, 4);
@@ -1165,8 +1165,8 @@ class ProductDetails extends Component {
 
                 <TouchableOpacity 
                 disabled={this.state.selectedAddress ? false : true}
-                // onPress={() => this.proceedToPayment('post')} 
-                onPress={()=>this.handleResponse({title: 'success'})}
+                onPress={() => this.proceedToPayment('post')} 
+                // onPress={()=>this.handleResponse({title: 'success'})}
                 style={[styles.collectionInPersonButton, {width: paymentButtonWidth }]}
                 >
                 

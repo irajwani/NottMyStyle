@@ -196,13 +196,13 @@ class CreateProfile extends Component {
   //Invoked when you 'Accept' EULA as a User trying to sign up through standard process
   createProfile = (email, pass, pictureuri) => {
       this.setState({createProfileLoading: true});
-      console.log("Initiate Sign Up");
+    //   console.log("Initiate Sign Up");
       firebase.auth().createUserWithEmailAndPassword(email, pass)
         .then(() => {
             var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
                 unsubscribe();
                 if(user) {
-                    console.log("User Is: " + user)
+                    // console.log("User Is: " + user)
                     const {uid} = user;
                     this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
                     // alert('Your account has been created.\nPlease use your credentials to Sign In.');
@@ -213,7 +213,7 @@ class CreateProfile extends Component {
                 }
             })
             }
-                            )
+        )
         .catch(() => {
             this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', createProfileLoading: false, email: '', pass: '', pass2: '' });
             alert(this.state.error)
@@ -267,6 +267,8 @@ class CreateProfile extends Component {
         country: data.city + ", " + data.country,
         // size: data.size,
         insta: data.insta,
+        //Boolean to control if whether Upload Item notification should be sent
+        isNoob: true
 
         //TODO: Add user uid here to make navigation to their profile page easier. 
         //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
@@ -406,14 +408,19 @@ class CreateProfile extends Component {
 
     data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
 
-    var postData = {
-        name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
-        country: data.city + ", " + data.country,
-        // size: data.size,
-        insta: data.insta,
-    }
+    // var postData = {
+    //     name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
+    //     country: data.city + ", " + data.country,
+    //     // size: data.size,
+    //     insta: data.insta,
+        
+    // }
 
-    updates['/Users/' + uid + '/profile/'] = postData; 
+    let profileRef = '/Users/' + uid + '/profile/';
+
+    updates[profileRef + 'name/'] = data.firstName + " " + data.lastName; 
+    updates[profileRef + 'country/'] = data.city + ", " + data.country;
+    updates[profileRef + 'insta/'] = data.insta;
     // updates['/Users/' + uid + '/status/'] = 'online'; //TODO: Leave for later. Originally made to check if a person is in the chat room
 
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
