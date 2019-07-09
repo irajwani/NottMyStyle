@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView } from 'react-native'
+import { Platform, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView, Fragment } from 'react-native'
 import {withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
@@ -89,6 +89,7 @@ class CreateItem extends Component {
  description: item ? item.text.description ? item.text.description : '' : '',
  typing: true,
  canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
+ paypal: item ? item.text.paypal : '',
  isUploading: false,
  pictureuris: 'nothing here',
  helpDialogVisible: false,
@@ -184,7 +185,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
  // }
 
  //Locally stored in this component:
- var {name, description, brand, gender} = this.state;
+ var {name, description, brand, gender, paypal} = this.state;
 
  
  // : if request.auth != null;
@@ -219,6 +220,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
  time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
  dateSold: '',
  post_price: post_price ? post_price : 0,
+ paypal: paypal //TODO: test if paypal value is remembered and the user can't see it
  };
  
  var updates = {}; 
@@ -446,23 +448,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
     alert(`Product named ${this.state.name} successfully uploaded to Market!`);
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
     //TODO: example of how in this instance we needed to remove pictureuris if its sitting in the navigation params
-    this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
-    
-    this.setState({ 
-        uri: undefined,
-        name: '',
-        brand: '',
-        // price: 0,
-        // original_price: 0,
-        // size: 2,
-        // type: 'Trousers',
-        gender: 1,
-        // condition: 'Slightly Used',
-        insta: '',
-        description: '',
-        typing: true,
-        isUploading: false,
-    });
+    this.startOver();
     // isEditItem ? Navigate to Initial Screen in current Stack : Navigate to different Stack
     this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market'); 
  }
@@ -473,7 +459,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
     let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
     //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
     let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
-
+    //TODO: What should happen to purchase receipts and item sold? 
     Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
     .then( ()=>{
         this.setState({isUploading: false,})
@@ -505,6 +491,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
     insta: '',
     description: '',
     typing: true,
+    paypal: '',
     isUploading: false,
     });
  }
@@ -587,10 +574,10 @@ uploadToStore = (pictureuris, uid, postKey) => {
     ///
 
     //When the condition to submit a product has partially been satisfied:
-    var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) && (price < 1001) ) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
-    var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
+    var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) && (price < 1001) ) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (this.state.paypal);
+    var partialConditionMet = (this.state.name) || (this.state.brand) || (this.state.paypal) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition);
+    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition) && (this.state.paypal);
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -905,7 +892,28 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 </View>
             </TouchableHighlight>
 
-            <GrayLine/>
+            
+
+            {this.state.editItemBoolean ? 
+                null
+            :
+                <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5, borderBottomColor: darkGray, borderTopWidth: 0.5, borderTopColor: darkGray}}>
+                    <TextInput
+                    style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+                    placeholder={"PayPal Email Address"}
+                    placeholderTextColor={lightGray}
+                    onChangeText={(paypal) => this.setState({paypal})}
+                    value={this.state.paypal}
+                    multiline={false}
+                    autoCorrect={false}
+                    clearButtonMode={'while-editing'}
+                    keyboardType={'email-address'}
+                    underlineColorAndroid={"transparent"}
+                    /> 
+                </View>
+            }
+
+            {this.state.editItemBoolean ? <GrayLine/> : null}
             
             <View style={styles.navToFillDetailRow}>
 
@@ -1045,6 +1053,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 { !type ? <TextForMissingDetail detail={'Type of product'} /> : null }
                 { !size ? <TextForMissingDetail detail={'Size'} /> : null }
                 { !condition ? <TextForMissingDetail detail={'Condition'} /> : null }
+                { !this.state.paypal ? <TextForMissingDetail detail={'PayPal Email ID so we can send your payment'} /> : null }
                 </View>
             </DialogContent>
             </Dialog>

@@ -86,7 +86,7 @@ class ProfilePage extends Component {
       //check if whether this person deserves Upload Item notification
       if(currentUser.profile.isNoob == true) {
         console.log('Send Upload item Notification')
-        let message = `Hey ${Users[user.uid].profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
+        let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
         notificationDate = new Date();
         notificationDate.setMinutes(notificationDate.getMinutes() + 3);
         PushNotification.localNotificationSchedule({
@@ -113,7 +113,7 @@ class ProfilePage extends Component {
           }
         }
         
-        numberProducts = Object.keys(d.Users[your_uid].products).length
+        numberProducts = Object.keys(currentUser.products).length
       }
 
       // else {
