@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "791527199565-7170bljd4f1kfcrr11394kmhhhfs104u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nott",
+            "certificate_hash": "122c911c9f0e40f0082195b50a56194767f7098d"
+          }
+        },
+        {
+          "client_id": "791527199565-84t543h0hhck76ki5b3dg0i08ob16ddn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nott",
+            "certificate_hash": "db3bc9c5a4226ad8c98b7e627678041196b3d6d6"
+          }
+        },
+        {
           "client_id": "791527199565-1lrg47haaviafkql0c5faal7f7n2slg9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -33,11 +49,7 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "791527199565-9qf592bij6sovaqhvrn0nmqquqjrg27i.apps.googleusercontent.com",
@@ -47,13 +59,11 @@
               "client_id": "791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "-3T6KRJL5P.com.NottMyStyle.nott"
+                "bundle_id": "-3T6KRJL5P.com.NottMyStyle.nott",
+                "app_store_id": "1438470916"
               }
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

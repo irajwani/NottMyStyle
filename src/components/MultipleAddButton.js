@@ -39,7 +39,8 @@ class MultipleAddButton extends Component {
       this.launchCamera(navToComponent);
 
     }
-
+    //request photos permission on lower versions of android to launch gallery
+    //On iOS and sufficiently high versions of Android, just open gallery
     if (index == 1) {
       Platform.OS == "android" ? Platform.Version <= 22 ? this.launchGallery(navToComponent) : this.requestPhotosPermission(navToComponent) : this.launchGallery(navToComponent);
     }
@@ -75,6 +76,7 @@ class MultipleAddButton extends Component {
       multiple: true,
       maxFiles: 4
     }).then(images => {
+      console.log(images);
       // console.log("TEST FOR IMAGES: " + JSON.stringify(images));
       let pictureuris = images.map((image) => {return image.sourceURL})
       this.props.navigation.navigate(`${navToComponent}`, {pictureuris: pictureuris} );
