@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, SafeAreaView } from 'react-native'
+import { AsyncStorage, Platform, Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, SafeAreaView } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -69,35 +69,45 @@ class ProfilePage extends Component {
     setTimeout(() => {
       const uid = firebase.auth().currentUser.uid;
       this.uid = uid;
-      this.getProfileAndCountOfProductsOnSaleAndSoldAndComments(uid);
+      this.getProfileAndCountOfProductsOnSaleAndSoldAndCommentsAndUpdatePushToken(uid);
     }, 200);
     
   }
 
-  getProfileAndCountOfProductsOnSaleAndSoldAndComments(your_uid) {
+  updatePushToken = async (uid, token) => {
+    var updates = {};
+    updates[`/Users/${uid}/pushToken`] = token;
+    firebase.database().ref().update(updates);
+  }
+
+  getProfileAndCountOfProductsOnSaleAndSoldAndCommentsAndUpdatePushToken(your_uid) {
     console.log(your_uid);
     const keys = [];
     //read the value of refreshed cloud db so a user may seamlessly transition from registration to profile page
-    firebase.database().ref().on("value", (snapshot) => {
+    firebase.database().ref().on("value", async (snapshot) => {
       var d = snapshot.val();
       let currentUser = d.Users[your_uid];
       // console.log(d.val(), d.Users, your_uid);
-
-      //check if whether this person deserves Upload Item notification
-      if(currentUser.profile.isNoob == true) {
-        console.log('Send Upload item Notification')
-        let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
-        notificationDate = new Date();
-        notificationDate.setMinutes(notificationDate.getMinutes() + 3);
-        PushNotification.localNotificationSchedule({
-            message: message,// (required)
-            date: notificationDate,
-            vibrate: false,
-        });
-        
+      var token = await AsyncStorage.getItem('token');
+      if(currentUser.pushToken == undefined && token) {
+        this.updatePushToken(your_uid, token);
       }
 
-      if(currentUser.notifications) {
+      if(currentUser.notifications && token) {
+        //check if whether this person deserves Upload Item notification
+        if(currentUser.profile.isNoob == true) {
+          console.log('Send Upload item Notification')
+          let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
+          notificationDate = new Date();
+          notificationDate.setMinutes(notificationDate.getMinutes() + 3);
+          PushNotification.localNotificationSchedule({
+              message: message,// (required)
+              date: notificationDate,
+              vibrate: false,
+          });
+          
+        }
+
         this.shouldSendNotifications(currentUser.notifications);
       }
 
