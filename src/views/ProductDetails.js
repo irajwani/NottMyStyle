@@ -219,6 +219,7 @@ class ProductDetails extends Component {
       //   :
       //   null
       // console.log(addresses, typeof addresses);
+      // console.log("KEY IS:", data.key)
       this.setState( {
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
@@ -506,9 +507,12 @@ class ProductDetails extends Component {
   }
 
   navToProductComments = (productInformation) => {
-    const {yourProfile, profile, productComments, otherUserUid} = this.state;
+    const {yourProfile, profile, productComments, otherUserUid, sku} = this.state;
+    // console.log("SKU IS", sku);
     this.props.navigation.navigate('ProductComments', {
-      productInformation: productInformation, key: productInformation.key, 
+      productInformation: productInformation, 
+      key: sku,
+      // key: productInformation.key, 
       comments: productComments['a'] ? false : productComments, 
       yourProfile: yourProfile, theirProfile: profile, uid: productInformation.uid 
     });

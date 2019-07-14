@@ -84,13 +84,13 @@ class SignIn extends Component {
     };
       }
 
-    componentWillMount() {
-        this.initializePushNotifications();
+    async componentWillMount () {
+        await this.initializePushNotifications();
 
         // let promiseToRetrieveBoolean = AsyncStorage.get('saveUsernamePass');
         // let promiseToSetCredentials = 
 
-        AsyncStorage.getItem('saveUsernamePass')
+        await AsyncStorage.getItem('saveUsernamePass')
         .then( (data) => {
             // console.log(data);
             this.setState({saveUsernamePass: data == "true" ? true : false}, () => {
@@ -137,12 +137,14 @@ class SignIn extends Component {
     }
 
     initializePushNotifications = () => {
+        console.log('About to ask user for access')
+        PushNotification.requestPermissions(); 
         PushNotification.configure({
     
           // (optional) Called when Token is generated (iOS and Android)
           onRegister: function(token) {
-            //   console.log( 'TOKEN:', token );
-            AsyncStorage.setItem('token', token);
+              console.log( 'TOKEN:', token );
+              AsyncStorage.setItem('token', token.token);
           },
       
           // (required) Called when a remote or local notification is opened or received
@@ -367,6 +369,7 @@ class SignIn extends Component {
         }
         else {
 //now that person has input text, their email and password are here
+        console.log("Something");
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
                 console.log("Have I affected auth behavior?")

@@ -1,319 +1,390 @@
-// import React, {Component} from 'react'
-// import {Dimensions, Keyboard, Text, TextInput, Image, TouchableHighlight, View, ScrollView, StyleSheet} from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-// import { Kohana } from 'react-native-textinput-effects'
-// import { material, systemWeights, human, iOSUIKit } from 'react-native-typography';
-// import {withNavigation} from 'react-navigation';
-// import {database} from '../cloud/database';
-// import firebase from '../cloud/firebase';
-// import { PacmanIndicator } from 'react-native-indicators';
-// import { lightGreen, treeGreen } from '../colors';
+import React from 'react';
+import {SafeAreaView, Keyboard, KeyboardAvoidingView, Text, TextInput, Platform, Dimensions, ScrollView, View, Image, TouchableOpacity, TouchableHighlight, StyleSheet} from 'react-native';
+import firebase from '../cloud/firebase';
+import { almostWhite, highlightGreen, treeGreen, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed, lightGray } from '../colors';
+import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { textStyles } from '../styles/textStyles';
 
-
-// //for each comment, use their time of post as the key
-// function timeSince(date) {
-
-//     var seconds = Math.floor((new Date() - date) / 1000);
-
-//     var interval = Math.floor(seconds / 31536000);
-
-//     if (interval > 1) {
-//         return interval + " years";
-//     }
-//     interval = Math.floor(seconds / 2592000);
-//     if (interval > 1) {
-//         return interval + " months";
-//     }
-//     interval = Math.floor(seconds / 86400);
-//     if (interval > 1) {
-//         return interval + " days";
-//     }
-//     interval = Math.floor(seconds / 3600);
-//     if (interval > 1) {
-//         return interval + " hours";
-//     }
-//     interval = Math.floor(seconds / 60);
-//     if (interval > 1) {
-//         return interval + " minutes";
-//     }
-//     return seconds == 0 ? "Just now" : Math.floor(seconds) + " seconds";
-    
-// }
-
-// class Comments extends Component {
-
-//     constructor(props) {
-//         super(props);
-//         this.state = {
-//           comments: {},
-//           commentString: '',
-//           visibleHeight: Dimensions.get('window').height,
-//           isGetting: true,
-//         }
-//         this.height = this.state.visibleHeight
+export default class Comments extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+          comments: {},
+          commentString: '',
+          visibleHeight: Dimensions.get('window').height,
+          isGetting: true,
+          showDeleteRow: false
+        }
+        this.height = this.state.visibleHeight
         
         
-//     }
+    }
 
-//     componentWillMount () {
-//         const {params} = this.props.navigation.state;
-//         Keyboard.addListener('keyboardWillShow', this.keyboardWillShow.bind(this))
-//         Keyboard.addListener('keyboardWillHide', this.keyboardWillHide.bind(this))
-//         setTimeout(() => {
-//             this.getComments(params.uid, params.productKey);
-//           }, 4);
-//     }
+    componentWillMount() {
 
-//     getComments(uid, productKey) {
-//         console.log(uid, productKey);
-//         const keys = [];
-//         database.then( (d) => {
-//           //get list of comments for specific product
-//           //var comments = d.Users[uid]
-//           var comments = d.Users[uid].products[productKey].comments ? d.Users[uid].products[productKey].comments : {a: {text: 'No Reviews have been left for this product. Be the first to review this good', name: 'NottMyStyle Team', time: Date.now() } };
-//           this.setState({ comments });
-//           console.log(comments);
-    
-//         })
-//         .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
-//         .catch( (err) => {console.log(err) })
+        Keyboard.addListener('keyboardWillShow', this.keyboardWillShow.bind(this))
+        Keyboard.addListener('keyboardWillHide', this.keyboardWillHide.bind(this))
         
-//     }
+        const {params} = this.props.navigation.state;
+        const {comments} = params;
+        console.log(comments);
+        this.setState({comments: comments ? comments : {}, yourUid: firebase.auth().currentUser.uid });
 
-//     keyboardWillShow (e) {
-//         let newSize = Dimensions.get('window').height - e.endCoordinates.height
-//         this.setState({visibleHeight: newSize})
-//       }
+    }
 
-//     keyboardWillHide (e) {
-//        this.setState({visibleHeight: Dimensions.get('window').height})
-//     }
+    keyboardWillShow (e) {
+        let newSize = Dimensions.get('window').height - e.endCoordinates.height
+        this.setState({visibleHeight: newSize})
+      }
 
-//     onCommentTextChanged(event) {
-//         this.setState({ commentString: event.nativeEvent.text });
-//     }
+    keyboardWillHide (e) {
+       this.setState({visibleHeight: Dimensions.get('window').height})
+    }
 
-//     uploadComment(name, comment, uid, productKey, ) {
-//         var timeCommented = Date.now();
-//         var updates = {}
-//         var postData = {text: comment, name: name, time: timeCommented }
-//         this.state.comments[timeCommented] = postData;
-//         this.setState({ comments : this.state.comments });
-//         updates['/Users/' + uid + '/products/' + productKey + '/comments/' + timeCommented + '/'] = postData
-//         //firebase.database().ref('Posts').set({posts: this.state.posts})
-//         firebase.database().ref().update(updates)
-//     }
+    onCommentTextChanged(commentString) {
+        this.setState({ commentString });
+    }
+
+    uploadComment(name, comment, uid, uri, yourUid, productKey) {
+        var timeCommentedKey = Date.now();
+        var now = new Date();
+        var date = now.getDate();
+        
+        var month = now.getMonth() + 1;
+        var year = now.getFullYear();
+        var timeCommented = `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`;
+        
+        var updates = {}
+        var postData = {text: comment, name: name, time: timeCommented, uri: uri, uid: yourUid }
+        
+        this.state.comments[timeCommentedKey] = postData; // --> how to create a new key in the object with certain values, which in this case is another object containing the specific comment being uploaded
+        this.setState({ comments : this.state.comments });
+        if(this.props.type == "product") {
+            updates['/Users/' + uid + '/products/' + productKey + '/comments/' + timeCommentedKey + '/'] = postData
+        }
+
+        else {
+            updates['/Users/' + uid + '/comments/' + timeCommentedKey + '/'] = postData
+        }
+        
+        //firebase.database().ref('Posts').set({posts: this.state.posts})
+        // console.log(postData, updates)
+        firebase.database().ref().update(updates)
+    }
+
+    deleteComment(key, uid, productKey) {
+        console.log(uid, productKey);
+        var ref = this.props.type == 'product' ? '/Users/' + uid + '/products/' + productKey + '/comments/' + key + '/'  : '/Users/' + uid + '/comments/' + key + '/';
+        firebase.database().ref(ref)
+        .remove( () => {
+            console.log(`successfully removed user comment: ${this.state.comments[`${key}`]}`);
+        })
+        .then(() => {
+            // console.log(this.state.comments)
+            delete this.state.comments[`${key}`];
+
+            // TODO: when all comments are deleted, either locally update the state to show it has no reviews,
+            // OR rework this component to pull from the cloud every time any changes are made.
+            // if(Boolean(Object.keys(this.state.comments)[0])) {
+            //     this.state.comments['a'] = {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' };
+            // }
+            this.setState({comments: this.state.comments});
+        })
+        .catch( (e) => {console.log(e)})
+    }
+
+    navToOtherUserProfilePage = (uid) => {
+        this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
+    }
+
+    render() {
+        // console.log("Initializing Comments")
+        var {type} = this.props;
+        var {yourUid} = this.state;
+        var {params} = this.props.navigation.state;
+        var {key, yourProfile, theirProfile, uid} = params;
+        if(type == 'product') {
+            var productKey = key;
+            var {productInformation} = params;
+            var productImage = productInformation.uris.thumbnail[0] //For row containing product Information
+        }
+        
+        var {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
+        
+        var {comments, showDeleteRow} = this.state;
+
+        return (
+            <SafeAreaView style={styles.mainContainer}>
+                <View style={styles.headerContainer}>
+                    <View style={[styles.headerElementContainer, {flex: 0.15}]}>
+                        <FontAwesomeIcon
+                        name='arrow-left'
+                        size={35}
+                        color={'black'}
+                        onPress = { () => { 
+                            this.props.navigation.goBack();
+                            } }
+                        />
+                    </View>
+
+                    <View style={[styles.headerElementContainer, {flex: 0.65}]}>
+                        <Text style={styles.headerText}>REVIEWS</Text>
+                    </View>
+
+                    <TouchableOpacity 
+                        style={[styles.headerElementContainer, {flex: 0.2}]} 
+                        onPress={() => yourUid == uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(uid)}
+                    >
+                        <Image source={  {uri: type == 'product' ? productImage : theirProfile.uri }} style={styles.headerImage} />
+                    </TouchableOpacity>
+                </View>
+
+                <ScrollView style={{flex: 0.75}}>
+                    {comments?
+                    Object.keys(comments).map(
+                    (comment) => (
+                        <TouchableOpacity key={comment} style={[styles.commentContainer, {backgroundColor: showDeleteRow ? almostWhite : '#fff'}]} onLongPress={()=>this.setState({showDeleteRow: true})}>
+                            {/* Allow user to delete their own comments*/}
+                            {
+                            showDeleteRow && comments[comment].uri == uri ?
+                                <View style={styles.deleteCommentRow}>
+                                    <Icon name="close" 
+                                    size={22} 
+                                    color={'black'}
+                                    onPress={ () => {this.setState({showDeleteRow: false}) }}
+                                    />
+                                    <Text
+                                    onPress={() => {
+                                        type == 'product' ? 
+                                        this.deleteComment(comment, productInformation.uid, productKey)
+                                        :
+                                        this.deleteComment(comment, uid, '')
+                                        }
+                                    } 
+                                    style={styles.deleteComment}>
+                                        Delete
+                                    </Text>
+                                </View>
+                            :
+                                null
+                            }
+                                {/* Ensure individual commenter's comment sends current user to their profile page. TODO: Blocked Users Later */}
+                            <View style={styles.commentPicAndTextRow}>
+
+                                {comments[comment].uri ?
+                                <TouchableHighlight 
+                                onPress={() => yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(comments[comment].uid)} 
+                                style={styles.commentPic}
+                                >
+                                <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                                </TouchableHighlight>  
+                                :
+                                <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
+                                }
+                                
+                                <View style={styles.textContainer}>
+                                    <Text style={ styles.commentName }> {comments[comment].name} </Text>
+                                    <Text style={styles.comment}> {comments[comment].text}  </Text>
+                                </View>
+
+                            </View>
+
+                            <View style={styles.commentTimeRow}>
+
+                                <Text style={ styles.commentTime }> {comments[comment].time} </Text>
+
+                            </View>
+                            
+                        </TouchableOpacity>
+                        
+                    )
+                            
+                    )
+                :
+                    null
+                }        
+                </ScrollView>
+
+                <KeyboardAvoidingView style={styles.footerContainer} behavior={Platform.OS == 'android' ? 'padding' : null} keyboardVerticalOffset={80}>
+                    <View style={[styles.footerElementContainer, {flex: 0.15}]}>
+                        <Image source={{uri}} style={styles.footerImage}/>
+                    </View>
+
+                    <View style={[styles.footerElementContainer, {flex: 0.85, flexDirection: 'row', borderColor: lightGray, borderWidth: 0.5, borderRadius: 30, paddingHorizontal: 5}]}>
+                        <View style={{flex: 0.8}}>
+                            <TextInput 
+                                placeholder={"Add a comment..."} 
+                                onChangeText={ commentString => this.onCommentTextChanged(commentString)}
+                                value={this.state.commentString}
+                                style={styles.input}
+                                multiline={true}
+                                maxLength={100}
+                                autoCorrect={false}
+                                underlineColorAndroid={"transparent"}/>
+                        </View>
+
+                        <View style={{flex: 0.2}}>
+                            <Text 
+                            style={styles.postText}
+                            onPress={ () => {
+                                if(this.state.commentString) {
+                                    type == 'products' ? 
+                                        this.uploadComment(name, this.state.commentString, uid, uri, yourUid, key) 
+                                        : 
+                                        this.uploadComment(name, this.state.commentString, uid, uri, yourUid, '');
+                                    this.setState({commentString: ''}); 
+                                    Keyboard.dismiss();
+                                }
+                                else {
+                                 alert('Please input a comment')   
+                                }
+                                
+                            }}
+                            >
+                            Post
+                            </Text>
+                        </View>
+                    </View>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        )
+    }
+}
+
+const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+        backgroundColor: "#fff"
+    },
+
+
+    headerContainer: {
+        flex: 0.15,
+        flexDirection: 'row',
+        borderBottomColor: 'black',
+        borderBottomWidth: 1.5,
+        marginHorizontal: 5
+
+    },
+
+        headerElementContainer: {
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+
+        headerText: {
+            ...textStyles.generic, fontSize: 35, fontWeight: "200", letterSpacing: 1.2
+        },
+
+        headerImage: {
+            width: 45,
+            height: 45
+        },
+
+        commentContainer: {
+        
+    flexDirection: 'column',
+    // backgroundColor: 'blue'
+    },
+
+    deleteCommentRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingTop:5,
+        paddingHorizontal:5,
+        // alignContent: 'flex-end',
+        // backgroundColor: 'blue'
+    },
+
+    deleteComment: {
+        fontFamily: 'Iowan Old Style',
+        fontWeight: '500',
+        fontSize: 18,
+        color: rejectRed,
+        // textAlign: 'right'
+    },
     
-//     render() {
-
-//         const {params} = this.props.navigation.state;
-//         const {comments} = this.state;
-//         Object.keys(comments).map( (key) => {
-//             console.log(comments[key].name)
-//         })
-
-//         if(this.state.isGetting) {
-//             return ( 
-//                 <View style={{flex: 1}}>
-//                     <PacmanIndicator color='#189fe2' />
-//                 </View>
-//             )
-//         }
-
-//         return (
-//             <View style={styles.wrapper} >
-//             <ScrollView contentContainerStyle={styles.wrapper}>
-//             <View style={styles.rowContainer}>
-//                 {/* row containing profile picture, and user details */}
-//                <Image source={ {uri: params.uri }} style={styles.profilepic} />
-//                <View style={styles.textContainer}>
-                 
-//                  <Text style={styles.name}>
-//                    {params.text.name}
-//                  </Text>
-//                  <Text style={styles.brand}>
-//                    {params.text.brand}
-//                  </Text>
-//                  <Text style={styles.price}>
-//                    Price: ${params.text.price}
-//                  </Text>
-
-//                </View>
-               
-//              </View>
-//              <View style={styles.separator}/>
-
-//              {Object.keys(comments).map(
-//                  (comment) => (
-//                  <View key={comment} style={styles.rowContainer}>
-//                     <View style={styles.textContainer}>
-//                         <Text style={ styles.naam }> {comments[comment].name} </Text>
-//                         <Text style={styles.comment}> {comments[comment].text}  </Text>
-//                         <Text style={ styles.commentTime }> {timeSince(comments[comment].time)} ago </Text>
-//                     </View>
-//                     <View style={styles.separator}/>
-//                  </View>
-//             )
-                     
-//              )}
-//              </ScrollView>
-//             <View style={{flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
-//                 <Kohana
-//                     style={{ backgroundColor: '#f9f5ed' }}
-//                     label={'Comment'}
-//                     value={this.state.commentString}
-//                     onChange={this.onCommentTextChanged.bind(this)}
-//                     iconClass={Icon}
-//                     iconName={'comment-multiple'}
-//                     iconColor={'#f4d29a'}
-//                     labelStyle={{ color: '#91627b' }}
-//                     inputStyle={{ color: '#91627b' }}
-//                     useNativeDriver
-//                 />
-//                 <Icon name="send" 
-//                         size={50} 
-//                         color={'#37a1e8'}
-//                         onPress={ () => {this.uploadComment(params.name , this.state.commentString, params.uid, params.productKey);
-//                                         this.setState({commentString: ''}); 
-//                                         }}
-//                 />
-//             </View>
-//            </View>
-//         )
-//     }
-// }
-
-// export default withNavigation(Comments)
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         marginTop: 5,
-//         marginBottom: 5,
-//         flexDirection: 'column',
-//         justifyContent: 'space-between',
-//         backgroundColor: '#fff',
-//     },
-//     wrapper: {
-//         flex: 1
-//       },
-//     scrollcontainer: {
-//         padding: 15,
-//     },
-//     searchInput: {
-//         height: 36,
-//         padding: 4,
-//         marginRight: 5,
-//         flex: 1,
-//         fontSize: 18,
-//         borderWidth: 1,
-//         borderColor: '#32cd32',
-//         borderRadius: 8,
-//         color: '#32cd32'
-//     },
-
-//     flowRight: {
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         alignSelf: 'stretch'
-//       },
-//     buttonText: {
-//         fontSize: 18,
-//         color: 'white',
-//         alignSelf: 'center'
-//     },
-//     button: {
-//         backgroundColor: "#800000",
-//         width: 100,
-//         height: 45,
-//         borderColor: "transparent",
-//         borderWidth: 0,
-//         borderRadius: 5
-//     },
-
-//     name: {
-//         ...material.headline,
-//         fontSize: 18,
-//         color: '#207011',
-//     },
-
-//     brand: {
-//         ...material.caption,
-//         fontSize: 18,
-//         color: '#0394c0',
-//         fontStyle: 'italic'
-//       }, 
-      
-//     price: {
-//         ...material.caption,
-//         fontSize: 18,
-//         color: '#800000',
-//         fontStyle: 'normal'
-//       },    
-
-//     naam: {
-//         ...iOSUIKit.caption2,
-//         fontSize: 11,
-//         color: '#37a1e8'
-
-//     },
-
-//     title: {
-//         ...human.headline,
-//         fontSize: 20,
-//         color: '#656565'
-//       },
-
-//     comment: {
-//         ...iOSUIKit.bodyEmphasized,
-//         fontSize: 25,
-//         color: 'black',
-//     },  
-
-//     commentTime: {
-//         fontSize: 12,
-//         color: '#1f6010'
-//     },
-
-//     rowContainer: {
-//         marginTop: 22,
-//         flexDirection: 'row',
-//         padding: 10,
-//         justifyContent: 'space-evenly',
-//         alignContent: 'space-between',
-//         alignItems: 'center'
-//       },
-
-//     profilepic: {
-//         borderWidth:1,
-//         borderColor:'#207011',
-//         alignItems:'center',
-//         justifyContent:'center',
-//         width:90,
-//         height:90,
-//         backgroundColor:'#fff',
-//         borderRadius:44,
-//         borderWidth: 1
+    commentPicAndTextRow: {
+        flexDirection: 'row',
+        width: 300 - 20,
+        padding: 10
+    },
     
-//     },
+    commentPic: {
+        //flex: 1,
+        width: 70,
+        height: 70,
+        alignSelf: 'center',
+        borderRadius: 35,
+        borderColor: '#fff',
+        borderWidth: 0
+    },
     
-//     time: {
-//         fontSize: 15,
-//         fontWeight: 'bold',
-//         color: '#32cd32'
-//       },
+    textContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        padding: 5,
+    },
+
+    commentTimeRow: {
+        justifyContent: 'flex-end',
+        alignContent: 'flex-end',
+        alignItems: 'flex-end',
+    },
     
-//     textContainer: {
-//         flex: 1,
-//         flexDirection: 'column',
-//         alignContent: 'center',
-//         padding: 5,
-//         paddingLeft: 10
-//       },
+    commentName: {
+        ...textStyles.generic,
+        color: highlightGreen,
+        fontSize: 16,
+        fontWeight: "500",
+        textAlign: "left"
+    },
 
-//     separator: {
-//         height: 5,
-//         backgroundColor: treeGreen
-//       },
+    
 
-//   });
+    comment: {
+        ...textStyles.generic,
+        fontSize: 16,
+        color: darkGray,
+    },  
+
+    commentTime: {
+        ...textStyles.generic,
+        fontSize: 12,
+        color: highlightGreen
+    },
+
+
+    footerContainer: {
+        flex: 0.10,
+        flexDirection: 'row',
+        padding: 5
+    },
+
+        footerElementContainer: {
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+
+            footerImage: {
+                width: 35,
+                height: 35,
+                borderRadius: 17.5
+            },
+
+            input: {
+                width: 200,
+                height: 20,
+                ...textStyles.generic
+            },
+
+            postText: {
+                ...textStyles.generic,
+                color: optionLabelBlue,
+                fontWeight: "400"
+            }
+
+        
+
+})

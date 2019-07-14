@@ -190,7 +190,7 @@ class OtherUserProfilePage extends Component {
   navToUserComments = () => {
     // const {params} = this.props.navigation.state;
     const {otherUserUid, comments, profile, yourProfile} = this.state;
-    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, profile: profile, comments: comments['a'] ? false : comments, uid: otherUserUid})
+    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, theirProfile: profile, comments: comments['a'] ? false : comments, uid: otherUserUid})
   }
 
   render() {
