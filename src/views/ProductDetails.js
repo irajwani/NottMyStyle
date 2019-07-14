@@ -259,7 +259,7 @@ class ProductDetails extends Component {
         var updates = {};
         likes += 1;
         var postData = likes;
-        updates['/Users/' + this.state.otherUserUid + '/products/' + key + '/likes/'] = postData;
+        updates['/Users/' + this.state.otherUserUid + '/products/' + key + '/text/likes/'] = postData;
         let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
         Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
         .then( () => {
@@ -325,7 +325,7 @@ class ProductDetails extends Component {
       var updates = {};
       likes -= 1;
       var postData = likes;
-      updates['/Users/' + this.state.otherUserUid + '/products/' + key + '/likes/'] = postData;
+      updates['/Users/' + this.state.otherUserUid + '/products/' + key + '/text/likes/'] = postData;
       let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
       Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
       .then( () => {

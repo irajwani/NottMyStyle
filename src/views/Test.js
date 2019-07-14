@@ -1,94 +1,142 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Image, Animated } from 'react-native'
-import ProgressiveImage from 'react-native-progressive-image'
+import { Text, StyleSheet, View, Image} from 'react-native'
 
+//Curved bottom
 export default class Test extends Component {
-  constructor(props) {
-      super(props);
-      this.state = {
-        //   isImageLoading: true
-          load: 'not started', 
-          thumbnailOpacity: new Animated.Value(0),
-          
-      }
-  }
-
-  onLoad() {
-    Animated.timing(this.state.thumbnailOpacity,
-      {
-        toValue: 0,
-        duration: 250
-      }
-    ).start()
-  }
-
-  onThumbnailLoad() {
-    Animated.timing(this.state.thumbnailOpacity,
-      {
-        toValue: 1,
-        duration: 250
-      }
-    ).start()
-  }
-
-  
   render() {
-
-    const {load} = this.state;
-    // const asset = require("../images/cb.png");
-    // const inProgressAsset = require("../images/logo.png");
-    // const uri = "https://s.abcnews.com/images/US/polar-bear-gty-hb-180706_hpMain_16x9_992.jpg"
-    const uri = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2NzdT0H6sCLYNo9ItTfDq1d1YiQQv8ROvcZMcfxunkIRfaak";
-    const thumb = require('../images/blank.jpg');
-    // const uris = ["https://firebasestorage.googleapis.com/v0/b/nottmystyle-447aa.appspot.com/o/Users%2FLlCyNHYiypQ8p1fKQWWsOWXkyb53%2Fprofile?alt=media&token=9a9c749e-ffaa-4b9d-97bf-bb9014daecd4", "https://firebasestorage.googleapis.com/v0/b/nottmystyle-447aa.appspot.com/o/Users%2FLlCyNHYiypQ8p1fKQWWsOWXkyb53%2Fprofile?alt=media&token=9a9c749e-ffaa-4b9d-97bf-bb9014daecd4"];
     return (
-      <View style={{flex: 1,marginTop: 10, flexWrap: 'wrap', flexDirection: 'row'}}>
-        <View style={{flex: 1, height: 200, width: 200}}>
-          <Animated.Image 
-            resizeMode={'contain'}
-            key={1}
-            style={{position: 'absolute', width: 150, height: 150}}
-            source={{uri: uri}}
-            onLoad={this.onLoad}
-          />
-          <Animated.Image 
-            resizeMode={'contain'}
-            key={2}
-            style={{opacity: this.state.thumbnailOpacity, width: 150, height: 150}}
-            source={thumb}
-            onLoad={this.onThumbnailLoad}
-          />
+      <View style={styles.container} >
+        <View style={styles.background} >
+          {/* <Image style={styles.image} source={require('../images/nottmystyleLogo.png')} /> */}
         </View>
-
-        {/* {[1].map( () => <ProgressiveImage
-          thumbnailSource={{ uri: uri }}
-          imageSource={{ uri: uri}}
-          style={{ width: 200, height: 200 }}
-          imageFadeDuration={250}
-          thumbnailFadeDuration={250}
-          thumbnailBlurRadius={20}
-          onLoadImage={Function.prototype}
-          onLoadThumbnail={Function.prototype}
-        />)} */}
-        {/* {[1,2,3,4,5,6,7,8,9,10,11,12,13,15,17,18,87,98,888,9999,859,897907,55].map( () => (
-            <Image 
-        // onLoadStart={() => this.setState({load: 'in progress'})}
-        // onLoad={()=>this.setState({load: 'done'})}
-        // source={load == "not started" ? asset : load == "in progress" ? inProgressAsset : {uri: uris[0]} } 
-        source={{uri: uri}}
-        loadingIndicatorSource={inProgressAsset}
-        style={{width: 100, height: 100}}
-
-        />
-        ))
-        
-        } */}
       </View>
     )
   }
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  linearGradient: {
+    alignSelf: 'center',
+    marginTop: 100,
+    width: 200,
+    overflow: 'hidden', // for hide the not important parts from circle
+    margin: 10,
+    height: 100,
+  },
+  bottomCurve: { // this shape is a circle 
+    borderRadius: 400, // border borderRadius same as width and height
+    width: 400,
+    // height: 400,
+    // marginLeft: -100, // reposition the circle inside parent view
+    position: 'absolute',
+    bottom: 0, // show the bottom part of circle
+    overflow: 'hidden', // hide not important part of image
+    backgroundColor: 'red'
+  },
+  image: {
+    height: 100, // same width and height for the container
+    width: 200,
+    position: 'absolute', // position it in circle
+    bottom: 0, // position it in circle
+    marginLeft: 100, // center it in main view same value as marginLeft for circle but positive
+  }
+})
+
+
+// import React, { Component } from 'react'
+// import { Text, StyleSheet, View, Image, Animated } from 'react-native'
+// import ProgressiveImage from 'react-native-progressive-image'
+
+
+// // Infinitely Spinning Image Example
+
+// export default class Test extends Component {
+//   constructor(props) {
+//       super(props);
+//       this.state = {
+//         //   isImageLoading: true
+//           load: 'not started', 
+//           thumbnailOpacity: new Animated.Value(0),
+          
+//       }
+//   }
+
+//   onLoad() {
+//     Animated.timing(this.state.thumbnailOpacity,
+//       {
+//         toValue: 0,
+//         duration: 250
+//       }
+//     ).start()
+//   }
+
+//   onThumbnailLoad() {
+//     Animated.timing(this.state.thumbnailOpacity,
+//       {
+//         toValue: 1,
+//         duration: 250
+//       }
+//     ).start()
+//   }
+
+  
+//   render() {
+
+//     const {load} = this.state;
+//     // const asset = require("../images/cb.png");
+//     // const inProgressAsset = require("../images/logo.png");
+//     // const uri = "https://s.abcnews.com/images/US/polar-bear-gty-hb-180706_hpMain_16x9_992.jpg"
+//     const uri = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2NzdT0H6sCLYNo9ItTfDq1d1YiQQv8ROvcZMcfxunkIRfaak";
+//     const thumb = require('../images/blank.jpg');
+//     // const uris = ["https://firebasestorage.googleapis.com/v0/b/nottmystyle-447aa.appspot.com/o/Users%2FLlCyNHYiypQ8p1fKQWWsOWXkyb53%2Fprofile?alt=media&token=9a9c749e-ffaa-4b9d-97bf-bb9014daecd4", "https://firebasestorage.googleapis.com/v0/b/nottmystyle-447aa.appspot.com/o/Users%2FLlCyNHYiypQ8p1fKQWWsOWXkyb53%2Fprofile?alt=media&token=9a9c749e-ffaa-4b9d-97bf-bb9014daecd4"];
+//     return (
+//       <View style={{flex: 1,marginTop: 10, flexWrap: 'wrap', flexDirection: 'row'}}>
+//         <View style={{flex: 1, height: 200, width: 200}}>
+//           <Animated.Image 
+//             resizeMode={'contain'}
+//             key={1}
+//             style={{position: 'absolute', width: 150, height: 150}}
+//             source={{uri: uri}}
+//             onLoad={this.onLoad}
+//           />
+//           <Animated.Image 
+//             resizeMode={'contain'}
+//             key={2}
+//             style={{opacity: this.state.thumbnailOpacity, width: 150, height: 150}}
+//             source={thumb}
+//             onLoad={this.onThumbnailLoad}
+//           />
+//         </View>
+
+//         {/* {[1].map( () => <ProgressiveImage
+//           thumbnailSource={{ uri: uri }}
+//           imageSource={{ uri: uri}}
+//           style={{ width: 200, height: 200 }}
+//           imageFadeDuration={250}
+//           thumbnailFadeDuration={250}
+//           thumbnailBlurRadius={20}
+//           onLoadImage={Function.prototype}
+//           onLoadThumbnail={Function.prototype}
+//         />)} */}
+//         {/* {[1,2,3,4,5,6,7,8,9,10,11,12,13,15,17,18,87,98,888,9999,859,897907,55].map( () => (
+//             <Image 
+//         // onLoadStart={() => this.setState({load: 'in progress'})}
+//         // onLoad={()=>this.setState({load: 'done'})}
+//         // source={load == "not started" ? asset : load == "in progress" ? inProgressAsset : {uri: uris[0]} } 
+//         source={{uri: uri}}
+//         loadingIndicatorSource={inProgressAsset}
+//         style={{width: 100, height: 100}}
+
+//         />
+//         ))
+        
+//         } */}
+//       </View>
+//     )
+//   }
+// }
+
+// const styles = StyleSheet.create({})
 
 
 //Below test is a test of app's ability to open node js project which utilizes PayPal rest sdk to carry out a transaction,
