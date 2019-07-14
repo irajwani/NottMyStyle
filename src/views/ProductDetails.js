@@ -1975,7 +1975,8 @@ reviewsHeader: {
   fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
-  paddingLeft: 5
+  paddingLeft: 5,
+  color: 'black'
 },
 commentContainer: {
   flexDirection: 'column',

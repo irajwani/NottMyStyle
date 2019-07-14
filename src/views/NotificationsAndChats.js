@@ -1066,6 +1066,7 @@ class Notifications extends Component {
       }
 
       else {
+        // Price Reduction Notification
         return (
           <Modal
           animationType="slide"
@@ -1098,13 +1099,17 @@ class Notifications extends Component {
   
             <View style={[deliveryOptionBody, {padding: 5}]}>
 
-              <View style={{flex: 0.5, justifyContent: 'center', alignItems: 'center', marginVertical: 10}}>
+              <View style={{flex: 0.35, justifyContent: 'center', alignItems: 'center', marginVertical: 10}}>
                 <Image style={styles.detailsImage} source={{uri: details.uri}}/>
               </View>
 
-              <View style={{flex: 0.5, margin: 5, padding: 5, justifyContent: 'space-evenly', alignItems: 'center'}}>
-                <Text style={[styles.detailsText, {fontSize: 15}]}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{Math.floor(0.90*details.price)}. Consider editing this item's details from its description page.</Text>
-                <Text onPress={()=>this.navToEditItem(details.key)} style={[styles.detailsText, {color: lightGreen, fontSize: 20, fontWeight: "500"}]}>Edit Item</Text>
+              <NotificationTextScroll customFlex={0.5}>
+                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{Math.floor(0.90*details.price)}. Consider editing this item's details from its description page.</Text>
+                
+              </NotificationTextScroll>
+
+              <View style={{flex: 0.15, justifyContent: 'center', alignItems: 'center'}}>
+                  <Text onPress={()=>this.navToEditItem(details.key)} style={[styles.detailsText, {color: lightGreen, fontSize: 20, fontWeight: "500"}]}>Edit Item</Text>
               </View>
 
               

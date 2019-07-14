@@ -1348,8 +1348,8 @@ class Products extends Component {
 
     else if(emptyMarket == true) {
       return (
-        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, backgroundColor: '#fff', padding: 10}}>
-          <NothingHereYet specificText={showCollection == true ? emptyCollectionText : (showYourProducts == true && showSoldProducts == true) ? noSoldProductsText : (showYourProducts == true && showSoldProducts == false) ? noProductsOfYourOwnText : emptyMarketText } />
+        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, flex: 1, backgroundColor: '#fff', padding: 10}}>
+          {/* <NothingHereYet specificText={showCollection == true ? emptyCollectionText : (showYourProducts == true && showSoldProducts == true) ? noSoldProductsText : (showYourProducts == true && showSoldProducts == false) ? noProductsOfYourOwnText : emptyMarketText } /> */}
         </View>
       )
     }

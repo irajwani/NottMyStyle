@@ -336,9 +336,9 @@ class ProfilePage extends Component {
       <SafeAreaView style={styles.mainContainer}>
       
 
-        <View style={styles.linearGradient}>
+        <LinearGradient style={styles.linearGradient} colors={gradientColors}>
           
-          <View style={styles.bottomCurve}>
+          
         
           <View style={styles.topContainer}>
 
@@ -347,7 +347,7 @@ class ProfilePage extends Component {
               <Icon 
                 name="settings" 
                 size={30} 
-                color={iOSColors.gray}
+                color={'black'}
                 onPress={() => this.props.navigation.navigate('Settings')}
 
               />
@@ -452,13 +452,8 @@ class ProfilePage extends Component {
               </ButtonContainer>
           </View>
 
-        
 
-        
-        
-        </View>
-
-      </View>
+      </LinearGradient>
       
       {/* <Svg height="50%" width="50%" viewBox="0 0 100 100">
           <Circle
@@ -598,25 +593,25 @@ const styles = StyleSheet.create({
     flex: 0.7,
     
     // backgroundColor: "#c8f966"
-    alignSelf: 'center',
-    width: width,
-    overflow: 'hidden', // for hide the not important parts from circle
+    // alignSelf: 'center',
+    // width: width,
+    // overflow: 'hidden', // for hide the not important parts from circle
     // height: 175,
   },
 
-  bottomCurve: { // this shape is a circle 
-    borderBottomLeftRadius: width,
-    borderBottomRightRadius: width, // border borderRadius same as width and height
-    width: width,
-    height: width,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // marginLeft: -250, // reposition the circle inside parent view
-    position: 'absolute',
-    // bottom: 0, // show the bottom part of circle
-    // overflow: 'hidden', // hide not important part of image
-    backgroundColor: "#c8f966"
-  },
+  // bottomCurve: { // this shape is a circle 
+  //   borderBottomLeftRadius: width,
+  //   borderBottomRightRadius: width, // border borderRadius same as width and height
+  //   width: width,
+  //   height: width,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   // marginLeft: -250, // reposition the circle inside parent view
+  //   position: 'absolute',
+  //   // bottom: 0, // show the bottom part of circle
+  //   // overflow: 'hidden', // hide not important part of image
+  //   backgroundColor: "#c8f966"
+  // },
 
   topContainer: {
     flexDirection: 'row',
@@ -864,7 +859,8 @@ reviewsHeader: {
   ...textStyles.generic,
   fontSize: 30,
   fontWeight: "200",
-  letterSpacing: 1
+  letterSpacing: 1,
+  color: 'black'
 },
 
 commentContainer: {

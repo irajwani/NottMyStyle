@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, SafeAreaView, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -528,7 +528,7 @@ class CreateProfile extends Component {
     transparent={false}
     visible={this.state.showCountrySelect}
     >
-        <View style={[styles.mainContainer, {backgroundColor: bgBlack,marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+        <SafeAreaView style={styles.mainContainer}>
             <View style={styles.headerBar}>
                 <FontAwesomeIcon
                 name='close'
@@ -554,7 +554,7 @@ class CreateProfile extends Component {
                 ))}
             </View>
 
-        </View>
+        </SafeAreaView>
     </Modal>
   )
 
@@ -603,10 +603,8 @@ class CreateProfile extends Component {
     }
 
     return (
-        <ScrollView style={[styles.mainContainer, {marginTop: Platform.OS == "ios" ? 22 : 0}]} contentContainerStyle={styles.container}>
-            
-            {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
-            
+        <SafeAreaView style={styles.mainContainer}>
+
             <View style={styles.backIconAndMABAndHelpContainer}>
                 <View style={{flex: 0.1, justifyContent: 'flex-start',}}>
                     <FontAwesomeIcon
@@ -632,6 +630,13 @@ class CreateProfile extends Component {
                     />
                 </View>    
             </View>
+
+
+            <ScrollView style={{flex: 0.75}} contentContainerStyle={styles.container}>
+            
+            {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
+            
+            
 
 
             {
@@ -944,6 +949,7 @@ class CreateProfile extends Component {
             {this.renderLocationSelectModal()}
             
         </ScrollView>
+        </SafeAreaView>
         )
       
     
@@ -968,6 +974,7 @@ const styles = StyleSheet.create({
 
     mainContainer: {
         flex: 1,
+        backgroundColor: bgBlack,
         // height: '100%',
         // justifyContent: 'space-around',
         // left: 0,
@@ -989,11 +996,11 @@ const styles = StyleSheet.create({
         //alignItems: 'center'
         paddingLeft: 10,
         paddingRight: 10,
-        backgroundColor: bgBlack,
+        
 
     },
 
-    backIconAndMABAndHelpContainer: {flexDirection: 'row', paddingVertical: 3, paddingRight: 2, paddingLeft: 1 },
+    backIconAndMABAndHelpContainer: {flex: 0.25,flexDirection: 'row', paddingVertical: 3, paddingRight: 2, paddingLeft: 1 },
 
     inputContainer: {
         marginVertical: 7,

@@ -232,7 +232,8 @@ const styles = StyleSheet.create({
     condition: {
         fontFamily: 'Avenir Next',
         fontSize: 32,
-        fontWeight: '300'
+        fontWeight: '300',
+        color: 'black'
     },
 
     sizesInfo: {

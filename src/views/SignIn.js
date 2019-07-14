@@ -138,7 +138,7 @@ class SignIn extends Component {
 
     initializePushNotifications = () => {
         console.log('About to ask user for access')
-        PushNotification.requestPermissions(); 
+        // PushNotification.requestPermissions(); 
         PushNotification.configure({
     
           // (optional) Called when Token is generated (iOS and Android)
@@ -178,7 +178,7 @@ class SignIn extends Component {
             * - Specified if permissions (ios) and token (android and ios) will requested or not,
             * - if not, you must call PushNotificationsHandler.requestPermissions() later
             */
-          requestPermissions: false,
+          requestPermissions: true,
       });
     
     

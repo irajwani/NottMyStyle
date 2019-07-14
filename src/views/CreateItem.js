@@ -19,10 +19,11 @@ import ImageResizer from 'react-native-image-resizer';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen,lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen } from '../colors';
+import { highlightGreen,lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen, almostWhite } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
+import { DismissKeyboardView, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
+import { textStyles } from '../styles/textStyles';
 
 
 // const darkGreen = '#0d4f10';
@@ -624,21 +625,21 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
             <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Category</Text>
             <ButtonGroup
-            onPress={ (index) => {
-            if(index != this.state.gender) {
-            navigation.setParams({type: false});
-            // type = '';
-            this.setState({gender: index});
-            }
-            
-            }}
-            selectedIndex={this.state.gender}
-            buttons={ ['Men', 'Women', 'Accessories'] }
-            containerStyle={styles.buttonGroupContainer}
-            buttonStyle={styles.buttonGroup}
-            textStyle={styles.buttonGroupText}
-            selectedTextStyle={styles.buttonGroupSelectedText}
-            selectedButtonStyle={styles.buttonGroupSelectedContainer}
+                onPress={ (index) => {
+                if(index != this.state.gender) {
+                navigation.setParams({type: false});
+                // type = '';
+                this.setState({gender: index});
+                }
+                
+                }}
+                selectedIndex={this.state.gender}
+                buttons={ ['Men', 'Women', 'Accessories'] }
+                containerStyle={styles.buttonGroupContainer}
+                buttonStyle={styles.buttonGroup}
+                textStyle={styles.buttonGroupText}
+                selectedTextStyle={styles.buttonGroupSelectedText}
+                selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} 
@@ -647,7 +648,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             this.navToFillConditionOrType(this.state.gender, showProductTypes = true);
             
             } }>
-                <View style={styles.navToFillDetailRow}>
+                <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0}]}>
                 
                     <View style={[styles.detailHeaderContainer, {flex: type ? 0.25 : 0.8}]}>
                         <Text style={styles.detailHeader}>Type</Text>
@@ -672,12 +673,12 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 </View>
             </TouchableHighlight>
 
-            <GrayLine/>
+            
 
             
-            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomColor: darkGray, borderBottomWidth: 0.5}}>
                 <TextInput
-                style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20}}
+                style={{height: 50, width: 280, ...styles.detailHeader}}
                 placeholder={"Name (e.g. zip-up hoodie)"}
                 placeholderTextColor={lightGray}
                 onChangeText={(name) => this.setState({name})}
@@ -691,52 +692,48 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 /> 
             </View>
 
-            <WhiteSpace height={4}/>
+            {/* <WhiteSpace height={4}/> */}
 
             
             
-            <GrayLine/>
+            
 
 
             <DismissKeyboardView>
+            <View style={[styles.descriptionContainer, {borderBottomWidth: 0.5,borderColor: darkGray}]}>
 
-            <View style={styles.descriptionContainer}>
+                <View style={styles.descriptionHeaderContainer}>
+                    <Text style={styles.detailHeader}>Description</Text>
+                </View>
 
-            <View style={styles.descriptionHeaderContainer}>
-            <Text style={styles.descriptionHeader}>Description</Text>
-            </View>
+                <WhiteSpace height={1}/>
 
-            <WhiteSpace height={1}/>
+                <View style={styles.descriptionInputContainer}>
 
-            <View style={styles.descriptionInputContainer}>
+                    <TextInput
+                    style={styles.descriptionInput}
+                    placeholder={"(Optional) For Example, Excellent condition. Flaws are evident in item's pictures."}
+                    placeholderTextColor={lightGray}
+                    onChangeText={(description) => this.setState({description})}
+                    value={this.state.description}
+                    multiline={true}
+                    numberOfLines={4}
+                    scrollEnabled={true}
+                    underlineColorAndroid={"transparent"}
+                    />
 
-            <TextInput
-            style={styles.descriptionInput}
-            placeholder={"(Optional) For Example, This product has a few flaws which should be evident in the item's pictures"}
-            placeholderTextColor={lightGray}
-            onChangeText={(description) => this.setState({description})}
-            value={this.state.description}
-            multiline={true}
-            numberOfLines={4}
-            scrollEnabled={true}
-            underlineColorAndroid={"transparent"}
-            />
-
-            </View>
-
-            
+                </View>
 
             </View>
-
             </DismissKeyboardView>
 
-            <WhiteSpace height={1.5}/>
+            {/* <WhiteSpace height={1.5}/> */}
 
-            <GrayLine/>
+            
 
             
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
-            <View style={styles.navToFillDetailRow}>
+            <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0}]}>
             
             <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
             <Text style={styles.detailHeader}>Retail price (Optional)</Text>
@@ -761,13 +758,13 @@ uploadToStore = (pictureuris, uid, postKey) => {
             </View>
             </TouchableHighlight>
 
-            <GrayLine/>
+            
 
             
 
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("sellingPrice")}>
-            <View style={styles.navToFillDetailRow}>
+            <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0}]}>
             
             <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
             <Text style={styles.detailHeader}>Selling price</Text>
@@ -792,35 +789,35 @@ uploadToStore = (pictureuris, uid, postKey) => {
             </View>
             </TouchableHighlight>
 
-            <GrayLine/>
+            
             
             <View style={styles.priceAdjustmentReminderContainer}>
             <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
             </View>
 
-            <GrayLine/>
+            
 
             
             
-            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
-            <TextInput
-            style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
-            placeholder={"Brand (e.g. Hollister Co.)"}
-            placeholderTextColor={lightGray}
-            onChangeText={(brand) => this.setState({brand})}
-            value={this.state.brand}
-            multiline={false}
-            maxLength={16}
-            autoCorrect={false}
-            autoCapitalize={'words'}
-            clearButtonMode={'while-editing'}
-            underlineColorAndroid={"transparent"}
-            /> 
+            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5,borderColor: darkGray}}>
+                <TextInput
+                style={{height: 50, width: 280}}
+                placeholder={"Brand (e.g. Hollister Co.)"}
+                placeholderTextColor={lightGray}
+                onChangeText={(brand) => this.setState({brand})}
+                value={this.state.brand}
+                multiline={false}
+                maxLength={16}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                clearButtonMode={'while-editing'}
+                underlineColorAndroid={"transparent"}
+                /> 
             </View>
 
             
 
-            <GrayLine/>
+            
 
             
 
@@ -829,7 +826,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
 
             { type && this.state.gender != 2 ?
-            <View>
+            
             
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillSizeBasedOn(type, this.state.gender)}>
@@ -857,8 +854,8 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             </View>
             </TouchableHighlight>
-            <GrayLine/>
-            </View>
+            
+            
             :
             null
             }
@@ -867,8 +864,8 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, false)}>
-                <View style={styles.navToFillDetailRow}>
                 
+                <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0}]}>
                 <View style={[styles.detailHeaderContainer, {flex: condition ? 0.35 : 0.8}]}>
                     <Text style={styles.detailHeader}>Condition</Text>
                 </View>
@@ -890,6 +887,8 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 </View>
 
                 </View>
+
+                
             </TouchableHighlight>
 
             
@@ -897,9 +896,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
             {this.state.editItemBoolean ? 
                 null
             :
-                <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5, borderBottomColor: darkGray, borderTopWidth: 0.5, borderTopColor: darkGray}}>
+                <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5, borderBottomColor: darkGray,}}>
                     <TextInput
-                    style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+                    style={{height: 50, width: 280, ...styles.detailHeader}}
                     placeholder={"PayPal Email Address"}
                     placeholderTextColor={lightGray}
                     onChangeText={(paypal) => this.setState({paypal})}
@@ -913,7 +912,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 </View>
             }
 
-            {this.state.editItemBoolean ? <GrayLine/> : null}
+            
             
             <View style={styles.navToFillDetailRow}>
 
@@ -940,34 +939,34 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             </View>
 
-            <GrayLine/>
+            
 
 
             {this.state.canSnailMail ?
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("postPrice")}>
-            <View style={styles.navToFillDetailRow}>
             
-            <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
-            <Text style={styles.detailHeader}>Cost of post</Text>
-            </View>
+            
+                <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Cost of post</Text>
+                </View>
 
-            {post_price > 0 ?
-            <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-            <Text style={styles.displayedPrice}>£{post_price}</Text>
-            </View>
-            :
-            null
-            }
+                {post_price > 0 ?
+                    <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+                        <Text style={styles.displayedPrice}>£{post_price}</Text>
+                    </View>
+                :
+                    null
+                }
 
-            <View style={[styles.navToFillDetailIcon, {flex: post_price > 0 ? 0.2 : 0.2 }]}>
-            <Icon 
-            name="chevron-right"
-            size={40}
-            color='black'
-            />
-            </View>
-            <GrayLine/>
-            </View>
+                <View style={[styles.navToFillDetailIcon, {flex: post_price > 0 ? 0.2 : 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={40}
+                    color='black'
+                    />
+                </View>
+            
+            
             </TouchableHighlight>
             :
             null
@@ -978,29 +977,29 @@ uploadToStore = (pictureuris, uid, postKey) => {
             <WhiteSpace height={15} /> 
             
             <View style={{alignItems: 'center'}}>
-            <Button
-            large
-            disabled = { partialConditionMet ? false : true}
-            buttonStyle={{
-            backgroundColor: conditionMet ? "#22681d" : highlightYellow,
-            width: 280,
-            height: 80,
-            borderColor: "transparent",
-            borderWidth: 0,
-            borderRadius: 5,
-            }}
-            icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
-            title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
-            onPress={() => {
-            conditionMet ?
-                this.state.editItemBoolean ?
-                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+                <Button
+                large
+                disabled = { partialConditionMet ? false : true}
+                buttonStyle={{
+                backgroundColor: conditionMet ? "#22681d" : highlightYellow,
+                width: 280,
+                height: 80,
+                borderColor: "transparent",
+                borderWidth: 0,
+                borderRadius: 5,
+                }}
+                icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
+                title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
+                onPress={() => {
+                conditionMet ?
+                    this.state.editItemBoolean ?
+                        this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+                        :
+                        this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
                     :
-                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
-                :
-                this.helpUserFillDetails();
-            } } 
-            />
+                    this.helpUserFillDetails();
+                } } 
+                />
             </View>
 
             
@@ -1112,7 +1111,7 @@ const styles = StyleSheet.create({
 
  descriptionHeader: {fontFamily: 'Avenir Next', fontSize: 19, fontWeight: "400"},
 
- descriptionInputContainer: {flex: 0.8, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 2, paddingHorizontal: 6,},
+ descriptionInputContainer: {flex: 0.8, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 2,},
 
  descriptionInput: {width: 260, height: 60, marginBottom: 10, borderColor: treeGreen, borderWidth: 0},
 
@@ -1122,7 +1121,11 @@ const styles = StyleSheet.create({
  justifyContent: 'center',
  alignItems: 'center',
  paddingTop: 4,
- paddingHorizontal: 4
+ paddingHorizontal: 4,
+//  borderTopWidth: 0.5,
+ borderBottomWidth: 0.5,
+ borderColor: darkGray
+
  // height: 
  },
 
@@ -1141,6 +1144,7 @@ const styles = StyleSheet.create({
  fontFamily: 'Avenir Next',
  fontWeight: '400',
  fontSize: 22,
+ color: 'black'
  },
 
  displayedPriceContainer: {
@@ -1158,7 +1162,9 @@ const styles = StyleSheet.create({
 
  priceAdjustmentReminderContainer: {
  justifyContent: 'center',
- padding: 10
+ padding: 10,
+ borderBottomWidth: 0.5,
+ borderColor: darkGray
  },
 
  displayedCondition: new avenirNextText('black', 16, "300"),
@@ -1218,22 +1224,25 @@ const styles = StyleSheet.create({
  },
 
  buttonGroupText: {
- fontFamily: 'Avenir Next',
- fontSize: 14,
- fontWeight: '300',
+    fontFamily: 'Avenir Next',
+    fontSize: 14,
+    fontWeight: '300',
+    color: 'black'
  },
 
  buttonGroupSelectedText: {
- color: 'black'
+    color: '#fff'
  },
 
  buttonGroupContainer: {
- height: 40,
- backgroundColor: iOSColors.lightGray
+    height: 40,
+    backgroundColor: '#edeff2',
+    borderWidth: 1,
+    borderColor: 'black'
  },
  
  buttonGroupSelectedContainer: {
- backgroundColor: mantisGreen
+    backgroundColor: treeGreen
  },
 
  actionButtonContainer: {padding: 5, alignItems: 'center'},

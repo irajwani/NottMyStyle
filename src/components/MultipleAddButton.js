@@ -21,10 +21,42 @@ class MultipleAddButton extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cameraToggle: false, 
+      // cameraToggle: false, 
       showPhotoGallery: false,
       photoArray: []
     };
+  }
+
+  platformSpecificAction = () => {
+    let {navToComponent} = this.props;
+    if(navToComponent == 'EditProfile' || navToComponent == 'CreateProfile') {
+      const options = {
+        title: null,
+        cancelButtonTitle: null,
+        takePhotoButtonTitle: null,
+        chooseFromLibraryButtonTitle: null,
+        cameraType: 'back',
+        mediaType: 'photo',
+    }
+
+      ImagePicker.showImagePicker(options, (response) => {
+          
+        const picture = [response.uri];
+        this.props.navigation.navigate(`${navToComponent}`, {pictureuris: [picture]} );
+          
+          
+      })
+    }
+
+    else {
+      
+      Platform.OS == "ios" ? 
+        this.showActionSheet() 
+        :
+        this.props.navigation.navigate('CameraForEachPicture', {navToComponent: `${navToComponent}` });
+    }
+
+    
   }
 
   showActionSheet = () => {
@@ -35,7 +67,7 @@ class MultipleAddButton extends Component {
 
   cameraOrGallery(index, navToComponent) {
     if (index === 0) {
-      this.setState({cameraToggle: true});
+      // this.setState({cameraToggle: true});
       this.launchCamera(navToComponent);
 
     }
@@ -52,8 +84,12 @@ class MultipleAddButton extends Component {
 
   launchCamera(navToComponent) {
     // console.log('launching camera');
-    
-    Platform.OS == "ios" ? this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` }) : this.launchImagePickerCamera(navToComponent);
+    const {navigation} = this.props;
+    // Platform.OS == "ios" ? 
+    navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` }) 
+      
+      // this.launchImagePickerCamera(navToComponent);
+      
     // this.launchImagePickerCamera(navToComponent);
     
     // if(Platform.OS == 'ios') {
@@ -143,7 +179,7 @@ class MultipleAddButton extends Component {
   renderMainPictureRow = (pictureuris) => {
     return (
       <View style={styles.mainPictureRow}>
-        <TouchableHighlight underlayColor={'transparent'} style={styles.mainPictureTouchContainer} onPress={() => this.showActionSheet()} >
+        <TouchableHighlight underlayColor={'transparent'} style={styles.mainPictureTouchContainer} onPress={this.platformSpecificAction} >
           
             {pictureuris === 'nothing here' ? 
               <View style={[this.props.navToComponent == "CreateProfile" ? styles.mainPictureCP : styles.mainPicture, {justifyContent: 'center', alignItems: 'center'}]}>
@@ -172,7 +208,7 @@ class MultipleAddButton extends Component {
       <ScrollView horizontal={true} scrollEnabled={pictures.length == 3 ? true : false} style={{flex: 0.3,}} contentContainerStyle={styles.otherPicturesRow}>
         
         {pictures.map( (uri, index) => 
-          <TouchableHighlight key={index} underlayColor={'transparent'} style={{paddingHorizontal: 3}} onPress={() => this.showActionSheet()} >
+          <TouchableHighlight key={index} underlayColor={'transparent'} style={{paddingHorizontal: 3}} onPress={this.platformSpecificAction} >
             <Image source={{uri: uri}} style={styles.otherPicture} /> 
           </TouchableHighlight>  
           
@@ -292,8 +328,8 @@ const styles = StyleSheet.create( {
     // resizeMode: 'cover',
     // alignSelf: 'stretch',
     borderRadius: 10,
-    borderColor: treeGreen,
-    borderWidth: 2,
+    borderColor: 'black',
+    borderWidth: 1,
     
   },
 
