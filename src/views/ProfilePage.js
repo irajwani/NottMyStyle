@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import { AsyncStorage, Platform, Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, SafeAreaView } from 'react-native'
+
+import Svg, { Path } from 'react-native-svg';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -18,11 +21,34 @@ import { avenirNextText } from '../constructors/avenirNextText';
 import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen } from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import ProgressiveImage from '../components/ProgressiveImage';
+import { stampShadow, lowerShadow } from '../styles/shadowStyles.js';
+import { textStyles } from '../styles/textStyles.js';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
 
 const noReviewsText = "No Reviews have been\n left for you thus far.";
+
+const minutiaContainer = {marginHorizontal: 2, justifyContent: 'center', alignItems: 'center'};
+
+const ProfileMinutia = ({icon, text}) => (
+  <View style={{flexDirection: 'row', margin: 0}}>
+    <View style={minutiaContainer}>
+      <Icon name={icon} size={20} color={'black'}/>
+    </View>
+    <View style={minutiaContainer}>
+      <Text>{text}</Text>
+    </View>
+  </View>
+
+)
+
+const ButtonContainer = ({children}) => (
+  <View style={{flex: 0.33, alignItems: 'center', justifyContent: 'center'}}>
+    {children}
+  </View>
+)
+
 
 class ProfilePage extends Component {
 
@@ -290,7 +316,9 @@ class ProfilePage extends Component {
     // console.log(comments, 'the user has no comments, perfectly harmless');
     // const gradientColors = ["#a2f76c", "#1c3a09"]
     //kinda like this one
-    const gradientColors = ["#c8f966", "#307206", "#1c3a09"]; 
+    // const gradientColors = ["#c8f966", "#307206", "#1c3a09"]; 
+    const gradientColors = ["#c8f966", "#307206", highlightGreen]; 
+
     
     // const gradientColors = [limeGreen,lightGreen, treeGreen];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
@@ -305,13 +333,13 @@ class ProfilePage extends Component {
  
 
     return (
-      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
-      <View style={styles.headerContainer}>
+      <SafeAreaView style={styles.mainContainer}>
+      
 
         <LinearGradient style={styles.linearGradient} colors={gradientColors}>
         
         
-        <View style={styles.header}>
+        <View style={styles.topContainer}>
 
          
           <View style={styles.iconColumn}>
@@ -327,7 +355,7 @@ class ProfilePage extends Component {
 
           <View style={styles.profileColumn}>
             {this.state.uri ?
-            <TouchableOpacity onPress={this.navToEditProfile}>
+            <TouchableOpacity style={{...stampShadow}} onPress={this.navToEditProfile}>
               <ProgressiveImage 
               style= {styles.profilepic} 
               thumbnailSource={ require('../images/blank.jpg') }
@@ -338,13 +366,14 @@ class ProfilePage extends Component {
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
             }
+            
             <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.pos}>{this.state.country}</Text>
-            {this.state.insta ? 
-              <Text style={styles.insta}>@{this.state.insta}</Text>
-             : 
-              null
-            } 
+
+            <ProfileMinutia icon={'city'} text={this.state.country} />
+
+            {this.state.insta ? <ProfileMinutia icon={'instagram'} text={`@${this.state.insta}`} /> : null}
+
+            
           </View>  
 
           <View style={styles.iconColumn}>
@@ -385,30 +414,74 @@ class ProfilePage extends Component {
           </View>
               
 
-          
-
         </View>
+        
+        
+        <View style={styles.bottomContainer}>
+            <ButtonContainer>
+              <TouchableOpacity onPress={() => {this.props.navigation.navigate('YourProducts')}} style={[styles.blackCircle]}>
+                <Svg height={"60%"} width={"60%"} fill={'#fff'} viewBox="0 0 47.023 47.023">
+                    <Path d="M45.405,25.804L21.185,1.61c-1.069-1.067-2.539-1.639-4.048-1.603L4.414,0.334C2.162,0.39,0.349,2.205,0.296,4.455
+			L0.001,17.162c-0.037,1.51,0.558,2.958,1.627,4.026L25.848,45.38c2.156,2.154,5.646,2.197,7.8,0.042l11.761-11.774
+			C47.563,31.494,47.561,27.958,45.405,25.804z M8.646,14.811c-1.695-1.692-1.696-4.435-0.005-6.13
+			c1.692-1.693,4.437-1.693,6.13-0.003c1.693,1.692,1.694,4.437,0.003,6.129C13.082,16.501,10.338,16.501,8.646,14.811z
+			 M16.824,22.216c-0.603-0.596-1.043-1.339-1.177-1.797l1.216-0.747c0.157,0.48,0.488,1.132,0.997,1.634
+			c0.548,0.541,1.061,0.6,1.403,0.256c0.324-0.329,0.26-0.764-0.152-1.618c-0.575-1.17-0.667-2.219,0.091-2.987
+			c0.888-0.9,2.32-0.848,3.565,0.38c0.594,0.588,0.908,1.146,1.083,1.596l-1.216,0.701c-0.111-0.309-0.34-0.831-0.857-1.341
+			c-0.518-0.51-0.999-0.522-1.269-0.247c-0.333,0.336-0.182,0.778,0.246,1.708c0.59,1.265,0.549,2.183-0.183,2.928
+			C19.696,23.566,18.272,23.645,16.824,22.216z M22.596,27.758l0.929-1.756l-1.512-1.493l-1.711,0.985l-1.238-1.223l6.82-3.686
+			l1.566,1.547l-3.572,6.891L22.596,27.758z M24.197,29.337l5.207-5.277l1.2,1.183l-4.221,4.273l2.099,2.072l-0.989,1.002
+			L24.197,29.337z M35.307,31.818l-2.059-2.032l-1.083,1.096l1.942,1.917l-0.959,0.972l-1.941-1.917l-1.235,1.251l2.168,2.142
+			l-0.965,0.979l-3.366-3.322l5.209-5.276l3.255,3.215L35.307,31.818z" stroke="#fff" strokeWidth="0.8"/>
+                    <Path d="M23.068,23.788l1.166,1.151l1.499-2.741C25.347,22.434,23.068,23.788,23.068,23.788z" stroke="#fff" strokeWidth="0.8"/>
+                </Svg>
+              </TouchableOpacity>
+            </ButtonContainer>
+
+            <ButtonContainer>
+              <TouchableOpacity onPress={() => {this.props.navigation.navigate('Sell')}} style={styles.whiteCircle}>
+                <Icon name={'plus'} size={60} color='black'/>
+              </TouchableOpacity>
+            </ButtonContainer>
+
+            <ButtonContainer>
+              <TouchableOpacity onPress={() => {this.props.navigation.navigate('SoldProducts')}} style={styles.blackCircle}>
+                <Text style={{fontFamily: 'Avenir Next', fontWeight: "700", fontSize: 16, color:'#fff'}}>SOLD</Text>
+              </TouchableOpacity>
+            </ButtonContainer>
+        </View>
+        
         
 
       </LinearGradient>
-      </View>
+      
+      {/* <Svg height="50%" width="50%" viewBox="0 0 100 100">
+          <Circle
+            cx={width}
+            cy={400}
+            r="30"
+            fill="green"
+            stroke="#C5CACD"
+            strokeWidth="2"
+          />
+        </Svg> */}
 
       
-      <View style={styles.midContainer}>
+      {/* <View style={styles.midContainer}>
         
           <View style={[styles.numberCard, {borderRightWidth: 1}]}>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts}</Text>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>ON SALE</Text>
           </View>
 
-          {/* <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} /> */}
+          
 
           <View style={[styles.numberCard, {borderLeftWidth: 1}]}>
             <Text onPress={() => {this.props.navigation.navigate('SoldProducts')}} style={styles.numberProducts}>{this.state.soldProducts} </Text>
             <Text onPress={() => {this.props.navigation.navigate('SoldProducts')}} style={styles.subText}>SOLD</Text>
           </View>    
         
-      </View>
+      </View> */}
       
       
       <View style={styles.footerContainer} >
@@ -461,7 +534,7 @@ class ProfilePage extends Component {
 
             
 
-      </View>
+      </SafeAreaView>
       
 
 
@@ -511,27 +584,38 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     padding: 0,
+    backgroundColor: '#fff'
     // marginTop: 18
   },
-  headerContainer: {
-    flex: 4, //4/7
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    // backgroundColor: 'pink'
-  },
+  
 
   linearGradient: {
-    flex: 1,
+    flex: 0.7, //4/7
+    flexDirection: 'column',
+    // justifyContent: 'space-evenly',
+    // flex: 1,
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
+    
   },
 
-  header: {
-    flex: 1,
+  topContainer: {
     flexDirection: 'row',
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    padding: 0, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
-    // backgroundColor: 'white',
-    // height: height/1.8,
+    flex: 0.7
+  },
+
+  bottomContainer: {
+    flex: 0.3,    
+    flexDirection: 'row'
+    // borderBottomColor: 'black',
+    // borderBottomWidth: 1,
+    // backgroundColor: 'red',    
+    // borderRadius: width/5,
+    // width: width,
+    // height: width,
+    // top: 0, // show the bottom part of circle
+    // overflow: 'hidden',
+    // marginLeft: -100,
   },
 
   iconColumn: {
@@ -546,6 +630,7 @@ const styles = StyleSheet.create({
 
   profileColumn: {
     flex: 0.5,
+    marginTop: 25,
     justifyContent: 'center',
     alignItems: 'center',
     // marginVertical: 20
@@ -616,30 +701,28 @@ const styles = StyleSheet.create({
 
   },
 
-  midContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    // width: width,
-    // height: height/7.5,
-    backgroundColor: '#cdcdd6',
-    justifyContent: 'center'
+  blackCircle: {
+    marginBottom: 10,
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+    ...stampShadow
   },
 
-  numberCard: {
-    flex: 79.5,
+  whiteCircle: {
+    marginTop: 15,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    // padding: 5,
     justifyContent: 'center',
-    alignContent: 'center',
     alignItems: 'center',
-    borderColor: graphiteGray,
-    // width: width/2 - 20,
-    // height: 60,
-    //55
-    // paddingTop: 20,
-    // paddingBottom: 5,
-    // paddingLeft: 30,
-    // paddingRight: 30,
-    
-    // borderRadius: 0,
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 4
   },
 
   subText: {
@@ -650,7 +733,7 @@ const styles = StyleSheet.create({
   },
 
   footerContainer: {
-    flex: 2,
+    flex: 0.3,
     flexDirection: 'column',
     padding: 2,
     backgroundColor: '#fff'
@@ -690,16 +773,10 @@ const styles = StyleSheet.create({
     borderRadius: 65,
     borderColor: '#fff',
     borderWidth: 0,
+    ...stampShadow,
     // opacity: 0.1
   },
-  name: {
-    fontFamily: avenirNext,
-    marginTop: 5,
-    fontSize: 22,
-    color: '#fff',
-    fontWeight: 'normal',
-    textAlign: 'center'
-  },
+  
   numberProducts: {
     fontFamily: avenirNext,
     fontSize: 28,
@@ -711,20 +788,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     fontWeight: 'bold'
-  }
-  ,
+  },
+
+  name: {
+    ...textStyles.generic,
+    marginTop: 10,
+    fontSize: 18,
+  },
   pos: {
-    fontFamily: avenirNext,
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '300',
+    ...textStyles.generic,
+    fontWeight: "200"
     // fontStyle: 'italic'
   },
   insta: {
-    fontFamily: avenirNext,
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: '300',
+    ...textStyles.generic,
+    fontWeight: "200"
     // fontStyle: 'italic'
   },
 
@@ -763,11 +841,10 @@ const styles = StyleSheet.create({
 // },
 
 reviewsHeader: {
-  fontFamily: 'Avenir Next',
-  fontSize: 24,
-  fontWeight: "normal",
-  textAlign: 'left'
-  // paddingLeft: 10
+  ...textStyles.generic,
+  fontSize: 30,
+  fontWeight: "200",
+  letterSpacing: 1
 },
 
 commentContainer: {

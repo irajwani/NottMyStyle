@@ -226,7 +226,7 @@ export default class Comments extends React.Component {
 
                         <View style={{flex: 0.2}}>
                             <Text 
-                            style={styles.postText}
+                            style={[styles.postText, {opacity: this.state.commentString ? 1 : 0.5}]}
                             onPress={ () => {
                                 if(this.state.commentString) {
                                     type == 'products' ? 
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
         ...textStyles.generic,
         color: highlightGreen,
         fontSize: 16,
-        fontWeight: "500",
+        fontWeight: "800",
         textAlign: "left"
     },
 
@@ -364,13 +364,14 @@ const styles = StyleSheet.create({
 
         footerElementContainer: {
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            // padding: 3,
         },
 
             footerImage: {
-                width: 35,
-                height: 35,
-                borderRadius: 17.5
+                width: 45,
+                height: 45,
+                borderRadius: 22.5
             },
 
             input: {
