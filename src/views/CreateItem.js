@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView, Fragment } from 'react-native'
+import { Platform, SafeAreaView, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView, Fragment } from 'react-native'
 import {withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
@@ -606,9 +606,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
     return (
     
-    
+        <SafeAreaView style={{flex: 1}}>
         <ScrollView
-        style={{flex: 1, marginTop: Platform.OS == "ios" ? 22 : 0}}
+        style={{flex: 1}}
         contentContainerStyle={styles.contentContainer}
         >
 
@@ -1060,6 +1060,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             <Divider style={{ backgroundColor: '#fff', height: 10 }} />
 
         </ScrollView>
+        </SafeAreaView>
     
     
     

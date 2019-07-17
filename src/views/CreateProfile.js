@@ -176,25 +176,46 @@ class CreateProfile extends Component {
     this.setState({modalVisible: visible});
   }
   //Invoked when you 'Accept' EULA as a Google User trying to sign up
-  createProfileForGoogleOrFacebookUser = async (user, pictureuri) => {
+  createProfileForGoogleOrFacebookUser = async (user, pictureuri, socialPlatform) => {
     console.log('Initiate FB or Google Sign Up')
     this.setState({createProfileLoading: true});
-    const {idToken, accessToken} = user;
-    const credential = await firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);      
-    const socialUser = await firebase.auth().signInWithCredential(credential);
-    const {email, pass} = this.state
-    const linkWithEmailCredential = await firebase.auth.EmailAuthProvider.credential(email, pass);
-    console.log(credential);
-    firebase.auth().currentUser.linkAndRetrieveDataWithCredential(linkWithEmailCredential).then( (usercred) => {
-        // console.log(usercred);
-        this.updateFirebase(this.state, pictureuri, mime='image/jpg',socialUser.uid, );
-        // console.log("Account linking success", usercred.user);
-      }, function(error) {
-        console.log("Account linking error", error);
-      });
+    if(socialPlatform == "google") {
+        const {idToken, accessToken} = user;
+        const credential = await firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+        const socialUser = await firebase.auth().signInWithCredential(credential);
+        const {email, pass} = this.state
+        const linkWithEmailCredential = await firebase.auth.EmailAuthProvider.credential(email, pass);
+        console.log(credential);
+        firebase.auth().currentUser.linkAndRetrieveDataWithCredential(linkWithEmailCredential).then( (usercred) => {
+            // console.log(usercred);
+            this.updateFirebase(this.state, pictureuri, mime='image/jpg',socialUser.uid, );
+            // console.log("Account linking success", usercred.user);
+        }, function(error) {
+            console.log("Account linking error", error);
+        });   
+    }
+    else {
+        const {accessToken} = user;
+        const credential = await firebase.auth.FacebookAuthProvider.credential(accessToken);
+        const socialUser = await firebase.auth().signInWithCredential(credential);
+        const {email, pass} = this.state
+        const linkWithEmailCredential = await firebase.auth.EmailAuthProvider.credential(email, pass);
+        console.log(credential);
+        firebase.auth().currentUser.linkAndRetrieveDataWithCredential(linkWithEmailCredential).then( (usercred) => {
+            // console.log(usercred);
+            this.updateFirebase(this.state, pictureuri, mime='image/jpg',socialUser.uid, );
+            // console.log("Account linking success", usercred.user);
+        }, function(error) {
+            console.log("Account linking error", error);
+        });
+    }
+       
+    
     
     
   }
+
+
 
   //Invoked when you 'Accept' EULA as a User trying to sign up through standard process
   createProfile = (email, pass, pictureuri) => {
@@ -302,16 +323,16 @@ class CreateProfile extends Component {
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')
             .then((data) => {
-            return Blob.build(data, { type: `${mime};BASE64` })
+                return Blob.build(data, { type: `${mime};BASE64` })
             })
             .then((blob) => {
-            console.log('got to blob')
-            uploadBlob = blob
-            return imageRef.put(blob, { contentType: mime })
+                console.log('got to blob')
+                uploadBlob = blob
+                return imageRef.put(blob, { contentType: mime })
             })
             .then(() => {
-            uploadBlob.close()
-            return imageRef.getDownloadURL()
+                uploadBlob.close()
+                return imageRef.getDownloadURL()
             })
             .then((url) => {
     
@@ -635,7 +656,7 @@ class CreateProfile extends Component {
             </View>
 
 
-            <ScrollView style={{flex: 0.50}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
+            <ScrollView style={{flex: 0.45}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
             
             {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
             
@@ -860,7 +881,7 @@ class CreateProfile extends Component {
 
                     <TouchableOpacity
                         style={[styles.decisionButton, {backgroundColor: mantisGreen}]}
-                        onPress={() => {console.log('Sign Up Initiated') ; googleUser || facebookUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
+                        onPress={() => {console.log('Sign Up Initiated') ; googleUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0], 'google') : facebookUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0], 'facebook') : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
                     >
                         <Text style={new avenirNextText('#fff', 16, "500")}>Accept</Text>
                     </TouchableOpacity>
@@ -1037,7 +1058,7 @@ const styles = StyleSheet.create({
     
     inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
 
-    signUpButtonContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'center'},
+    signUpButtonContainer: {flex: 0.25,justifyContent: 'center', alignItems: 'center'},
 
     signUpButton: {
         width: 175,

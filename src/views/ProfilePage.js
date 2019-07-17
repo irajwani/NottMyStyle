@@ -336,12 +336,13 @@ class ProfilePage extends Component {
       <SafeAreaView style={styles.mainContainer}>
       
 
-        <LinearGradient style={styles.linearGradient} colors={gradientColors}>
+        <View style={styles.linearGradient}>
+          <View style={styles.oval}/>
           
           
         
           <View style={styles.topContainer}>
-
+            
           
             <View style={styles.iconColumn}>
               <Icon 
@@ -450,10 +451,13 @@ class ProfilePage extends Component {
                   <Text style={{fontFamily: 'Avenir Next', fontWeight: "700", fontSize: 16, color:'#fff'}}>SOLD</Text>
                 </TouchableOpacity>
               </ButtonContainer>
+
           </View>
 
+          
 
-      </LinearGradient>
+
+      </View>
       
       {/* <Svg height="50%" width="50%" viewBox="0 0 100 100">
           <Circle
@@ -591,8 +595,9 @@ const styles = StyleSheet.create({
 
   linearGradient: {
     flex: 0.7,
+    overflow: 'visible',
     
-    // backgroundColor: "#c8f966"
+    backgroundColor: "#c8f966"
     // alignSelf: 'center',
     // width: width,
     // overflow: 'hidden', // for hide the not important parts from circle
@@ -615,11 +620,11 @@ const styles = StyleSheet.create({
 
   topContainer: {
     flexDirection: 'row',
-    flex: 0.7
+    flex: 0.65
   },
 
   bottomContainer: {
-    flex: 0.3,    
+    flex: 0.35,    
     flexDirection: 'row'
     // borderBottomColor: 'black',
     // borderBottomWidth: 1,
@@ -631,6 +636,23 @@ const styles = StyleSheet.create({
     // overflow: 'hidden',
     // marginLeft: -100,
   },
+
+    oval: {
+      // flex: 0.1,
+      // marginTop: ,
+      marginTop: width/3,
+      position: 'absolute',
+      width: width,
+      height: width,
+      borderRadius: width,
+      backgroundColor: 'red',
+      // borderWidth:2,
+      // borderColor:'black',
+      transform: [
+        {scaleX: 2}
+      ],
+      // backgroundColor: 'green'
+    },
 
   iconColumn: {
     flex: 0.25,

@@ -15,7 +15,7 @@ import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 
 import {GoogleSignin} from 'react-native-google-signin'
-import {LoginManager, AccessToken} from 'react-native-fbsdk';
+import {LoginManager, AccessToken, GraphRequest, GraphRequestManager} from 'react-native-fbsdk';
 
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import { systemWeights, iOSColors } from 'react-native-typography';
@@ -282,7 +282,7 @@ class SignIn extends Component {
             googleUserBoolean && !facebookUserBoolean ? 
                 this.props.navigation.navigate('CreateProfile', {user: socialUser, googleUserBoolean: true, facebookUserBoolean: false, pictureuris: [socialUser.user.photo],})
             :
-                this.props.navigation.navigate('CreateProfile', {user: socialUser, googleUserBoolean: false, facebookUserBoolean: true, pictureuris: [socialUser.user.photoURL],})
+                this.props.navigation.navigate('CreateProfile', {user: socialUser, googleUserBoolean: false, facebookUserBoolean: true, pictureuris: [socialUser.user.picture.data.url],})
                 //this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean, pictureuris: [user.photoURL],})
     }
 
@@ -327,6 +327,7 @@ class SignIn extends Component {
         this.setState({loading: true});
 
         //Neat Trick: Define two functions (one for success, one for error), with a thenable based on the object returned from the Promise.
+        LoginManager.logOut();
         LoginManager.logInWithReadPermissions(['email']).then(
             (result) => {
               console.log("OVER THERE, OVER THERE" +result);  
@@ -334,28 +335,57 @@ class SignIn extends Component {
                 this.setState({loading: false});
               } 
               else {
-                AccessToken.getCurrentAccessToken().then( (data) => {
-                    console.log("access token retrieved: " + data + data.accessToken);
+                
+                AccessToken.getCurrentAccessToken().then( (token) => {
+                    // console.log(data)
+                    const infoRequest = new GraphRequest(
+                        '/me?fields=name,picture,email',
+                        null,
+                        async (error, result) => {
+                            if(error) {
+                                alert('Error fetching data: ' + error.toString());
+                            }
+                            else {
+                                console.log("GraphRequest was successful");
+                                let {data} = await isUserRegistered(result.email);
+                                if(data.isRegistered) {
+                                    this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
+                                }
+                                else {
+                                    let socialInformation = {
+                                        accessToken: token.accessToken,
+                                        user: result
+                                    }
+                                    this.setState({loading: false}, () => {this.attemptSignUp(socialInformation, false, true)})
+                                }
+                            }
+                        }
+                    );
+                    // Start the graph request.
+                    new GraphRequestManager().addRequest(infoRequest).start();
+
+
+                    // console.log("access token retrieved: " + data + data.accessToken);
                     //Credential below throws an error if the associated email address already has an account within firebase auth
-                    var credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-                    console.log("the credential is:" + credential)
-                    return firebase.auth().signInWithCredential(credential);
-                    // firebase.auth().signInWithCredential(credential)
-                    // .then( () => {
-                    //     console.log("Firebase User Is:" + currentUser);
-                    // })
-                    // .catch( err => console.log(err));
+
+                    // var credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+                    // console.log("the credential is:" + credential)
+                    // return firebase.auth().signInWithCredential(credential);
+
+                    
 
                 } )
                 
-                .then( (currentUser) => {
-                    console.log("Firebase User Is:" + currentUser);
-                    this.successfulLoginCallback(currentUser, googleUserBoolean = false, facebookUserBoolean = true);
-                })
-                .catch( err => {
-                    alert("The login failed because: " + err);
-                    this.setState({loading: false});
-                })
+                // .then( (currentUser) => {
+                //     console.log("Firebase User Is:" + currentUser);
+                //     this.successfulLoginCallback(currentUser, googleUserBoolean = false, facebookUserBoolean = true);
+                // })
+                // .catch( err => {
+                //     alert("The login failed because: " + err);
+                //     this.setState({loading: false});
+                // })
+
+
                 // .catch( (err) => alert('Login failed with error: ' + err))
                 // alert('Login was successful with permissions: '
                 //   + result.grantedPermissions.toString());
