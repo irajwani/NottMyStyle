@@ -18,7 +18,7 @@ import { avenirNextText } from '../constructors/avenirNextText.js';
 import { center } from '../constructors/center.js';
 import ImageResizer from 'react-native-image-resizer';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 // TODO: store these in common file as thumbnail spec for image resizing
 const maxWidth = 320, maxHeight = 320, suppressionLevel = 0;
@@ -92,7 +92,7 @@ class CreateProfile extends Component {
           previousUri: false,
 
           //Keyboard Aware View Stuff
-          keyboardShown: true,
+          keyboardShown: false,
         //   shift: new Animated.Value(0),
       }
   }
@@ -635,7 +635,7 @@ class CreateProfile extends Component {
             </View>
 
 
-            <ScrollView style={{flex: 0.75}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? 30 : 0}]}>
+            <ScrollView style={{flex: 0.50}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
             
             {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
             
@@ -929,29 +929,32 @@ class CreateProfile extends Component {
             </Modal>
 
             {/* Action Buttons */}
-            
-            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginVertical: 10}} disabled={this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
-                <TouchableOpacity
-                    disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
-                    style={styles.signUpButton}
-                    onPress={
-                        () => {
-                        if(this.state.editProfileBoolean) {
-                            this.editProfile(this.state, pictureuris[0], mime = 'image/jpg', this.state.uid);
-                        }
-                        else {
-                            this.setModalVisible(true);
-                        }
-                        
-                        }} 
-                >
-                    <Text style={new avenirNextText("black", 20, "300")}>{this.state.editProfileBoolean ? "Edit Profile" : "Create Account" }</Text>
-                </TouchableOpacity>
-            </TouchableOpacity>
 
             {this.renderLocationSelectModal()}
             
         </ScrollView>
+
+        
+        <TouchableOpacity style={styles.signUpButtonContainer} disabled={this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
+            <TouchableOpacity
+                disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
+                style={styles.signUpButton}
+                onPress={
+                    () => {
+                    if(this.state.editProfileBoolean) {
+                        this.editProfile(this.state, pictureuris[0], mime = 'image/jpg', this.state.uid);
+                    }
+                    else {
+                        this.setModalVisible(true);
+                    }
+                    
+                    }} 
+            >
+                <Text style={new avenirNextText("black", 20, "300")}>{this.state.editProfileBoolean ? "Edit Profile" : "Create Account" }</Text>
+            </TouchableOpacity>
+        </TouchableOpacity>
+        
+
         </SafeAreaView>
         )
       
@@ -992,19 +995,23 @@ const styles = StyleSheet.create({
     //     paddingTop: 5,
     // },
     container: {
+        
         flexGrow: 1, 
         flexDirection: 'column',
         justifyContent: 'center',
         // paddingBottom: 30,
         //alignItems: 'center'
+        // marginTop: 20,
         paddingLeft: 10,
         paddingRight: 10,
+
         
 
     },
 
     backIconAndMABAndHelpContainer: {
-        flex: 0.25,flexDirection: 'row', 
+        flex: 0.3,flexDirection: 'row', 
+        // backgroundColor: 'red',
         margin: 5,
         paddingVertical: 3, paddingRight: 2, paddingLeft: 1 
     },
@@ -1029,6 +1036,8 @@ const styles = StyleSheet.create({
     },
     
     inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
+
+    signUpButtonContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'center'},
 
     signUpButton: {
         width: 175,
