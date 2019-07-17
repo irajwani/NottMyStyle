@@ -30,22 +30,28 @@ class MultipleAddButton extends Component {
   platformSpecificAction = () => {
     let {navToComponent} = this.props;
     if(navToComponent == 'EditProfile' || navToComponent == 'CreateProfile') {
-      const options = {
-        title: null,
-        cancelButtonTitle: null,
-        takePhotoButtonTitle: null,
-        chooseFromLibraryButtonTitle: null,
-        cameraType: 'back',
-        mediaType: 'photo',
-    }
-
-      ImagePicker.showImagePicker(options, (response) => {
-          
-        const picture = [response.uri];
-        this.props.navigation.navigate(`${navToComponent}`, {pictureuris: [picture]} );
-          
-          
-      })
+      if(Platform.OS == "ios") {
+        this.showActionSheet();
+      }
+      else {
+        const options = {
+          title: null,
+          cancelButtonTitle: null,
+          takePhotoButtonTitle: null,
+          chooseFromLibraryButtonTitle: null,
+          cameraType: 'back',
+          mediaType: 'photo',
+      }
+  
+        ImagePicker.showImagePicker(options, (response) => {
+            
+          const picture = [response.uri];
+          this.props.navigation.navigate(`${navToComponent}`, {pictureuris: [picture]} );
+            
+            
+        })
+      }
+      
     }
 
     else {
@@ -74,7 +80,8 @@ class MultipleAddButton extends Component {
     //request photos permission on lower versions of android to launch gallery
     //On iOS and sufficiently high versions of Android, just open gallery
     if (index == 1) {
-      Platform.OS == "android" ? Platform.Version <= 22 ? this.launchGallery(navToComponent) : this.requestPhotosPermission(navToComponent) : this.launchGallery(navToComponent);
+      this.launchGallery(navToComponent);
+      // Platform.OS == "android" ? Platform.Version <= 22 ? this.launchGallery(navToComponent) : this.requestPhotosPermission(navToComponent) : this.launchGallery(navToComponent);
     }
     
     // if (index == 0) {
@@ -337,7 +344,7 @@ const styles = StyleSheet.create( {
     width: 130,
     height: 130,
     borderRadius: 65,
-    backgroundColor: '#fff'
+    // backgroundColor: '#fff'
   },
 
   otherPicturesRow: {

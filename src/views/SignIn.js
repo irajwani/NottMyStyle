@@ -29,6 +29,8 @@ import {lightGray, treeGreen, highlightGreen, lightGreen, logoGreen, mantisGreen
 import { LoadingIndicator, SignInTextInput, CustomTextInput } from '../localFunctions/visualFunctions.js';
 import { filterObjectByKeys } from '../localFunctions/arrayFunctions.js';
 import Svg, { Path } from 'react-native-svg';
+import config from '../Config/index.js';
+import { isUserRegistered } from '../Services/AuthService.js';
 // import { withNavigation } from 'react-navigation';
 const {width,} = Dimensions.get('window');
 
@@ -116,7 +118,7 @@ class SignIn extends Component {
                 iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
             })
             :
-            GoogleSignin.configure()
+            GoogleSignin.configure();
         
 
         let i = 0;
@@ -214,7 +216,6 @@ class SignIn extends Component {
         
     //   }
 
-
     // Invoked when onSignInPress() AND signInWithGoogle()  are pressed: 
     // that is when user presses Sign In Button, or when they choose to sign up or sign in through Google 
     //The G and F UserBooleans are used only in the attemptSignUp function to determine what data to navigate with to the CreateProfile Screen.
@@ -270,24 +271,24 @@ class SignIn extends Component {
     }
 
     //Invoked when user tries to sign in even though they don't exist in the system yet
-    attemptSignUp = (user, googleUserBoolean, facebookUserBoolean) => {
+    attemptSignUp = (socialUser, googleUserBoolean, facebookUserBoolean) => {
         //check if user wishes to sign up through standard process (the former) or through google or through facebook so 3 cases
         //
-        console.log('attempting to sign up', user);
+        console.log('attempting to sign up', socialUser);
         this.setState({loading: false});
-        !user ? 
+        !socialUser ? 
             this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean: false, facebookUserBoolean: false})
         :
             googleUserBoolean && !facebookUserBoolean ? 
-                this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean: true, facebookUserBoolean: false, pictureuris: [user.photoURL],})
+                this.props.navigation.navigate('CreateProfile', {user: socialUser, googleUserBoolean: true, facebookUserBoolean: false, pictureuris: [socialUser.user.photo],})
             :
-                this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean: false, facebookUserBoolean: true, pictureuris: [user.photoURL],})
+                this.props.navigation.navigate('CreateProfile', {user: socialUser, googleUserBoolean: false, facebookUserBoolean: true, pictureuris: [socialUser.user.photoURL],})
                 //this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean, pictureuris: [user.photoURL],})
     }
 
     //onPress Google Icon
     signInWithGoogle = () => {
-        !this.state.loading ? this.setState({loading: true, showGoogleLoading: true}) : null;
+        !this.state.loading ? this.setState({loading: true}) : null;
         console.log('trying to sign with google')
         GoogleSignin.signIn()
         .then((data) => {
@@ -295,17 +296,28 @@ class SignIn extends Component {
             //need a way to unlink google account and revive original chain fully so user may use another google account to sign up
             //maybe look at other apps
             console.log(data);
-            var {idToken, accessToken} = data;
-            const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
-            console.log(credential);
-
             
-            return firebase.auth().signInWithCredential(credential);
+            let {idToken, accessToken, user} = data;
+            let socialInformation = {
+                idToken, accessToken, user
+            }
+            return socialInformation;
             
         })
-        .then((currentUser) => {
-            this.successfulLoginCallback(currentUser, googleUserBoolean = true, facebookUserBoolean = false);
-            console.log('successfully signed in:', currentUser);
+        .then(async (socialInformation) => {
+            console.log(socialInformation.user.email)
+            let {data} = await isUserRegistered(socialInformation.user.email);
+            if(data.isRegistered) {
+                this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
+            }
+            else {
+                this.setState({loading: false}, () => {this.attemptSignUp(socialInformation, true, false)})
+            }
+            
+            
+            // console.log("STATUS:" + JSON.stringify(isRegistered));
+            // this.successfulLoginCallback(currentUser, googleUserBoolean = true, facebookUserBoolean = false);
+            // console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
         .catch( (err) => {alert("Error is that: " + err); this.setState({loading: false})})

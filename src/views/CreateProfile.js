@@ -67,11 +67,11 @@ class CreateProfile extends Component {
       this.editProfileBoolean = this.props.navigation.getParam('editProfileBoolean', false)
       this.state = {
           uid:  this.editProfileBoolean ? firebase.auth().currentUser.uid : '',
-          email: params.googleUserBoolean || params.facebookUserBoolean ? params.user.email : '',
+          email: params.googleUserBoolean || params.facebookUserBoolean ? params.user.user.email : '',
           pass: '',
           pass2: '',
-          firstName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[0] : '',
-          lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[1] : '',
+          firstName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.user.name.split(" ")[0] : '',
+          lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.user.name.split(" ")[1] : '',
           city: '',    
           country: '',
         //   size: 1,
@@ -176,16 +176,19 @@ class CreateProfile extends Component {
     this.setState({modalVisible: visible});
   }
   //Invoked when you 'Accept' EULA as a Google User trying to sign up
-  createProfileForGoogleOrFacebookUser = (user, pictureuri) => {
+  createProfileForGoogleOrFacebookUser = async (user, pictureuri) => {
     console.log('Initiate FB or Google Sign Up')
     this.setState({createProfileLoading: true});
+    const {idToken, accessToken} = user;
+    const credential = await firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);      
+    const socialUser = await firebase.auth().signInWithCredential(credential);
     const {email, pass} = this.state
-    var credential = firebase.auth.EmailAuthProvider.credential(email, pass);
+    const linkWithEmailCredential = await firebase.auth.EmailAuthProvider.credential(email, pass);
     console.log(credential);
-    firebase.auth().currentUser.linkAndRetrieveDataWithCredential(credential).then( (usercred) => {
-        console.log(usercred);
-        this.updateFirebase(this.state, pictureuri, mime='image/jpg',user.uid, );
-        console.log("Account linking success", usercred.user);
+    firebase.auth().currentUser.linkAndRetrieveDataWithCredential(linkWithEmailCredential).then( (usercred) => {
+        // console.log(usercred);
+        this.updateFirebase(this.state, pictureuri, mime='image/jpg',socialUser.uid, );
+        // console.log("Account linking success", usercred.user);
       }, function(error) {
         console.log("Account linking error", error);
       });
@@ -539,8 +542,8 @@ class CreateProfile extends Component {
             </View>
 
             <View style={styles.locationSelectBody}>
-                {locations.map((location) => (
-                    <TouchableOpacity onPress={()=>{
+                {locations.map((location, index) => (
+                    <TouchableOpacity key={index} onPress={()=>{
                         this.setState({country: location.country}, this.toggleShowCountrySelect)
                     }} 
                     style={[{flexDirection: 'row'}, {borderBottomColor: '#fff', borderBottomWidth: 1}]}>
@@ -596,9 +599,9 @@ class CreateProfile extends Component {
 
     if(createProfileLoading) {
         return (
-            <View style={[styles.loadingIndicatorContainer,  {marginTop: Platform.OS == "ios" ? 22 : 0}]}>
+            <SafeAreaView style={styles.loadingIndicatorContainer}>
                 <LoadingIndicator isVisible={createProfileLoading} color={treeGreen} type={'Wordpress'}/>
-            </View>
+            </SafeAreaView>
         )
     }
 
@@ -632,7 +635,7 @@ class CreateProfile extends Component {
             </View>
 
 
-            <ScrollView style={{flex: 0.75}} contentContainerStyle={styles.container}>
+            <ScrollView style={{flex: 0.75}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? 30 : 0}]}>
             
             {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
             
@@ -992,7 +995,7 @@ const styles = StyleSheet.create({
         flexGrow: 1, 
         flexDirection: 'column',
         justifyContent: 'center',
-        paddingBottom: 30,
+        // paddingBottom: 30,
         //alignItems: 'center'
         paddingLeft: 10,
         paddingRight: 10,
@@ -1000,7 +1003,11 @@ const styles = StyleSheet.create({
 
     },
 
-    backIconAndMABAndHelpContainer: {flex: 0.25,flexDirection: 'row', paddingVertical: 3, paddingRight: 2, paddingLeft: 1 },
+    backIconAndMABAndHelpContainer: {
+        flex: 0.25,flexDirection: 'row', 
+        margin: 5,
+        paddingVertical: 3, paddingRight: 2, paddingLeft: 1 
+    },
 
     inputContainer: {
         marginVertical: 7,
@@ -1029,7 +1036,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: "#fff",
         justifyContent: 'center', alignItems: 'center',
-        ...new shadow(2,2,almostWhite, -2,2)
+        ...new shadow(4,2,'black', -4,4)
     },
 
     headerBar: {
