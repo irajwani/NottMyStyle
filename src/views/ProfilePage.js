@@ -18,7 +18,7 @@ import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
 import { avenirNextText } from '../constructors/avenirNextText';
 
-import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen, lightGray } from '../colors.js';
+import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen, lightGray, yellowGreen } from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { stampShadow, lowerShadow } from '../styles/shadowStyles.js';
@@ -100,6 +100,14 @@ class ProfilePage extends Component {
     
   }
 
+  // componentDidMount = () => {
+  //   const messaging = firebase.messaging();
+  //   messaging.onMessage((payload) => {
+  //     console.log('Message received. ', payload);
+      
+  //   });
+  // }
+
   updatePushToken = async (uid, token) => {
     var updates = {};
     updates[`/Users/${uid}/pushToken`] = token;
@@ -119,21 +127,24 @@ class ProfilePage extends Component {
         this.updatePushToken(your_uid, token);
       }
 
-      if(currentUser.notifications && token) {
-        //check if whether this person deserves Upload Item notification
-        if(currentUser.profile.isNoob == true) {
-          console.log('Send Upload item Notification')
-          let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
-          notificationDate = new Date();
-          notificationDate.setMinutes(notificationDate.getMinutes() + 3);
-          PushNotification.localNotificationSchedule({
-              message: message,// (required)
-              date: notificationDate,
-              vibrate: false,
-          });
-          
-        }
+      
+      //check if whether this person deserves Upload Item notification
+      if(token && currentUser.profile.isNoob == true) {
+        console.log('Send Upload item Notification')
+        let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
+        notificationDate = new Date();
+        notificationDate.setMinutes(notificationDate.getMinutes() + 3);
+        PushNotification.localNotificationSchedule({
+            message: message,// (required)
+            date: notificationDate,
+            vibrate: false,
+        });
+        
+      }
+      
 
+      if(currentUser.notifications && token) {
+        //PriceReduction Notifications
         this.shouldSendNotifications(currentUser.notifications);
       }
 
@@ -337,6 +348,7 @@ class ProfilePage extends Component {
       
 
         <View style={styles.linearGradient}>
+          
           <View style={styles.oval}/>
           
           
@@ -369,7 +381,7 @@ class ProfilePage extends Component {
                 <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
               }
               
-              <Text style={styles.name}>{this.state.name}</Text>
+              <Text style={[styles.name, {textAlign: 'center'}]}>{this.state.name}</Text>
 
               <ProfileMinutia icon={'city'} text={this.state.country} />
 
@@ -588,16 +600,20 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     padding: 0,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
     // marginTop: 18
   },
   
 
   linearGradient: {
     flex: 0.7,
-    overflow: 'visible',
+    // overflow: 'hidden',
+    // position: "relative",
+    // backgroundColor: "#c8f966",
+    //backgroundColor: 'red',
+    // borderWidth:2,
+    // borderColor:'black',
     
-    backgroundColor: "#c8f966"
     // alignSelf: 'center',
     // width: width,
     // overflow: 'hidden', // for hide the not important parts from circle
@@ -637,22 +653,23 @@ const styles = StyleSheet.create({
     // marginLeft: -100,
   },
 
-    oval: {
-      // flex: 0.1,
-      // marginTop: ,
-      marginTop: width/3,
-      position: 'absolute',
-      width: width,
-      height: width,
-      borderRadius: width,
-      backgroundColor: 'red',
-      // borderWidth:2,
-      // borderColor:'black',
-      transform: [
-        {scaleX: 2}
-      ],
-      // backgroundColor: 'green'
-    },
+  oval: {
+    // marginTop: "10%",
+    // marginTop: width/3,
+    width: width,
+    height: "100%",
+    borderBottomLeftRadius: width,
+    borderBottomRightRadius: width,
+    //backgroundColor: 'red',
+    // borderWidth:2,
+    // borderColor:'black',
+    position: "absolute",
+    transform: [
+      {scaleX: 2}
+    ],
+    // top: 10,
+    backgroundColor: yellowGreen
+  },
 
   iconColumn: {
     flex: 0.25,

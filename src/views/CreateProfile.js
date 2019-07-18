@@ -305,11 +305,11 @@ class CreateProfile extends Component {
     updates['/Users' + uid + '/products/'] = '';
     //Now we have a user who may go through the app without components crashing
     
-    let promiseToUploadPhoto = new Promise((resolve, reject) => {
+    let promiseToUploadPhoto = new Promise(async (resolve, reject) => {
         //We want to take a user's uri, resize the photos (necessary when picture is locally taken),
         //and then upload them to cloud storage, and store the url refs on cloud db;
 
-        if(uri.includes('googleusercontent') || uri.includes('facebook')) {
+        if(uri.includes('googleusercontent') || uri.includes('platform')) {
             console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
             
             // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
@@ -317,8 +317,8 @@ class CreateProfile extends Component {
         }
         else {
             console.log('user has chosen picture manually through photo lib or camera.')
-            let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
-            const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
+            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.uri.replace('file://', '') : resizedImage.uri
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')
@@ -447,9 +447,9 @@ class CreateProfile extends Component {
     updates[profileRef + 'insta/'] = data.insta;
     // updates['/Users/' + uid + '/status/'] = 'online'; //TODO: Leave for later. Originally made to check if a person is in the chat room
 
-    let promiseToUploadPhoto = new Promise((resolve, reject) => {
+    let promiseToUploadPhoto = new Promise(async (resolve, reject) => {
 
-        if(uri.includes('googleusercontent') || uri.includes('facebook') || uri.includes('firebasestorage')) {
+        if(uri.includes('googleusercontent') || uri.includes('platform') || uri.includes('firebasestorage')) {
             console.log(`We already have a url for this image: ${uri}, so need for interaction with cloud storage, just store URL in cloud db`);
             
             // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
@@ -457,8 +457,8 @@ class CreateProfile extends Component {
         }
         else {
             console.log('user has chosen picture manually through photo lib or camera, store it on cloud and generate a URL for it.')
-            let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
-            const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
+            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.uri.replace('file://', '') : resizedImage.uri
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')

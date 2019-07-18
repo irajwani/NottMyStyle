@@ -346,7 +346,7 @@ class SignIn extends Component {
                                 alert('Error fetching data: ' + error.toString());
                             }
                             else {
-                                console.log("GraphRequest was successful");
+                                console.log("GraphRequest was successful", result.picture.data.url);
                                 let {data} = await isUserRegistered(result.email);
                                 if(data.isRegistered) {
                                     this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});

@@ -1,44 +1,36 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Image} from 'react-native'
+import { Platform, Text, StyleSheet, View, Image, CameraRoll} from 'react-native'
+import ImageResizer from 'react-native-image-resizer';
 
-//Curved bottom
+//Image Resizer
 export default class Test extends Component {
+
+  resizeImage = () => {
+    CameraRoll.getPhotos({ first: 30 })
+      .then(async res => {
+        let photoArray = res.edges;
+        let image = photoArray[0].node.image.uri;
+        console.log(image);
+        let resizedImage = await ImageResizer.createResizedImage(image,3000, 3000,'JPEG',0);
+        console.log(resizedImage);
+        const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
+
+      })
+  }
+
   render() {
     return (
       <View style={styles.container} >
-        <View style={styles.background} >
-          {/* <Image style={styles.image} source={require('../images/nottmystyleLogo.png')} /> */}
-        </View>
+        <Text onPress={this.resizeImage}>Resize Image</Text>
       </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    alignSelf: 'center',
-    marginTop: 100,
-    width: 200,
-    overflow: 'hidden', // for hide the not important parts from circle
-    margin: 10,
-    height: 100,
-  },
-  bottomCurve: { // this shape is a circle 
-    borderRadius: 400, // border borderRadius same as width and height
-    width: 400,
-    // height: 400,
-    // marginLeft: -100, // reposition the circle inside parent view
-    position: 'absolute',
-    bottom: 0, // show the bottom part of circle
-    overflow: 'hidden', // hide not important part of image
-    backgroundColor: 'red'
-  },
-  image: {
-    height: 100, // same width and height for the container
-    width: 200,
-    position: 'absolute', // position it in circle
-    bottom: 0, // position it in circle
-    marginLeft: 100, // center it in main view same value as marginLeft for circle but positive
+  container: {
+    flex: 1,
+    justifyContent: 'center'
   }
 })
 
