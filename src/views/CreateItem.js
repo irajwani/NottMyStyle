@@ -309,8 +309,8 @@ uploadToStore = (pictureuris, uid, postKey) => {
             firebase.database().ref().update(storageUpdates);
             picturesProcessed++;
             if(picturesProcessed == (imageArray.length*array.length)) {
-            this.callBackForProductUploadCompletion();
-        }
+                this.callBackForProductUploadCompletion();
+            }
         })
         // if(imageUri.includes('firebasestorage')) {
         // //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
@@ -446,12 +446,18 @@ uploadToStore = (pictureuris, uid, postKey) => {
 // }
 
  callBackForProductUploadCompletion = () => {
-    alert(`Product named ${this.state.name} successfully uploaded to Market!`);
+     //TODO: Some way to inform user product has been uploaded
+    // alert(`Product named ${this.state.name} successfully uploaded to Market!`);
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
     //TODO: example of how in this instance we needed to remove pictureuris if its sitting in the navigation params
-    this.startOver();
+    
     // isEditItem ? Navigate to Initial Screen in current Stack : Navigate to different Stack
-    this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market'); 
+    
+    setTimeout(() => {
+        this.startOver()
+        this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market')     
+    }, this.state.oldItemPostKey ? 1 : 4000);
+    
  }
 
  deleteProduct(uid, key) {
@@ -830,7 +836,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillSizeBasedOn(type, this.state.gender)}>
-            <View style={styles.navToFillDetailRow}>
+            <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0,}]}>
             
             <View style={[styles.detailHeaderContainer, {flex: size ? 0.35 : 0.8}]}>
             <Text style={styles.detailHeader}>Size</Text>
@@ -865,7 +871,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, false)}>
                 
-                <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0}]}>
+                <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0,}]}>
                 <View style={[styles.detailHeaderContainer, {flex: condition ? 0.35 : 0.8}]}>
                     <Text style={styles.detailHeader}>Condition</Text>
                 </View>
@@ -944,7 +950,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             {this.state.canSnailMail ?
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("postPrice")}>
-            
+            <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0,}]}>
             
                 <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
                     <Text style={styles.detailHeader}>Cost of post</Text>
@@ -966,7 +972,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
                     />
                 </View>
             
-            
+            </View>
             </TouchableHighlight>
             :
             null
@@ -1112,7 +1118,7 @@ const styles = StyleSheet.create({
 
  descriptionHeader: {fontFamily: 'Avenir Next', fontSize: 19, fontWeight: "400"},
 
- descriptionInputContainer: {flex: 0.8, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 2,},
+ descriptionInputContainer: {flex: 0.8, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 2,  paddingHorizontal: 6},
 
  descriptionInput: {width: 260, height: 60, marginBottom: 10, borderColor: treeGreen, borderWidth: 0},
 

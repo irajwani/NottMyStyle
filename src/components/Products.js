@@ -25,6 +25,7 @@ import NothingHereYet from './NothingHereYet.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 import { GrayLine, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import { categories } from '../fashion/sizesAndTypes.js';
+import { textStyles } from '../styles/textStyles.js';
 
 const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
 
@@ -48,8 +49,8 @@ const cardHeaderHeight = 200;
 const cardContentHeight = 50
 const cardFull = cardHeaderHeight + cardContentHeight;
 
-const popUpMenuHeight = 55;
-const popUpMenuWidth = 55;
+const popUpMenuHeight = 35;
+const popUpMenuWidth = 65;
 
 const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
 
@@ -856,7 +857,18 @@ class Products extends Component {
 
     // this.setState({ productsl, productsr } );
     //////////
-  
+  setSaleTo(soldStatus, uid, productKey) {
+    var updates={};
+    // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
+    updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
+    updates['Users/' + uid + '/products/' + productKey + '/dateSold/'] = soldStatus ? new Date : '';
+    // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
+    firebase.database().ref().update(updates);
+    //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
+    var status = soldStatus ? 'sold' : 'available for purchase'
+    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please go back to the Market`)
+
+  }
 
   navToProductDetails(data, collectionKeys, productKeys) {
       this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
@@ -865,17 +877,17 @@ class Products extends Component {
   renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction, column) => {
     return (
       
-      <View
-      style={{height: section.isActive == true ? cardFull : cardHeaderHeight}}>
+      <TouchableOpacity
+      style={{height: section.isActive == true ? cardFull : cardHeaderHeight}}
+      underlayColor={'transparent'}
+      onPress={() => {
+        // section.isActive ? this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys) : null;
+        !section.isActive ? expandFunction() : this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys);
+      }}
+      >
       
-        <TouchableHighlight 
-          onPress={() => {
-            section.isActive ? this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys) : null;
-            expandFunction();
-            
-            }} 
+        <View 
           style={styles.card}
-          underlayColor={almostWhite}
         >
         
         <View 
@@ -910,20 +922,19 @@ class Products extends Component {
 
                 {this.props.showYourProducts == true ?
                   section.isMenuActive == true?
-                  <View style={[styles.menuContainer, {paddingHorizontal: 5}]}>
-                    <View style={styles.editOrDeleteMenu}>
-                      <Text
-                      onPress={() => {
-                        this.navToEditItem(section)
-                        }}   
-                      style={new avenirNextText('black', 13, "300")}>Edit</Text>
-                      <View style={{width: "100%",height: 1, backgroundColor: 'black'}}/>
-                      <Text 
-                      onPress={() => {
-                        this.deleteProduct(section.uid, section.key)
-                        }} 
-                      style={new avenirNextText('black', 13, "300")}>Delete</Text>
-                    </View>
+                  <View style={[styles.menuContainer, {flexDirection: 'column', paddingHorizontal: 5, justifyContent: 'space-between', alignItems: 'flex-end',}]}>
+                    {[
+                      {text: 'Edit', onPress: () => this.navToEditItem(section)}, 
+                      {text: 'Delete', onPress: () => this.deleteProduct(section.uid, section.key)},
+                      {text: section.text.sold ? "Unmark as Sold" : "Mark as Sold", onPress: () => this.setSaleTo(section.text.sold ? false : true, section.uid, section.key)}
+                    ]
+                    .map((option) => (
+                      <TouchableOpacity onPress={option.onPress} style={styles.menuOptionContainer}>
+                        <Text style={[textStyles.generic, {fontSize: 10, color: '#fff'}]}>{option.text}</Text>
+                      </TouchableOpacity>
+                    )) 
+                    }
+                    
                   </View>
                   :
                   <View style={[styles.menuContainer, {justifyContent: 'flex-end', alignItems: 'flex-start'}]}>
@@ -958,53 +969,43 @@ class Products extends Component {
               }  
           </View>
 
-          {(section.text.original_price > 0) == true?
-            <View style= { styles.headerPriceMagnifyingGlassRow }>
-              
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+          
+          <TouchableOpacity 
+          onPress={expandFunction}
+          style= { styles.headerPriceMagnifyingGlassRow }
+          >
+            
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+              {(section.text.original_price > 0) == true?
                 <Text style={[styles.original_price, {textDecorationLine: 'line-through',}]}>£{section.text.original_price}</Text>
-                <Text style={styles.price}>£{section.text.price}</Text>
-              </View>
-
-              {section.isActive == true? 
-                <Icon name="chevron-up" 
-                      size={30} 
-                      color='black'
-                />
-              :
-                <Icon name="chevron-down" 
-                      size={30} 
-                      color='black'
-                />
+                :
+                null
               }
-              
-
-            </View>        
-          :
-            <View style= { styles.headerPriceMagnifyingGlassRow }>
-              
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                <Text style={styles.price}>£{section.text.price}</Text>
-              </View>
-
-              {section.isActive == true? 
-                <Icon name="chevron-up" 
-                      size={30} 
-                      color='black'
-                />
-              :
-                <Icon name="chevron-down" 
-                      size={30} 
-                      color='black'
-                />
-              }
-              
-              
+              <Text style={styles.price}>£{section.text.price}</Text>
             </View>
-          }
+
+            {section.isActive == true? 
+              <Icon name="chevron-up" 
+                    size={30} 
+                    color='black'
+                    
+              />
+            :
+              <Icon name="chevron-down" 
+                    size={30} 
+                    color='black'
+                    
+              />
+            }
+            
+
+          </TouchableOpacity>        
+          
+          
 
         </View>  
-        </TouchableHighlight>
+        
+        </View>
 
 
 
@@ -1052,7 +1053,7 @@ class Products extends Component {
 
         
 
-      </View>
+      </TouchableOpacity>
       
     )
   }
@@ -1761,7 +1762,7 @@ const styles = StyleSheet.create({
   interactionButtonsRow: {
     flexDirection: 'row',
     // width: popUpMenuWidth + 5,
-    height: popUpMenuHeight + 5,
+    height: 55 + 5, //55+5
     marginTop: 5
     // width: ,
     // backgroundColor: 'blue',
@@ -1772,8 +1773,8 @@ const styles = StyleSheet.create({
   },
 
   likesContainer: {
-    height: 0.45*popUpMenuHeight,
-    flex: 0.5,
+    height: 0.45*55,
+    flex: 0.3,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -1782,11 +1783,26 @@ const styles = StyleSheet.create({
   },
 
   menuContainer: {
-    flex: 0.5,
+    flex: 0.7,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
     // backgroundColor: 'green'
+  },
+
+  menuOptionContainer: {
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 0,
+    borderWidth: 0.5,
+    borderColor: '#fff',
+    padding: 7,
+    marginBottom: 4,
+    // width: popUpMenuHeight,
+    // height: popUpMenuWidth
+    // marginVertical: 4,
+
   },
 
   editOrDeleteMenu: {

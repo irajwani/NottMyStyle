@@ -1545,16 +1545,19 @@ class ProductDetails extends Component {
                 size={38}
                 color={chatIcon.color}
                 onPress = {
-                  this.state.canChatWithOtherUser ? 
-                    () => { 
-                        // console.log('going to chat');
-                        //subscribe to room key
-                        this.navToChat(data.uid, data.key);
-                        } 
+                  this.state.sold ? 
+                    () => alert('This product is no longer in stock. Chatting with the seller is redundant.')
                     :
-                    () => {
-                      alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
-                    }    
+                    this.state.canChatWithOtherUser ? 
+                      () => { 
+                          // console.log('going to chat');
+                          //subscribe to room key
+                          this.navToChat(data.uid, data.key);
+                          } 
+                      :
+                      () => {
+                        alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
+                      }    
                   }
               />
               <TouchableOpacity

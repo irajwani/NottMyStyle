@@ -28,7 +28,7 @@ export default class CameraForEachPicture extends Component {
     }
 
     openCamera = (index) => {
-        console.log('opening camera')
+        // console.log('opening camera')
 
 
         const options = {

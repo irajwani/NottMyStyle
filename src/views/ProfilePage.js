@@ -37,7 +37,7 @@ const ProfileMinutia = ({icon, text}) => (
       <Icon name={icon} size={20} color={'black'}/>
     </View>
     <View style={minutiaContainer}>
-      <Text>{text}</Text>
+      <Text style={[textStyles.generic, {fontSize: 14, color: 'black'}]}>{text}</Text>
     </View>
   </View>
 

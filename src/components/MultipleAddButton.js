@@ -7,7 +7,7 @@ import * as BasicImagePicker from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import { withNavigation } from 'react-navigation';
 import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack, treeGreen } from '../colors';
-
+ 
 const NothingHere = () => (
   <Svg height={"100%"} width={"100%"} viewBox="0 0 400 400">
       <Path 
@@ -35,25 +35,30 @@ class MultipleAddButton extends Component {
       }
       else {
         const options = {
-          title: null,
-          cancelButtonTitle: null,
-          takePhotoButtonTitle: null,
-          chooseFromLibraryButtonTitle: null,
+          title: "Select Option",
+          cancelButtonTitle: "Cancel",
+          takePhotoButtonTitle: "Camera",
+          chooseFromLibraryButtonTitle: "Photo Library",
           cameraType: 'back',
           mediaType: 'photo',
       }
-  
+
         ImagePicker.showImagePicker(options, (response) => {
-            
-          const picture = [response.uri];
-          this.props.navigation.navigate(`${navToComponent}`, {pictureuris: [picture]} );
-            
+            if(response.didCancel) {
+                return null
+            }   
+            else {
+                const picture = [response.uri];
+                this.props.navigation.navigate(`${navToComponent}`, {pictureuris: [picture]} );
+                
+            }
             
         })
+  
+        
       }
       
     }
-
     else {
       
       Platform.OS == "ios" ? 

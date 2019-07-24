@@ -219,55 +219,64 @@ class SignIn extends Component {
     // Invoked when onSignInPress() AND signInWithGoogle()  are pressed: 
     // that is when user presses Sign In Button, or when they choose to sign up or sign in through Google 
     //The G and F UserBooleans are used only in the attemptSignUp function to determine what data to navigate with to the CreateProfile Screen.
-    successfulLoginCallback = (user, googleUserBoolean, facebookUserBoolean) => {
-        firebase.database().ref('/Users').once('value', (snapshot) => {
-            var Users = snapshot.val();
-            // var all = d.Products;
-            //If NottMyStyle does not know you yet, prompt them to enter details:
-            // - Location
-            // - Insta
-            // - Show Image
+    successfulLoginCallback = () => {
+        this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
+        // let {data} = await isUserRegistered(this.state.email);
+        // if(data.isRegistered) {
+        //     this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
+        // }
+        // else {
+        //     this.attemptSignUp(user, googleUserBoolean, facebookUserBoolean)
+        // }
 
-            //retrieve database and list of users and check if this users's uid is in that list of users
-            //if the user is a new user (trying to sign up with google
-            // or
-            // TODO: trying to sign in with google
-            // or
-            // just doesn't exist in the database yet):
-            // var {Users} = d
-            // console.log(`${!Object.keys(Users).includes(user.uid)} that user is NOT in database, and needs to Sign Up`)
-            if(!Object.keys(Users).includes(user.uid)) {
-                this.attemptSignUp(user, googleUserBoolean, facebookUserBoolean)
-            } 
-            else {
+        // firebase.database().ref('/Users').once('value', (snapshot) => {
+        //     var Users = snapshot.val();
+        //     // var all = d.Products;
+        //     //If NottMyStyle does not know you yet, prompt them to enter details:
+        //     // - Location
+        //     // - Insta
+        //     // - Show Image
+
+        //     //retrieve database and list of users and check if this users's uid is in that list of users
+        //     //if the user is a new user (trying to sign up with google
+        //     // or
+        //     // TODO: trying to sign in with google
+        //     // or
+        //     // just doesn't exist in the database yet):
+        //     // var {Users} = d
+        //     // console.log(`${!Object.keys(Users).includes(user.uid)} that user is NOT in database, and needs to Sign Up`)
+        //     if(!Object.keys(Users).includes(user.uid)) {
+        //         this.attemptSignUp(user, googleUserBoolean, facebookUserBoolean)
+        //     } 
+        //     else {
                 
-            //if the user isn't new, then re update their notifications (if any)
+        //     //if the user isn't new, then re update their notifications (if any)
             
-                // if(Users[user.uid].products) {
-                //     // console.log('updating notifications a person should receive based on their products', d.Users[user.uid].products )
+        //         // if(Users[user.uid].products) {
+        //         //     // console.log('updating notifications a person should receive based on their products', d.Users[user.uid].products )
 
-                //     // var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
-                //     // console.log("Maybe we need a new method to find subset of Products Here: " + JSON.stringify(all), typeof all)
-                //     // var yourProducts = filterObjectByKeys(all, productKeys);
-                //     // console.log(yourProducts);
-                //     // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-                //     // console.log(yourProducts)
+        //         //     // var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+        //         //     // console.log("Maybe we need a new method to find subset of Products Here: " + JSON.stringify(all), typeof all)
+        //         //     // var yourProducts = filterObjectByKeys(all, productKeys);
+        //         //     // console.log(yourProducts);
+        //         //     // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+        //         //     // console.log(yourProducts)
                     
-                //     //TODO: move notification count functionality to server side
-                //     // const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
-                //     // if(notifications) {
-                //     //     this.shouldSendNotifications(user.uid, notifications);
-                //     // }
+        //         //     //TODO: move notification count functionality to server side
+        //         //     // const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
+        //         //     // if(notifications) {
+        //         //     //     this.shouldSendNotifications(user.uid, notifications);
+        //         //     // }
                     
-                // }
-                // this.setState({loading: false});
-                this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
-                // this.props.navigation.navigate('HomeScreen');
+        //         // }
+        //         // this.setState({loading: false});
+        //         this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
+        //         // this.props.navigation.navigate('HomeScreen');
                 
-            }
+        //     }
 
             
-        } )
+        // } )
     }
 
     //Invoked when user tries to sign in even though they don't exist in the system yet
@@ -289,7 +298,7 @@ class SignIn extends Component {
     //onPress Google Icon
     signInWithGoogle = () => {
         !this.state.loading ? this.setState({loading: true}) : null;
-        console.log('trying to sign with google')
+        // console.log('trying to sign with google')
         GoogleSignin.signIn()
         .then((data) => {
             //TODO: Since "google sign in with account" pop up does not show after person selects an account, 
@@ -305,7 +314,7 @@ class SignIn extends Component {
             
         })
         .then(async (socialInformation) => {
-            console.log(socialInformation.user.email)
+            // console.log(socialInformation.user.email)
             let {data} = await isUserRegistered(socialInformation.user.email);
             if(data.isRegistered) {
                 this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
@@ -330,7 +339,7 @@ class SignIn extends Component {
         LoginManager.logOut();
         LoginManager.logInWithReadPermissions(['email']).then(
             (result) => {
-              console.log("OVER THERE, OVER THERE" +result);  
+              
               if (result.isCancelled) {
                 this.setState({loading: false});
               } 
@@ -346,7 +355,7 @@ class SignIn extends Component {
                                 alert('Error fetching data: ' + error.toString());
                             }
                             else {
-                                console.log("GraphRequest was successful", result.picture.data.url);
+                                // console.log("GraphRequest was successful", result.picture.data.url);
                                 let {data} = await isUserRegistered(result.email);
                                 if(data.isRegistered) {
                                     this.setState({loading: false}, () => {this.props.navigation.navigate('AppStack')});
@@ -411,16 +420,16 @@ class SignIn extends Component {
         }
         else {
 //now that person has input text, their email and password are here
-        console.log("Something");
+        
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
-                console.log("Have I affected auth behavior?")
+                // console.log("Have I affected auth behavior?")
                 //This function behaves as an authentication listener for user. 
                 //If user signs in, we only use properties about the user to:
                 //1. notifications update on cloud & local push notification scheduled notifications 4 days from now for each product that deserves a price reduction.
                 firebase.auth().onAuthStateChanged( (user) => {
                     if(user) {
-                        console.log(`User's Particular Identification: ${user.uid}`);
+                        // console.log(`User's Particular Identification: ${user.uid}`);
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
@@ -429,7 +438,7 @@ class SignIn extends Component {
                         // AsyncStorage.setItem('previousEmail', email);
                         this.state.saveUsernamePass ? AsyncStorage.multiSet([ ['previousEmail', email], ['previousPassword', pass] ]) : null;
 
-                        this.successfulLoginCallback(user, googleUserBoolean = false, facebookUserBoolean = false);
+                        this.successfulLoginCallback();
                         
                         // this.setState({loading: false, loggedIn: true})
                         

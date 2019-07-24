@@ -4,7 +4,7 @@ import CreateProfile from '../views/CreateProfile';
 import SignIn from '../views/SignIn';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
-import HomeScreen from '../views/HomeScreen';
+// import HomeScreen from '../views/HomeScreen';
 import ViewPhotos from '../views/ViewPhotos';
 import CameraForEachPicture from '../components/CameraForEachPicture';
 
@@ -18,7 +18,7 @@ export const SignUpToCreateProfileStack = createStackNavigator({
     ViewPhotos: ViewPhotos,
 
     
-    // HomeScreen: HomeScreen,
+    // AppStack: HomeScreen,
 },
 {   
     initialRouteName: 'SignIn',

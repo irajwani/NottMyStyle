@@ -1436,7 +1436,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5
   },
 
-  detailsText: {...textStyles.generic, fontSize: 22,textAlign: "left"},
+  detailsText: {...textStyles.generic, fontSize: 22,textAlign: "left", color: 'black'},
 
 
   buttonContainer: {

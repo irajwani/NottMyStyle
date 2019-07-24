@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-// import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
 import Test from './src/views/Test';
 import AuthOrAppSwitch from './src/switchNavigators/AuthOrAppSwitch';
+// import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
 // import { HangerLoadingIndicator } from './src/localFunctions/visualFunctions';
 
 export default class App extends Component {
@@ -12,7 +12,7 @@ export default class App extends Component {
     
     return (
       
-      <AuthOrAppSwitch />
+      <AuthOrAppSwitch/>
 
     );
   }
