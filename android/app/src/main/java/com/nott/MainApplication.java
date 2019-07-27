@@ -16,6 +16,7 @@ import com.BV.LinearGradient.LinearGradientPackage;
 import org.reactnative.camera.RNCameraPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 
+import com.pusher.pushnotifications.PushNotifications;
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
 
@@ -28,6 +29,7 @@ import com.facebook.appevents.AppEventsLogger;
 import com.horcrux.svg.SvgPackage;
 
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
+import com.pusher.pushnotifications.PushNotifications;
 
 import com.react.rnspinkit.RNSpinkitPackage;
 
@@ -80,6 +82,8 @@ public class MainApplication extends Application implements ReactApplication {
   @Override
   public void onCreate() {
     super.onCreate();
+    PushNotifications.start(getApplicationContext(), "9c23a8e4-a4f1-4e41-ab34-e627e7d23d2c");
+    PushNotifications.addDeviceInterest("hello");
     SoLoader.init(this, /* native exopackage */ false);
   }
 }
