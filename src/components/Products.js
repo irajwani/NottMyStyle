@@ -326,7 +326,7 @@ class Products extends Component {
     this.setState({isGetting: true});
     firebase.database().ref().on('value', (snapshot) => {
       var {Products, Users} = snapshot.val();
-      console.log(Products, typeof Products);
+      // console.log(Products, typeof Products);
       if(Products == undefined || Products.length < 1) {
         this.setState({isGetting: false, emptyMarket: true});
       }
@@ -395,6 +395,7 @@ class Products extends Component {
           // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
 
           Products.forEach((product)=> {
+            // console.log(product.text.brand);
             brands.push({name: product.text.brand, selected: false});
             switch(product.text.gender) {
               case "Men":
@@ -414,7 +415,9 @@ class Products extends Component {
           // console.log(typesForCategory)
 
           // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+          // console.log("Raw Brands:" + JSON.stringify(brands))
           brands = removeDuplicates(brands, "name");
+          // console.log("Brands:" + JSON.stringify(brands))
           typesForCategory.Men = removeDuplicates(typesForCategory['Men'], "name");
           typesForCategory.Women = removeDuplicates(typesForCategory['Women'], "name");
           typesForCategory.Accessories = removeDuplicates(typesForCategory['Accessories'], "name");
@@ -464,8 +467,12 @@ class Products extends Component {
     // console.log(products.concat(state.rightProducts));
     
     // console.log(selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize);
+    console.log(state.leftProducts);
     state.leftProducts = this.filterProducts(state.leftProducts);
+    console.log(state.leftProducts);
+    console.log("RIGHT", state.rightProducts);
     state.rightProducts = this.filterProducts(state.rightProducts);
+    console.log("RIGHT", state.rightProducts);
 
 
 
@@ -483,7 +490,7 @@ class Products extends Component {
     // console.log(state.leftProducts.concat(state.rightProducts));
 
     //It's good enough to just check leftProducts for isNoResult
-    state.noResultsFromFilter = state.leftProducts ? false : true;
+    state.noResultsFromFilter = state.leftProducts.length + state.rightProducts.length > 0 ? false : true;
     state.showFilterModal = false;
     // return state;
 
@@ -924,22 +931,22 @@ class Products extends Component {
 
                 {this.props.showYourProducts == true ?
                   section.isMenuActive == true?
-                  <View style={[styles.menuContainer, {flexDirection: 'column', paddingHorizontal: 5, justifyContent: 'space-between', alignItems: 'flex-end',}]}>
+                  <View style={styles.menuContainer}>
                     {[
                       {text: 'Edit', onPress: () => this.navToEditItem(section)}, 
                       {text: 'Delete', onPress: () => this.deleteProduct(section.uid, section.key)},
                       {text: section.text.sold ? "Unmark as Sold" : "Mark as Sold", onPress: () => this.setSaleTo(section.text.sold ? false : true, section.uid, section.key)}
                     ]
-                    .map((option) => (
-                      <TouchableOpacity onPress={option.onPress} style={styles.menuOptionContainer}>
-                        <Text style={[textStyles.generic, {fontSize: 10, color: '#fff'}]}>{option.text}</Text>
+                    .map((option, index) => (
+                      <TouchableOpacity key={index} onPress={option.onPress} style={[styles.menuOptionContainer, index != 2 ? {borderBottomWidth: 0.5} : {paddingVertical: 5}]}>
+                        <Text style={[textStyles.generic, {fontSize: index != 2 ? 18 : 13, color: 'black'}]}>{option.text}</Text>
                       </TouchableOpacity>
                     )) 
                     }
                     
                   </View>
                   :
-                  <View style={[styles.menuContainer, {justifyContent: 'flex-end', alignItems: 'flex-start'}]}>
+                  <View style={styles.dotsContainer}>
                     <Icon
                       name="dots-vertical"
                       size={25} 
@@ -1105,7 +1112,7 @@ class Products extends Component {
           style={styles.filterModalHeaderClearText}>Reset</Text>
         </View>
 
-        <ScrollView style={{flex: 0.8}} contentContainerStyle={styles.filterModalContainer}>
+        <ScrollView style={{flex: 0.85}} contentContainerStyle={styles.filterModalContainer}>
 
           <View style={[styles.searchBarAndIconContainer, {justifyContent: 'space-between'}]}>
             <TextInput
@@ -1766,7 +1773,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     // width: popUpMenuWidth + 5,
     height: 55 + 5, //55+5
-    marginTop: 5
+    // marginTop: 5
     // width: ,
     // backgroundColor: 'blue',
     // justifyContent: 'center',
@@ -1781,27 +1788,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingHorizontal: 5
+    paddingHorizontal: 5,
+    marginTop: 5,
     // backgroundColor: 'red'
   },
 
-  menuContainer: {
+  dotsContainer: {
     flex: 0.7,
+    marginTop: 5,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    
     // backgroundColor: 'green'
   },
 
+  menuContainer: {flex: 0.7, backgroundColor: '#fff', borderBottomLeftRadius: 10, width: 35, height: 75},
+
   menuOptionContainer: {
-    backgroundColor: 'black',
+    // backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 0,
-    borderWidth: 0.5,
-    borderColor: '#fff',
-    padding: 7,
-    marginBottom: 4,
+    // borderRadius: 0,
+    
+    borderColor: 'black',
+    // padding: 7,
+    // marginBottom: 4,
     // width: popUpMenuHeight,
     // height: popUpMenuWidth
     // marginVertical: 4,
@@ -1992,7 +2004,7 @@ const styles = StyleSheet.create({
   },
 
   filterModalHeader: {
-    flex: 0.2,
+    flex: 0.15,
     flexDirection: 'row',
     backgroundColor: 'black',
     justifyContent: 'space-between',
