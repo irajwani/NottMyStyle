@@ -233,7 +233,16 @@ class BadgeIcon extends React.Component {
                 }
               })
               
-            }}
+            }
+          }
+
+          if(d.conversations) {
+            Object.values(d.conversations).forEach( c => {
+              if(c.unread == true) {
+                unreadCount += 1
+              }
+            })
+          }
   
           this.setState({unreadCount, isGetting: false})
           

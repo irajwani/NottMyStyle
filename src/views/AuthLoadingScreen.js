@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Platform } from 'react-native'
+import { SafeAreaView, Platform } from 'react-native'
 import { LoadingIndicator } from '../localFunctions/visualFunctions';
 import { lightGreen } from '../colors';
 import firebase from '../cloud/firebase';
@@ -107,13 +107,10 @@ export default class AuthLoadingScreen extends Component {
 
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: '#fff', marginTop: Platform.OS == 'ios' ? 22 : 0, justifyContent: 'center', alignItems: 'center'}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center'}}>
         <LoadingIndicator isVisible={true} color={lightGreen} type={'Wordpress'} />
-      </View>
+      </SafeAreaView>
     )
   }
 }
 
-// const styles = StyleSheet.create({
-
-// })

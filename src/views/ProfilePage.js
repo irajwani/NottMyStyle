@@ -89,12 +89,17 @@ class ProfilePage extends Component {
 
     }
 
+    // this.uid = ''
+
   }
 
   componentWillMount() {
     setTimeout(() => {
+      
       const uid = firebase.auth().currentUser.uid;
       this.uid = uid;
+      
+
       this.getProfileAndCountOfProductsOnSaleAndSoldAndCommentsAndUpdatePushToken(uid);
     }, 200);
     

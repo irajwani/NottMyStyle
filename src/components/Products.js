@@ -461,9 +461,9 @@ class Products extends Component {
     // this.setState({isGetting: true});
     console.log("Filtering Marketplace");
     const {...state} = this.state;
-    console.log(products.concat(state.rightProducts));
+    // console.log(products.concat(state.rightProducts));
     
-    console.log(selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize);
+    // console.log(selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize);
     state.leftProducts = this.filterProducts(state.leftProducts);
     state.rightProducts = this.filterProducts(state.rightProducts);
 
@@ -484,6 +484,8 @@ class Products extends Component {
 
     //It's good enough to just check leftProducts for isNoResult
     state.noResultsFromFilter = state.leftProducts ? false : true;
+    state.showFilterModal = false;
+    // return state;
 
     this.setState(state);
   }
@@ -1311,9 +1313,10 @@ class Products extends Component {
           <Text
           onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) ?
             async () => {
+              console.log("Filtering Marketplace Here")
               await this.getMarketPlace(this.state.uid); 
-              await this.filterMarketPlace();
-              this.setState({showFilterModal: false});
+              this.filterMarketPlace();
+              // this.setState({showFilterModal: false});
             }
             :
             async () => {

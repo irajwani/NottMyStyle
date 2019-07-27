@@ -720,83 +720,6 @@ class Notifications extends Component {
             ))
   
     }
-  
-    showDetails = (details, notificationType, key, notificationTypeProperty) => {
-      //when one selects a specific notification, use the notificationType to determine what structure of details
-      //to expect and use the details themselves of course, so set these 2 values in state
-      console.log('show notification details');
-      if(details.unreadCount == true) {
-        var updates = {};
-        switch(notificationType) {
-          case "Price Reduction Alert":
-            updates[`/Users/${this.props.uid}/notifications/priceReductions/${key}/unreadCount`] = false
-            break;
-          case "Purchase Receipt":
-            updates[`/Users/${this.props.uid}/notifications/purchaseReceipts/${key}/unreadCount`] = false
-            break;
-          case "Dispatch Notice":
-            updates[`/Users/${this.props.uid}/notifications/dispatchNotices/${key}/unreadCount`] = false
-            break;
-          case "Money Transfer":
-            updates[`/Users/${this.props.uid}/notifications/moneyTransfers/${key}/unreadCount`] = false
-            break;
-          default:
-            updates[`/Users/${this.props.uid}/notifications/itemsSold/${key}/unreadCount`] = false
-            break
-        }
-        let promiseToMarkRead = firebase.database().ref().update(updates);
-        promiseToMarkRead.then( () => {
-          const {...state} = this.state;
-          state.showDetails = true;
-          state.details = details;
-          state.notificationKey = key;
-          state.notificationType = notificationType;
-          state.notifications[notificationTypeProperty][key].unreadCount = false;
-          this.setState(state);
-        })
-        .catch(e => console.log("Could not update unreadCount of notification because: " + e))
-        
-      }
-
-      else {
-        this.setState({showDetails: true, details, notificationKey: key, notificationType })
-      }
-      
-      
-    }
-
-    markItemAs = (status,buyerId, sellerId) => {
-      // console.log(notificationKey, status,buyerId, sellerId);
-      let {notificationKey, details} = this.state;
-      let updates = {};
-      let newNotification = {...details, deliveryStatus: status, unreadCount: true};
-      
-      if(status == 'shipped') {        
-        updates['/Users/' + buyerId + '/notifications/dispatchNotices/' + notificationKey + '/'] = newNotification;
-        // updates['/Users/' + buyerId + '/notifications/dispatchNotices/' + notificationKey + '/deliveryStatus/'] = status;
-      }
-      else if(status == 'delivered') {
-        updates['/Users/' + buyerId + '/notifications/dispatchNotices/' + notificationKey + '/deliveryStatus/'] = status;
-        // TODO: create new money transfer notification on seller's notification branch
-        updates['/Users/' + sellerId + '/notifications/moneyTransfers/' + notificationKey + '/'] = newNotification;
-      }
-      
-      //Because we want to maintain the same value for deliveryStatus on all notifications thus far in one run of the logic chain
-      //at the end of which moneyTransfer notification is dispatched..
-      updates['/Users/' + sellerId + '/notifications/itemsSold/' + notificationKey + '/deliveryStatus/'] = status;
-
-      let promiseToUpdateStatus = firebase.database().ref().update(updates);
-      promiseToUpdateStatus.then(() => {
-        // console.log("ALL DONEEEE");
-        this.setState({showDetails: false}, ()=> {
-          this.getNotifications();
-        })
-        
-      });
-      
-      
-      
-    }
 
     renderDetailsModal = () => {
 
@@ -1097,25 +1020,23 @@ class Notifications extends Component {
   
             </View>
   
-            <View style={[deliveryOptionBody, {padding: 5}]}>
+            <View style={[deliveryOptionBody, {flex: 0.82,padding: 5}]}>
 
-              <View style={{flex: 0.35, justifyContent: 'center', alignItems: 'center', marginVertical: 10}}>
+              <View style={{flex: 0.4, justifyContent: 'center', alignItems: 'center'}}>
                 <Image style={styles.detailsImage} source={{uri: details.uri}}/>
               </View>
 
-              <NotificationTextScroll customFlex={0.5}>
+              <NotificationTextScroll customFlex={0.6}>
                 <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{Math.floor(0.90*details.price)}. Consider editing this item's details from its description page.</Text>
                 
               </NotificationTextScroll>
-
-              <View style={{flex: 0.15, justifyContent: 'center', alignItems: 'center'}}>
-                  <Text onPress={()=>this.navToEditItem(details.key)} style={[styles.detailsText, {color: lightGreen, fontSize: 20, fontWeight: "500"}]}>Edit Item</Text>
-              </View>
-
               
             </View>
-                
-  
+            
+            {/* Custom Footer button in this case */}
+            <View style={{flex: 0.08, justifyContent: 'center', alignItems: 'center', backgroundColor: logoGreen}}>
+                <Text onPress={()=>this.navToEditItem(details.key)} style={[styles.detailsText, {color: "#fff", fontSize: 20, fontWeight: "500"}]}>Edit Item</Text>
+            </View>
             
   
           </View>
@@ -1127,6 +1048,85 @@ class Notifications extends Component {
 
 
     }
+  
+    showDetails = (details, notificationType, key, notificationTypeProperty) => {
+      //when one selects a specific notification, use the notificationType to determine what structure of details
+      //to expect and use the details themselves of course, so set these 2 values in state
+      console.log('show notification details');
+      if(details.unreadCount == true) {
+        var updates = {};
+        switch(notificationType) {
+          case "Price Reduction Alert":
+            updates[`/Users/${this.props.uid}/notifications/priceReductions/${key}/unreadCount`] = false
+            break;
+          case "Purchase Receipt":
+            updates[`/Users/${this.props.uid}/notifications/purchaseReceipts/${key}/unreadCount`] = false
+            break;
+          case "Dispatch Notice":
+            updates[`/Users/${this.props.uid}/notifications/dispatchNotices/${key}/unreadCount`] = false
+            break;
+          case "Money Transfer":
+            updates[`/Users/${this.props.uid}/notifications/moneyTransfers/${key}/unreadCount`] = false
+            break;
+          default:
+            updates[`/Users/${this.props.uid}/notifications/itemsSold/${key}/unreadCount`] = false
+            break
+        }
+        let promiseToMarkRead = firebase.database().ref().update(updates);
+        promiseToMarkRead.then( () => {
+          const {...state} = this.state;
+          state.showDetails = true;
+          state.details = details;
+          state.notificationKey = key;
+          state.notificationType = notificationType;
+          state.notifications[notificationTypeProperty][key].unreadCount = false;
+          this.setState(state);
+        })
+        .catch(e => console.log("Could not update unreadCount of notification because: " + e))
+        
+      }
+
+      else {
+        this.setState({showDetails: true, details, notificationKey: key, notificationType })
+      }
+      
+      
+    }
+
+    markItemAs = (status,buyerId, sellerId) => {
+      // console.log(notificationKey, status,buyerId, sellerId);
+      let {notificationKey, details} = this.state;
+      let updates = {};
+      let newNotification = {...details, deliveryStatus: status, unreadCount: true};
+      
+      if(status == 'shipped') {        
+        updates['/Users/' + buyerId + '/notifications/dispatchNotices/' + notificationKey + '/'] = newNotification;
+        // updates['/Users/' + buyerId + '/notifications/dispatchNotices/' + notificationKey + '/deliveryStatus/'] = status;
+      }
+      else if(status == 'delivered') {
+        updates['/Users/' + buyerId + '/notifications/dispatchNotices/' + notificationKey + '/deliveryStatus/'] = status;
+        // TODO: create new money transfer notification on seller's notification branch
+        updates['/Users/' + sellerId + '/notifications/moneyTransfers/' + notificationKey + '/'] = newNotification;
+      }
+      
+      //Because we want to maintain the same value for deliveryStatus on all notifications thus far in one run of the logic chain
+      //at the end of which moneyTransfer notification is dispatched..
+      updates['/Users/' + sellerId + '/notifications/itemsSold/' + notificationKey + '/deliveryStatus/'] = status;
+
+      let promiseToUpdateStatus = firebase.database().ref().update(updates);
+      promiseToUpdateStatus.then(() => {
+        // console.log("ALL DONEEEE");
+        this.setState({showDetails: false}, ()=> {
+          this.getNotifications();
+        })
+        
+      });
+      
+      
+      
+    }
+
+    
   
     render() {
       const {isGetting, noNotifications, notifications} = this.state;
@@ -1163,7 +1163,7 @@ class NotificationsAndChats extends Component {
             showChats: true,
             isGetting: true,
             unreadCount: 0,
-
+            unreadChatsCount: 0,
             uid: false
         }
     }
@@ -1185,7 +1185,8 @@ class NotificationsAndChats extends Component {
       //get chats for particular user
       firebase.database().ref(`/Users/${this.state.uid}`).once("value", (snapshot) => {
         var d = snapshot.val();
-        let unreadCount = 0
+        let unreadCount = 0;
+        let unreadChatsCount = 0;
 
         if(d.notifications) {
           if(d.notifications.priceReductions) {
@@ -1216,9 +1217,18 @@ class NotificationsAndChats extends Component {
               }
             })
             
-          }}
+          }
+        }
 
-        this.setState({unreadCount, isGetting: false});
+        if(d.conversations) {
+          Object.values(d.conversations).forEach( c => {
+            if(c.unread == true) {
+              unreadChatsCount += 1
+            }
+          })
+        }
+
+        this.setState({unreadCount, unreadChatsCount, isGetting: false});
         
         
         
@@ -1234,6 +1244,13 @@ class NotificationsAndChats extends Component {
     
             <TouchableOpacity disabled={this.state.showChats ? true : false} onPress={()=>this.setState({showChats: true})} style={[styles.upperNavTabButton, this.state.showChats ? {borderBottomColor: highlightGreen, borderBottomWidth: 1} : null]}>
               <Text style={[styles.upperNavTabText, this.state.showChats ? {color: highlightGreen} : null]}>Chats</Text>
+              {this.state.unreadChatsCount > 0 ?
+                <View style={styles.notificationCountContainer}>
+                  <Text style={{color: '#fff', fontSize: 17, fontWeight: '300'}}>{this.state.unreadChatsCount}</Text>
+                </View>
+                :
+                null
+              }
             </TouchableOpacity>
             
             <TouchableOpacity disabled={this.state.showChats ? false : true} onPress={()=>this.setState({showChats: false})} style={[styles.upperNavTabButton, !this.state.showChats ? {borderBottomColor: highlightGreen, borderBottomWidth: 1} : null]}>

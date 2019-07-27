@@ -149,7 +149,7 @@ class ProductDetails extends Component {
     firebase.database().ref().once("value", (snapshot) => {
       var d = snapshot.val();
       var cloudDatabaseUsers = d.Users;
-      console.log("OVER HEREEEE:" + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail);
+      // console.log("OVER HEREEEE:" + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail);
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
 
@@ -196,13 +196,15 @@ class ProductDetails extends Component {
       var month = (new Date()).getMonth();
       var year = (new Date()).getFullYear();
 
-      var comments;
-      if(d.Users[data.uid].comments) {
-        comments = d.Users[data.uid].comments;
-      }
-      else {
-        comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      }
+
+      //TODO: Need to possibly unmute; muted as comments are not set in state
+      // var comments;
+      // if(d.Users[data.uid].comments) {
+      //   comments = d.Users[data.uid].comments;
+      // }
+      // else {
+      //   comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      // }
 
 
       //  = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
@@ -221,6 +223,7 @@ class ProductDetails extends Component {
       // console.log(addresses, typeof addresses);
       // console.log("KEY IS:", data.key)
       this.setState( {
+        isGetting: false,
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
         productPictureURLs: cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail,
@@ -231,9 +234,7 @@ class ProductDetails extends Component {
         canChatWithOtherUser,
       } )
     })
-    .then( () => {
-      this.setState({isGetting: false})
-    })
+    
   }
 
   incrementLikes = (likes, key) => {
@@ -656,27 +657,30 @@ class ProductDetails extends Component {
         //handleLongPress property
         selected: false
       };
-      let productAcquisitionNotificationUpdate = {};
+      let productAcquisitionUpdate = {};
       let buyerRef = `/Users/${this.state.uid}/notifications/purchaseReceipts/${this.state.sku}/`;
       let sellerRef = `/Users/${this.state.otherUserUid}/notifications/itemsSold/${this.state.sku}/`;
-      productAcquisitionNotificationUpdate[buyerRef] = productAcquisitionPostData;
-      let promiseToUpdateBuyer = firebase.database().ref().update(productAcquisitionNotificationUpdate);
-      productAcquisitionNotificationUpdate[sellerRef] = productAcquisitionPostData;
-      let promiseToUpdateSeller = firebase.database().ref().update(productAcquisitionNotificationUpdate);
-
-      var updates={};
-    // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
-      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/text/sold/'] = true;
-      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/text/dateSold/'] = new Date;
-      // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
-      let promiseToSetProductAsSold = firebase.database().ref().update(updates);
-    //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
+      productAcquisitionUpdate[buyerRef] = productAcquisitionPostData;
+      productAcquisitionUpdate[sellerRef] = productAcquisitionPostData;
       
-      Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller, promiseToSetProductAsSold])
+      // let promiseToUpdateSeller = firebase.database().ref().update(productAcquisitionNotificationUpdate);
+
+      
+    // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
+      productAcquisitionUpdate['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/text/sold/'] = true;
+      productAcquisitionUpdate['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/text/dateSold/'] = new Date;
+      // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
+      // let promiseToSetProductAsSold = firebase.database().ref().update(updates);
+    //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
+      let promiseToUpdateBuyerAndSellerAndSetProductAsSold = firebase.database().ref().update(productAcquisitionUpdate);
+      promiseToUpdateBuyerAndSellerAndSetProductAsSold
       .then( () => {
         this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, ()=> {
+          
           const {params} = this.props.navigation.state;
+          console.log("OVER HEREEEEE" + params.data);
           this.getUserAndProductAndOtherUserData(params.data);
+
           // console.log("Notifications updated for buyer and seller")
           // send notification 1 hour later
           let notificationDate = new Date();
