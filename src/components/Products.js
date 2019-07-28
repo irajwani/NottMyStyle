@@ -816,25 +816,33 @@ class Products extends Component {
     // alert('Please take brand new pictures');
   }
 
-  deleteProduct(uid, key) {
-    let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
-    let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
-
-    //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
-    let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
-    
-    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
-    .then( () => {
-        // console.log('product has been successfully removed')
-        this.getMarketPlace(this.state.uid);
-        alert("Your product has successfully been deleted");
-
-    })
-    .catch( (err)=> {
-        console.log(err);
-    });
+  deleteProduct = async (uid, key) => {
+    await firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+    await firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove().catch(err => console.log(err));
+    this.getMarketPlace(this.state.uid);
+    alert("Your product has successfully been deleted");
 
   }
+
+  // deleteProduct(uid, key) {
+  //   let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
+  //   let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+
+  //   //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
+  //   let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
+    
+  //   Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
+  //   .then( () => {
+  //       // console.log('product has been successfully removed')
+  //       this.getMarketPlace(this.state.uid);
+  //       alert("Your product has successfully been deleted");
+
+  //   })
+  //   .catch( (err)=> {
+  //       console.log(err);
+  //   });
+
+  // }
 
     
     // this.getPageSpecificProducts();

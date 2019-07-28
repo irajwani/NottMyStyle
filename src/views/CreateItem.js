@@ -460,26 +460,29 @@ uploadToStore = (pictureuris, uid, postKey) => {
     
  }
 
- deleteProduct(uid, key) {
- 
-    let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
-    let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+ deleteProduct = async (uid, key) => {
+    await firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+    await firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key)
+    .remove()
+    .catch(err => console.log(err));
+    this.setState({isUploading: false,})
+    alert('Your product has been successfully deleted.');
+    this.props.navigation.popToTop();
+    // let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
+    // let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
     //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
-    let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
+    // let promiseToDeleteNotifications = 
     //TODO: What should happen to purchase receipts and item sold? 
-    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
-    .then( ()=>{
-        this.setState({isUploading: false,})
-        alert('Your product has been successfully deleted.');
-        this.props.navigation.popToTop();
-        // this.props.navigation.navigate(`${parentScreenInStack}`);
-    })
-    .then( () => {
-        console.log('product has been successfully removed')
-    })
-    .catch( (err)=> {
-        console.log(err);
-    });
+    // Promise.all([promiseToDeleteProduct, promiseToDeleteNotifications])
+    // .then( ()=>{
+    //     // this.props.navigation.navigate(`${parentScreenInStack}`);
+    // })
+    // .then( () => {
+    //     console.log('product has been successfully removed')
+    // })
+    // .catch( (err)=> {
+    //     console.log(err);
+    // });
 
  }
 
