@@ -6,6 +6,8 @@ import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { textStyles } from '../styles/textStyles';
 
+const {height} = Dimensions.get('screen');
+
 export default class Comments extends React.Component {
     constructor(props) {
         super(props);
@@ -43,7 +45,7 @@ export default class Comments extends React.Component {
     }
 
     onCommentTextChanged(commentString) {
-        this.setState({ commentString });
+        this.setState({ commentString, typingComment: true });
     }
 
     uploadComment(name, comment, uid, uri, yourUid, productKey) {
@@ -206,7 +208,8 @@ export default class Comments extends React.Component {
                 }        
                 </ScrollView>
 
-                <KeyboardAvoidingView style={styles.footerContainer} behavior={Platform.OS == 'android' ? 'padding' : null} keyboardVerticalOffset={80}>
+                {/* <View style={styles.footerContainer} behavior={Platform.OS == 'android' ? 'padding' : null} keyboardVerticalOffset={80}> */}
+                <View style={[styles.footerContainer, this.state.commentString && this.state.typingComment ? {position: "absolute", bottom: height/2.8} : null]}>
                     <View style={[styles.footerElementContainer, {flex: 0.15}]}>
                         <Image source={{uri}} style={styles.footerImage}/>
                     </View>
@@ -221,7 +224,10 @@ export default class Comments extends React.Component {
                                 multiline={true}
                                 maxLength={100}
                                 autoCorrect={false}
-                                underlineColorAndroid={"transparent"}/>
+                                underlineColorAndroid={"transparent"}
+                                onEndEditing={()=>this.setState({typingComment: false})} 
+                                returnKeyType={'default'}   
+                                />
                         </View>
 
                         <View style={{flex: 0.2}}>
@@ -246,7 +252,7 @@ export default class Comments extends React.Component {
                             </Text>
                         </View>
                     </View>
-                </KeyboardAvoidingView>
+                </View>
             </SafeAreaView>
         )
     }
@@ -376,7 +382,8 @@ const styles = StyleSheet.create({
 
             input: {
                 width: 200,
-                height: 20,
+                height: 40,
+                justifyContent: 'center',
                 ...textStyles.generic
             },
 

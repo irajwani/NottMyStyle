@@ -8,6 +8,7 @@ import {shadow} from '../constructors/shadow';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import firebase from '../cloud/firebase';
 import { center } from '../constructors/center';
+import { textStyles } from '../styles/textStyles';
 
 const GrayLine = () => (
     <View style={{backgroundColor: darkGray, height: 0.5}}/>
@@ -84,6 +85,20 @@ const SignInTextInput = ({width, placeholder, onChangeText, value, secureTextEnt
         onSubmitEditing={onSubmitEditing ? onSubmitEditing : null}
         />         
     </View>
+)
+
+const minutiaContainer = {marginHorizontal: 2, justifyContent: 'center', alignItems: 'center'};
+
+const ProfileMinutia = ({icon, text}) => (
+  <View style={{flexDirection: 'row', margin: 0}}>
+    <View style={minutiaContainer}>
+      <Icon name={icon} size={20} color={'black'}/>
+    </View>
+    <View style={minutiaContainer}>
+      <Text style={[textStyles.generic, {fontSize: 14, color: 'black'}]}>{text}</Text>
+    </View>
+  </View>
+
 )
 
 const BasicLoadingIndicator = ({isVisible, type, color}) => (
@@ -310,7 +325,7 @@ class BadgeIcon extends React.Component {
 
 
 
-export {GrayLine, WhiteSpace, BasicLoadingIndicator, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
+export {GrayLine, WhiteSpace, ProfileMinutia, BasicLoadingIndicator, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
 
 const styles = StyleSheet.create({
   inputContainer: {

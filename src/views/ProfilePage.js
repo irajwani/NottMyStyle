@@ -19,7 +19,7 @@ import { PacmanIndicator } from 'react-native-indicators';
 import { avenirNextText } from '../constructors/avenirNextText';
 
 import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen, lightGray, yellowGreen } from '../colors.js';
-import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import { LoadingIndicator, ProfileMinutia } from '../localFunctions/visualFunctions.js';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { stampShadow, lowerShadow } from '../styles/shadowStyles.js';
 import { textStyles } from '../styles/textStyles.js';
@@ -28,20 +28,6 @@ const {width, height} = Dimensions.get('window');
 const resizeMode = 'center';
 
 const noReviewsText = "No Reviews have been\n left for you thus far.";
-
-const minutiaContainer = {marginHorizontal: 2, justifyContent: 'center', alignItems: 'center'};
-
-const ProfileMinutia = ({icon, text}) => (
-  <View style={{flexDirection: 'row', margin: 0}}>
-    <View style={minutiaContainer}>
-      <Icon name={icon} size={20} color={'black'}/>
-    </View>
-    <View style={minutiaContainer}>
-      <Text style={[textStyles.generic, {fontSize: 14, color: 'black'}]}>{text}</Text>
-    </View>
-  </View>
-
-)
 
 const ButtonContainer = ({children}) => (
   <View style={{flex: 0.33, alignItems: 'center', justifyContent: 'center'}}>

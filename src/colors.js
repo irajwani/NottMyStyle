@@ -1,5 +1,5 @@
 const confirmBlue = '#335996', rejectRed = '#822323', flagRed = '#db0610';
-const lightGreen = '#0bb710', aquaGreen = '#a7f2b7', mantisGreen = '#99e265', logoGreen = "#39b729", limeGreen = "#00FF00", yellowGreen = "#c8f966";
+const lightGreen = '#0bb710', aquaGreen = '#a7f2b7', mantisGreen = '#99e265', logoGreen = "#39b729", limeGreen = "#00FF00", yellowGreen = "#87d720";
 const highlightGreen = '#19841a';
 const treeGreen = '#167a19', darkGreen = "#0d5b22"
 const bobbyBlue = '#58bbe2', tealBlue = '#1c6e8e', darkBlue = '#1e49a8', optionLabelBlue = '#2196F3', fbBlue = "#3b5998";

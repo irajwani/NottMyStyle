@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import { Platform, Dimensions, Modal, Text, StyleSheet, ScrollView, View, Image, TextInput, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { Platform, Dimensions, Modal, Text, StyleSheet, ScrollView, View, SafeAreaView, Image, TextInput, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native'
+
+import Svg, { Path } from 'react-native-svg';
+
 import email from 'react-native-email'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -7,17 +10,20 @@ import {Button, Divider} from 'react-native-elements'
 // import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
 import { iOSColors, iOSUIKit, human,  } from 'react-native-typography';
-import LinearGradient from 'react-native-linear-gradient'
+// import LinearGradient from 'react-native-linear-gradient'
 // import ReviewsList from '../components/ReviewsList.js';
-import { PacmanIndicator } from 'react-native-indicators';
-import { bobbyBlue, lightGreen, highlightGreen, graphiteGray, flashOrange, avenirNext, coolBlack } from '../colors.js';
+// import { PacmanIndicator } from 'react-native-indicators';
+import { bobbyBlue, lightGreen, highlightGreen, graphiteGray, flashOrange, avenirNext, coolBlack, yellowGreen } from '../colors.js';
 
 import {removeFalsyValuesFrom} from '../localFunctions/arrayFunctions.js'
-import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import { LoadingIndicator, ProfileMinutia } from '../localFunctions/visualFunctions.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 // import { Hoshi, Sae } from 'react-native-textinput-effects';
 // import { TextField } from 'react-native-material-textfield';
 import ProgressiveImage from '../components/ProgressiveImage';
+
+import { textStyles } from '../styles/textStyles.js';
+
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -26,6 +32,19 @@ const DismissKeyboardView = ({children}) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         {children}
     </TouchableWithoutFeedback>
+)
+
+const ButtonContainer = ({children}) => (
+  <View style={{flex: 0.33, alignItems: 'center', justifyContent: 'center'}}>
+    {children}
+  </View>
+)
+
+const BlackCircleWithCount = ({count, left}) => (
+  <View style={[styles.smallBlackCircle]}>
+    <Text style={{fontFamily: 'Avenir Next', fontWeight: "700", fontSize: 12, color:'#fff'}}>{count}</Text>
+  </View>
+
 )
 
 class OtherUserProfilePage extends Component {
@@ -213,86 +232,98 @@ class OtherUserProfilePage extends Component {
     }
 
     return (
-      <View style={styles.mainContainer}>
-      <View style={styles.headerContainer}>
+      <SafeAreaView style={styles.mainContainer}>
+      <View style={styles.linearGradient}>
 
-        <LinearGradient style={styles.linearGradient} colors={gradientColors} >
-        <View style={styles.header}>
-          <View style={styles.gearAndPicColumn}>
-            <View style={styles.gearRow}>
+        <View style={styles.oval}/>
+
+
+        <View style={styles.topContainer}>
+
+          <View style={styles.iconColumn}>
+            
               <Icon 
                   name="arrow-left"   
                   size={30} 
-                  color={iOSColors.black}
+                  color={'black'}
                   onPress={() => this.props.navigation.goBack()}
-
               />
-              <Icon name="account-alert" 
-                  
-                  size={30} 
-                  color={'#020002'}
-                  onPress={() => {this.showBlockOrReport()}}
+
+          </View>
+            
+
+          <View style={styles.profileColumn}>
+            {uri ? 
+              <ProgressiveImage 
+              style= {styles.profilepic} 
+              thumbnailSource={ require('../images/blank.jpg') }
+              source={ {uri: this.state.uri} }
+              
               />
-            </View>  
+              : 
+              <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
+            } 
 
-            <View style={styles.picRow}>
-              {uri ? 
-                <ProgressiveImage 
-                style= {styles.profilepic} 
-                thumbnailSource={ require('../images/blank.jpg') }
-                source={ {uri: this.state.uri} }
-                
-                />
-                : 
-                <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
-              } 
-            </View>
+            <Text style={[styles.name, {textAlign: 'center'}]}>{name}</Text>
 
+            <ProfileMinutia icon={'city'} text={country} />
 
-          </View>  
+            {this.state.insta ? <ProfileMinutia icon={'instagram'} text={`@${insta}`} /> : null}
 
-          <View style={styles.profileTextColumn}>
-            <Text style={[styles.profileText, {fontStyle: 'normal', fontSize: 24}]}>{name}</Text>
-            <Text style={styles.profileText}>{country}</Text>
-            {insta ? 
-              <Text style={styles.profileText}>@{insta}</Text>
-             : 
-              null
-            }
+          </View>
+
+          <View style={styles.iconColumn}>
+            <Icon 
+              name="account-alert"      
+              size={30} 
+              color={'#020002'}
+              onPress={() => {this.showBlockOrReport()}}
+              />
           </View>
 
           
 
         </View>
-      </LinearGradient>
+
+        <View style={styles.bottomContainer}>
+              <ButtonContainer>
+                <View style={[styles.blackCircle]}>
+                  <Svg height={"60%"} width={"60%"} fill={'#fff'} viewBox="0 0 47.023 47.023">
+                      <Path d="M45.405,25.804L21.185,1.61c-1.069-1.067-2.539-1.639-4.048-1.603L4.414,0.334C2.162,0.39,0.349,2.205,0.296,4.455
+        L0.001,17.162c-0.037,1.51,0.558,2.958,1.627,4.026L25.848,45.38c2.156,2.154,5.646,2.197,7.8,0.042l11.761-11.774
+        C47.563,31.494,47.561,27.958,45.405,25.804z M8.646,14.811c-1.695-1.692-1.696-4.435-0.005-6.13
+        c1.692-1.693,4.437-1.693,6.13-0.003c1.693,1.692,1.694,4.437,0.003,6.129C13.082,16.501,10.338,16.501,8.646,14.811z
+        M16.824,22.216c-0.603-0.596-1.043-1.339-1.177-1.797l1.216-0.747c0.157,0.48,0.488,1.132,0.997,1.634
+        c0.548,0.541,1.061,0.6,1.403,0.256c0.324-0.329,0.26-0.764-0.152-1.618c-0.575-1.17-0.667-2.219,0.091-2.987
+        c0.888-0.9,2.32-0.848,3.565,0.38c0.594,0.588,0.908,1.146,1.083,1.596l-1.216,0.701c-0.111-0.309-0.34-0.831-0.857-1.341
+        c-0.518-0.51-0.999-0.522-1.269-0.247c-0.333,0.336-0.182,0.778,0.246,1.708c0.59,1.265,0.549,2.183-0.183,2.928
+        C19.696,23.566,18.272,23.645,16.824,22.216z M22.596,27.758l0.929-1.756l-1.512-1.493l-1.711,0.985l-1.238-1.223l6.82-3.686
+        l1.566,1.547l-3.572,6.891L22.596,27.758z M24.197,29.337l5.207-5.277l1.2,1.183l-4.221,4.273l2.099,2.072l-0.989,1.002
+        L24.197,29.337z M35.307,31.818l-2.059-2.032l-1.083,1.096l1.942,1.917l-0.959,0.972l-1.941-1.917l-1.235,1.251l2.168,2.142
+        l-0.965,0.979l-3.366-3.322l5.209-5.276l3.255,3.215L35.307,31.818z" stroke="#fff" strokeWidth="0.8"/>
+                      <Path d="M23.068,23.788l1.166,1.151l1.499-2.741C25.347,22.434,23.068,23.788,23.068,23.788z" stroke="#fff" strokeWidth="0.8"/>
+                  </Svg>
+
+                  
+                </View>
+              </ButtonContainer>
+
+              <ButtonContainer>
+                <View style={styles.blackCircle}>
+                  <Text style={{fontFamily: 'Avenir Next', fontWeight: "700", fontSize: 16, color:'#fff'}}>SOLD</Text>
+                </View>
+              </ButtonContainer>
+
+          </View>
+      
       </View>
 
       {/* Number of Products on Market and Sold Cards */}
-      <View style={styles.midContainer}>
-        
-          <View style={styles.numberCard}>
-            <Text style={styles.numberProducts}>{numberProducts} </Text>
-            <Text style={styles.subText}>ON SALE</Text>
-          </View>
-
-          <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} />
-
-          <View style={styles.numberCard}>
-            <Text style={styles.numberProducts}>{soldProducts} </Text>
-            <Text style={styles.subText}>SOLD</Text>
-          </View>    
-        
-      </View>
       
-
-      
-        
-
-      
-          {/* Other User's Reviews */}
+      {/* Other User's Reviews */}
       <View style={styles.footerContainer} >
 
-      <ScrollView contentContainerStyle={styles.halfPageScroll}>
+      <ScrollView style={styles.halfPageScrollContainer} contentContainerStyle={styles.halfPageScroll}>
           <View style={ {backgroundColor: '#fff'} }>
 
           <View style={styles.reviewsHeaderContainer}>
@@ -436,7 +467,7 @@ class OtherUserProfilePage extends Component {
           </DismissKeyboardView>
         </Modal>  
 
-      </View>
+      </SafeAreaView>
         
       
 
@@ -451,17 +482,25 @@ class OtherUserProfilePage extends Component {
 export default OtherUserProfilePage;
 
 const styles = StyleSheet.create({
+  halfPageScrollContainer: {
+    flex: 1,
+    width: width,
+    backgroundColor: "#fff",
+    
+  },
   halfPageScroll: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
     padding: 10,
     justifyContent: 'space-evenly'
   },
   mainContainer: {
     flex: 1,
     flexDirection: 'column',
-    padding: 0
+    padding: 0,
+    backgroundColor: '#fff',
+    // marginTop: 18
   },
   headerContainer: {
     flex: 4,
@@ -471,98 +510,189 @@ const styles = StyleSheet.create({
   },
 
   linearGradient: {
-    flex: 1,
+    flex: 0.7,
+    // overflow: 'hidden',
+    // position: "relative",
+    // backgroundColor: "#c8f966",
+    //backgroundColor: 'red',
+    // borderWidth:2,
+    // borderColor:'black',
+    
+    // alignSelf: 'center',
+    // width: width,
+    // overflow: 'hidden', // for hide the not important parts from circle
+    // height: 175,
   },
 
-  header: {
-    flex: 1,
-    alignItems: 'center',
-    // justifyContent: 'center',
-    padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
-    // backgroundColor: 'white',
-    height: height/1.8,
+  topContainer: {
+    flexDirection: 'row',
+    flex: 0.65
   },
 
-  gearAndPicColumn: {
-    flex: 3,
-    flexDirection: 'column',
-    // flex: 1.0,
-    // flexDirection: 'row',
-    // justifyContent: 'space-evenly',
-    // alignItems: 'center',
-    marginTop:10,
-    // width: width - 40,
-    // paddingRight: 0,
-    // backgroundColor: 'blue',
-    // width: width
-  },
-
-  gearRow: {
-    // flex: 1,
+  bottomContainer: {
+    flex: 0.35,    
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignContent: 'flex-start',
-    margin: 2
-    // backgroundColor: 'white'
-  },
-
-  picRow: {
-    width: 250,
-    // flex: 3.5,
-    // flexDirection: 'row',
-    justifyContent: 'center',
-    // alignContent: 'flex-start',
-    // height: height/5,
-    // backgroundColor: 'yellow'
-    // alignItems: 'flex-start',
-  },
-
-  profileTextColumn: {
-    flex: 1.4,
-    flexDirection: 'column',
-    alignItems: 'center',
-    // paddingTop: 15,
-    // backgroundColor: 'red'
-
-  },
-
-  profileText: new avenirNextText("#fff", 18, "300"),
-
-  midContainer: {
-    flex: 1,
-    flexDirection: 'row',
+    // borderBottomColor: 'black',
+    // borderBottomWidth: 1,
+    // backgroundColor: 'red',    
+    // borderRadius: width/5,
     // width: width,
-    // height: height/7.5,
-    backgroundColor: '#cdcdd6',
-    justifyContent: 'center'
+    // height: width,
+    // top: 0, // show the bottom part of circle
+    // overflow: 'hidden',
+    // marginLeft: -100,
   },
 
-  numberCard: {
-    flex: 79.5,
-    justifyContent: 'center',
-    alignContent: 'center',
+  oval: {
+    // marginTop: "10%",
+    // marginTop: width/3,
+    width: width,
+    height: "100%",
+    borderBottomLeftRadius: width,
+    borderBottomRightRadius: width,
+    //backgroundColor: 'red',
+    // borderWidth:2,
+    // borderColor:'black',
+    position: "absolute",
+    transform: [
+      {scaleX: 2}
+    ],
+    // top: 10,
+    backgroundColor: yellowGreen
+  },
+
+  iconColumn: {
+    flex: 0.25,
+    // justifyContent: 'flex-start',
     alignItems: 'center',
-    // width: width/2 - 20,
-    // height: 60,
-    //55
-    // paddingTop: 20,
-    // paddingBottom: 5,
-    // paddingLeft: 30,
-    // paddingRight: 30,
-    borderWidth: 0,
-    borderColor: '#020202',
-    borderRadius: 0,
+    margin: 10,
+    // marginVertical: 25,
+    // backgroundColor: 'red'
+    // height: 150,
   },
 
-  subText: {
-    fontFamily: 'Avenir Next',
-    fontSize: 18,
-    fontWeight: '400',
-    color: graphiteGray,
+  profileColumn: {
+    flex: 0.5,
+    marginTop: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // marginVertical: 20
   },
+
+  blackCircle: {
+    marginBottom: 10,
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+    // ...stampShadow,
+  },
+
+  smallBlackCircle: {
+    position: "absolute",
+    top: -15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+  },
+
+  // header: {
+  //   flex: 1,
+  //   alignItems: 'center',
+  //   // justifyContent: 'center',
+  //   padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+  //   // backgroundColor: 'white',
+  //   height: height/1.8,
+  // },
+
+  // gearAndPicColumn: {
+  //   flex: 3,
+  //   flexDirection: 'column',
+  //   // flex: 1.0,
+  //   // flexDirection: 'row',
+  //   // justifyContent: 'space-evenly',
+  //   // alignItems: 'center',
+  //   marginTop:10,
+  //   // width: width - 40,
+  //   // paddingRight: 0,
+  //   // backgroundColor: 'blue',
+  //   // width: width
+  // },
+
+  // gearRow: {
+  //   // flex: 1,
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   alignContent: 'flex-start',
+  //   margin: 2
+  //   // backgroundColor: 'white'
+  // },
+
+  // picRow: {
+  //   width: 250,
+  //   // flex: 3.5,
+  //   // flexDirection: 'row',
+  //   justifyContent: 'center',
+  //   // alignContent: 'flex-start',
+  //   // height: height/5,
+  //   // backgroundColor: 'yellow'
+  //   // alignItems: 'flex-start',
+  // },
+
+  // profileTextColumn: {
+  //   flex: 1.4,
+  //   flexDirection: 'column',
+  //   alignItems: 'center',
+  //   // paddingTop: 15,
+  //   // backgroundColor: 'red'
+
+  // },
+
+  // profileText: new avenirNextText("#fff", 18, "300"),
+
+  // midContainer: {
+  //   flex: 1,
+  //   flexDirection: 'row',
+  //   // width: width,
+  //   // height: height/7.5,
+  //   backgroundColor: '#cdcdd6',
+  //   justifyContent: 'center'
+  // },
+
+  // numberCard: {
+  //   flex: 79.5,
+  //   justifyContent: 'center',
+  //   alignContent: 'center',
+  //   alignItems: 'center',
+  //   // width: width/2 - 20,
+  //   // height: 60,
+  //   //55
+  //   // paddingTop: 20,
+  //   // paddingBottom: 5,
+  //   // paddingLeft: 30,
+  //   // paddingRight: 30,
+  //   borderWidth: 0,
+  //   borderColor: '#020202',
+  //   borderRadius: 0,
+  // },
+
+  // subText: {
+  //   fontFamily: 'Avenir Next',
+  //   fontSize: 18,
+  //   fontWeight: '400',
+  //   color: graphiteGray,
+  // },
 
   footerContainer: {
-    flex: 2,
+    flex: 0.3,
     flexDirection: 'column',
     padding: 2,
     backgroundColor: '#fff'
@@ -611,11 +741,9 @@ const styles = StyleSheet.create({
     borderWidth: 0
   },
   name: {
-    fontFamily: avenirNext,
-    marginTop: 5,
-    fontSize: 24,
-    color: '#fff',
-    fontWeight: 'normal'
+    ...textStyles.generic,
+    marginTop: 10,
+    fontSize: 18,
   },
   numberProducts: {
     fontFamily: avenirNext,
@@ -686,10 +814,11 @@ reviewsHeaderContainer: {
 },
 
 reviewsHeader: {
-  fontFamily: 'Avenir Next',
-  fontSize: 24,
-  fontWeight: "normal",
-  paddingLeft: 10
+  ...textStyles.generic,
+  fontSize: 30,
+  fontWeight: "200",
+  letterSpacing: 1,
+  color: 'black'
 },
 
 commentContainer: {

@@ -37,7 +37,8 @@ const limeGreen = '#2e770f';
 // const profoundPink = '#c64f5f';
 const modalAnimationType = "slide";
 const paymentScreensIconSize = 45;
-const paymentUri = "https://calm-coast-12842.herokuapp.com";
+const payPalEndpoint = "https://calm-coast-12842.herokuapp.com";
+// const payPalEndpoint = "https://localhost:5000";
 
 const chatIcon = {
   title: 'Chat',
@@ -52,6 +53,7 @@ const addressFields = [
   {key: "postCode" , header: "Postcode" , placeholder: "e.g. NG71NY"},
   {key: "city" , header: "City" , placeholder: "e.g. Nottingham"},
 ];
+
 
 const paymentText = "Pay with PayPal";
 const successfulTransactionText = "Your transaction has been processed successfully.";
@@ -222,6 +224,7 @@ class ProductDetails extends Component {
       //   null
       // console.log(addresses, typeof addresses);
       // console.log("KEY IS:", data.key)
+      console.log("Picture Is: " + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail[0]);
       this.setState( {
         isGetting: false,
         cloudDatabaseUsers,
@@ -634,6 +637,7 @@ class ProductDetails extends Component {
 
   handleResponse = (data) => {
     if(data.title == "success") {
+      console.log('Payment was successful. React Native knows we are viewing index.ejs page');
       // this.initializePushNotifications();
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris.thumbnail[0],
@@ -657,6 +661,7 @@ class ProductDetails extends Component {
         //handleLongPress property
         selected: false
       };
+      console.log(productAcquisitionPostData);
       let productAcquisitionUpdate = {};
       let buyerRef = `/Users/${this.state.uid}/notifications/purchaseReceipts/${this.state.sku}/`;
       let sellerRef = `/Users/${this.state.otherUserUid}/notifications/itemsSold/${this.state.sku}/`;
@@ -678,13 +683,13 @@ class ProductDetails extends Component {
         this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, ()=> {
           
           const {params} = this.props.navigation.state;
-          console.log("OVER HEREEEEE" + params.data);
+          console.log("OVER HEREEEEE, Rendering After Payment Screen" + params.data);
           this.getUserAndProductAndOtherUserData(params.data);
 
           // console.log("Notifications updated for buyer and seller")
           // send notification 1 hour later
           let notificationDate = new Date();
-          notificationDate.setHours(notificationDate.getHours() + 1);
+          notificationDate.setMinutes(notificationDate.getMinutes() + 2);
   
           //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
           //         // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
@@ -1316,7 +1321,7 @@ class ProductDetails extends Component {
         visible={this.state.showPurchaseModal}
         >
           <WebView 
-            source={{uri: "https://calm-coast-12842.herokuapp.com" + `/?price=${finalPrice}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}`}} 
+            source={{uri: payPalEndpoint + `/?price=${finalPrice}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}`}} 
             onNavigationStateChange={data => this.handleResponse(data)}
             injectedJavaScript={`document.f1.submit()`}
           />
@@ -1356,11 +1361,11 @@ class ProductDetails extends Component {
               {this.state.paymentStatus == "success" ? 
               <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
 
-                <View style={{flex: 0.3, justifyContent: 'center', alignItems: 'center'}}>
-                  <Image source={this.state.productPictureURLs[0]} style={styles.successProductImage} />
+                <View style={{flex: 0.4, justifyContent: 'center', alignItems: 'center'}}>
+                  <Image source={{uri: this.state.productPictureURLs[0]}} style={styles.successProductImage} />
                 </View>
 
-                <View style={{flex: 0.7, alignItems: 'center'}}>
+                <View style={{flex: 0.6, alignItems: 'center'}}>
                   <Text style={styles.successText}>
                   Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
                   </Text>
@@ -1410,7 +1415,8 @@ class ProductDetails extends Component {
       
       // original_price: text.original_price
     };
-    console.log(this.state.showPictureModal);
+    // console.log(this.state.showPictureModal);
+    let isProductSold = this.state.sold || this.state.paymentStatus == "success";
     
     if(isGetting) {
       return (
@@ -1565,11 +1571,11 @@ class ProductDetails extends Component {
                   }
               />
               <TouchableOpacity
-                disabled={this.state.sold ? true : false} 
-                style={[styles.purchaseButton, {backgroundColor: this.state.sold ? graphiteGray : mantisGreen}]}
+                disabled={isProductSold ? true : false} 
+                style={[styles.purchaseButton, {backgroundColor: isProductSold ? graphiteGray : mantisGreen}]}
                 onPress={() => {this.setState({showPurchaseModal: true})}} 
               >
-                <Text style={new avenirNextText("#fff",16,"400")}>{this.state.sold ? "Sold":"Buy"}</Text>
+                <Text style={new avenirNextText("#fff",16,"400")}>{isProductSold ? "Sold":"Buy"}</Text>
               </TouchableOpacity>
             </View>
           }
@@ -2206,8 +2212,8 @@ addressField: {
 //////////
 /////////
 successProductImage: {
-  width: 150,
-  height: 150,
+  width: 135,
+  height: 135,
 },
 successText: new avenirNextText('black', 18, "300", "left"),
 ////////////
