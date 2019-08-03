@@ -43,13 +43,13 @@ class MultipleAddButton extends Component {
           mediaType: 'photo',
       }
 
-        ImagePicker.showImagePicker(options, (response) => {
+        BasicImagePicker.showImagePicker(options, (response) => {
             if(response.didCancel) {
                 return null
             }   
             else {
                 const picture = [response.uri];
-                this.props.navigation.navigate(`${navToComponent}`, {pictureuris: [picture]} );
+                this.props.navigation.navigate(`${navToComponent}`, {pictureuris: picture} );
                 
             }
             
@@ -200,7 +200,7 @@ class MultipleAddButton extends Component {
               :
               <Image 
             source={{uri: pictureuris[0]} } 
-            style={this.props.navToComponent == "CreateProfile" ? styles.mainPictureCP : styles.mainPicture} 
+            style={this.props.navToComponent == "CreateProfile" ? [styles.mainPictureCP, {backgroundColor: 'transparent'}] : styles.mainPicture} 
             /> 
             }
             
@@ -310,12 +310,12 @@ const styles = StyleSheet.create( {
   mainPictureRow: {
     flex: 1,
     flexDirection: 'row',
-    // backgroundColor: 'yellow'
+    // backgroundColor: bgBlack,
   },
 
   mainPictureTouchContainer: {
     // flex: 2,
-    // backgroundColor: 'yellow',
+    // backgroundColor: bgBlack,
     // width: 150,
     // height: 150,
     paddingVertical: 0,

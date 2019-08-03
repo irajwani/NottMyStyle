@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     // flexDirection: ''
     // justifyContent: 'center',
-    borderBottomWidth: 0.2,
-    borderBottomColor: '#fff',
+    // borderBottomWidth: 0.2,
+    // borderBottomColor: '#fff',
     alignItems: 'stretch'
 },
 

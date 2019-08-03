@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Platform, SafeAreaView, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView, Fragment } from 'react-native'
-import {withNavigation} from 'react-navigation';
+import {StackActions,NavigationActions,withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
@@ -24,6 +24,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { textStyles } from '../styles/textStyles';
+import { HeaderBar } from '../components/HeaderBar';
 
 
 // const darkGreen = '#0d4f10';
@@ -44,6 +45,25 @@ const fs = RNFetchBlob.fs;
 window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
 window.Blob = Blob;
 
+const Fetch = RNFetchBlob.polyfill.Fetch
+// replace built-in fetch
+window.fetch = new Fetch({
+    // enable this option so that the response data conversion handled automatically
+    auto : true,
+    // when receiving response data, the module will match its Content-Type header
+    // with strings in this array. If it contains any one of string in this array, 
+    // the response body will be considered as binary data and the data will be stored
+    // in file system instead of in memory.
+    // By default, it only store response data to file system when Content-Type 
+    // contains string `application/octet`.
+    binaryContentTypes : [
+        'image/',
+        'video/',
+        'audio/',
+        'foo/',
+    ]
+}).build()
+
 function incrementPrice(previousState, currentProps) {
  return { uri: previousState.price + 1 } 
 }
@@ -57,55 +77,58 @@ const TextForMissingDetail = ({detail}) => {
 
 class CreateItem extends Component {
  constructor(props) {
- super(props);
+    super(props);
 
- //extract data if we came to this screen to edit an existing item:
- var item = this.props.navigation.getParam('data', false);
- // console.log("ITEM IS:" + item);
- // if(item) {
- // this.props.navigation.setParams({
- // data: item, //possibly unnecessary
- // pictureuris: item.uris.source, 
- // price: item.text.price, 
- // original_price: item.text.original_price, 
- // post_price: item.text.post_price > 0 ? item.text.post_price : 0,
- // condition: item.text.condition,
- // type: item.text.type,
- // size: item.text.size,
- // editItemBoolean: true
- // })
- // } 
+    //extract data if we came to this screen to edit an existing item:
+    var item = this.props.navigation.getParam('data', false);
+    var isComingFrom = this.props.navigation.getParam('isComingFrom', false);
+    // console.log("ITEM IS:" + item);
+    // if(item) {
+    // this.props.navigation.setParams({
+    // data: item, //possibly unnecessary
+    // pictureuris: item.uris.source, 
+    // price: item.text.price, 
+    // original_price: item.text.original_price, 
+    // post_price: item.text.post_price > 0 ? item.text.post_price : 0,
+    // condition: item.text.condition,
+    // type: item.text.type,
+    // size: item.text.size,
+    // editItemBoolean: true
+    // })
+    // } 
 
- this.state = {
- uri: undefined,
- name: item ? item.text.name : '',
- brand: item ? item.text.brand : '', //empty or value selected from list of brands
- // price: 0,
- // original_price: 0,
- // size: 2,
- // type: 'Trousers',
- gender: item ? categories.indexOf(item.text.gender) : 1,
- // condition: 'Slightly Used',
- // insta: '',
- description: item ? item.text.description ? item.text.description : '' : '',
- typing: true,
- canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
- paypal: item ? item.text.paypal : '',
- isUploading: false,
- pictureuris: 'nothing here',
- helpDialogVisible: false,
- /////////
- //EDIT ITEM STUFF
- editItemBoolean: this.props.navigation.getParam('editItemBoolean', false),
- oldItemPostKey: item ? item.key : false,
- oldUploadDate: item ? item.text.time : false,
+    this.state = {
+        uri: undefined,
+        name: item ? item.text.name : '',
+        brand: item ? item.text.brand : '', //empty or value selected from list of brands
+        // price: 0,
+        // original_price: 0,
+        // size: 2,
+        // type: 'Trousers',
+        gender: item ? categories.indexOf(item.text.gender) : 1,
+        // condition: 'Slightly Used',
+        // insta: '',
+        description: item ? item.text.description ? item.text.description : '' : '',
+        typing: true,
+        canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
+        paypal: item ? item.text.paypal : '',
+        isUploading: false,
+        pictureuris: 'nothing here',
+        helpDialogVisible: false,
+        /////////
+        //EDIT ITEM STUFF
+        editItemBoolean: this.props.navigation.getParam('editItemBoolean', false),
+        oldItemPostKey: item ? item.key : false,
+        oldUploadDate: item ? item.text.time : false,
+        isComingFrom: isComingFrom ? isComingFrom : false,
 
- /////////
 
- /////RESIZE IMAGE STUFF
- resizedImage: false,
 
- }
+        /////////
+
+        /////RESIZE IMAGE STUFF
+        resizedImage: false,
+    }
  }
 
 // componentDidMount() {
@@ -191,68 +214,100 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
  
  // : if request.auth != null;
  switch(gender) {
- case 0:
- gender = 'Men'
- break; 
- case 1:
- gender = 'Women'
- break;
- case 2:
- gender = 'Accessories'
- break;
- default:
- gender = 'Men'
- // console.log('no gender was specified')
+    case 0:
+    gender = 'Men'
+    break; 
+    case 1:
+    gender = 'Women'
+    break;
+    case 2:
+    gender = 'Accessories'
+    break;
+    default:
+    gender = 'Men'
+    // console.log('no gender was specified')
  }
 
- var postData = {
- name: name,
- brand: brand,
- price: price,
- original_price: original_price ? original_price : "",
- type: type,
- size: size,
- description: description ? description : 'Seller did not specify a description',
- gender: gender,
- condition: condition,
- sold: false,
- likes: 0,
- comments: '',
- time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
- dateSold: '',
- post_price: post_price ? post_price : 0,
- paypal: paypal //TODO: test if paypal value is remembered and the user can't see it
- };
- 
+ //TODO: check if in Edit Item mode, and update cloud DB with only those text values that have actually changed
+
  var updates = {}; 
  var actualPostKey;
 
  if(oldItemPostKey) {
- actualPostKey = oldItemPostKey
+    actualPostKey = oldItemPostKey
+ }
+ else {
+    actualPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
+ }
+
+ var productTextPath = '/Users/' + uid + '/products/' + actualPostKey + '/text/';
+
+ if(this.state.editItemBoolean) {
+    console.log('Partial Update')
+    var item = this.props.navigation.getParam('data', false);
+    var oldValues = item.text;
+    if(price != oldValues.price) {
+        updates[productTextPath + 'price/'] = price;
+    }
+    if(name != oldValues.name) {
+        updates[productTextPath + 'name/'] = name;
+    }
+    if(brand != oldValues.brand) {
+        updates[productTextPath + 'brand/'] = brand;
+    }
+    if(gender != oldValues.gender) {
+        updates[productTextPath + 'gender/'] = gender;
+    }
+    if(original_price != oldValues.original_price) {
+        console.log('Editing Original Price')
+        updates[productTextPath + 'original_price/'] = original_price;
+    }
+    if(type != oldValues.type) {
+        updates[productTextPath + 'type/'] = type;
+    }
+    if(condition != oldValues.condition) {
+        updates[productTextPath + 'condition/'] = type;
+    }
+    if(size != oldValues.size) {
+        updates[productTextPath + 'size/'] = type;
+    }
  }
 
  else {
- actualPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
+    var postData = {
+        name: name,
+        brand: brand,
+        price: price,
+        original_price: original_price ? original_price : "",
+        type: type,
+        size: size,
+        description: description ? description : 'Seller did not specify a description',
+        gender: gender,
+        condition: condition,
+        sold: false,
+        likes: 0,
+        comments: '',
+        time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
+        dateSold: '',
+        post_price: post_price ? post_price : 0,
+        paypal: paypal //TODO: test if paypal value is remembered and the user can't see it
+     };
+    
+     updates[productTextPath] = postData;
  }
-
- updates['/Users/' + uid + '/products/' + actualPostKey + '/text/'] = postData;
+ 
  updates['/Users/' + uid + '/profile/isNoob/'] = false;
  
- 
- //this.createRoom(newPostKey);
-
- 
- 
-
  return {
- database: firebase.database().ref().update(updates),
- storage: this.uploadToStore(pictureuris, uid, actualPostKey)
+    database: firebase.database().ref().update(updates),
+    storage: this.uploadToStore(pictureuris, uid, actualPostKey)
  }
 
 }
 
 uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
+
     pictureuris.forEach(async (uri, index, array) => {
     // console.log("Picture's Original URL:" + uri);
     //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage: NO it won't, just do simpler thing and
@@ -271,12 +326,14 @@ uploadToStore = (pictureuris, uid, postKey) => {
             let resizedImageThumbnail = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
             let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
             let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
+            // alert(imageUris);
             imageUris.forEach((imageUri, imageIndex, imageArray) => {
             // console.log("Picture URL:", imageUri, imageIndex)
             const storageUpdates = {};
             const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : uri
 
             let uploadBlob = null
+            //THIS IS FINE, Just stores images in firebase storage
             const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : imageIndex == 1 ? index+'-thumbnail' : index+'-pd'}`);
             fs.readFile(uploadUri, 'base64')
             .then((data) => {
@@ -290,28 +347,43 @@ uploadToStore = (pictureuris, uid, postKey) => {
             .then(() => {
             // console.log('upload successful')
                 uploadBlob.close()
+                // return true;
                 return imageRef.getDownloadURL()
             })
             .then((url) => {
             // console.log(url);
-            if(imageIndex == 0) {
-                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
-            }
 
-            else if(imageIndex == 1){
-                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
-            }
+                if(imageIndex == 0) {
+                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
+                }
 
-            else {
-                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
-            }
-            
-            firebase.database().ref().update(storageUpdates);
-            picturesProcessed++;
-            if(picturesProcessed == (imageArray.length*array.length)) {
+                else if(imageIndex == 1){
+                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+                }
+
+                else {
+                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
+                }
+                
+                firebase.database().ref().update(storageUpdates);
+                picturesProcessed++;
+                if(picturesProcessed == (imageArray.length*array.length)) {
+                    this.callBackForProductUploadCompletion();
+                }
+
+            })
+            .catch(err => {
                 this.callBackForProductUploadCompletion();
-            }
-        })
+            })
+
+
+
+
+
+
+
+
+
         // if(imageUri.includes('firebasestorage')) {
         // //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
         // console.log(url);
@@ -455,8 +527,31 @@ uploadToStore = (pictureuris, uid, postKey) => {
     
     setTimeout(() => {
         this.startOver()
-        this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market')     
-    }, this.state.oldItemPostKey ? 1 : 4000);
+        // If coming from product details due to edit item, stay in your stack and go to marketplace screen
+        // If coming from YourProducts/SoldProducts to edit item then popToTop first and then go to Market stack
+        if(this.state.oldItemPostKey) {
+            if(this.state.isComingFrom == "productDetails" ) {
+                this.props.navigation.navigate('MarketPlace');
+            }
+            else {
+                let resetStack = StackActions.reset({
+                    index: 0,
+                    actions: [
+                      NavigationActions.navigate({routeName: 'ProfilePage'})
+                    ],
+                  });
+                  
+                  this.props.navigation.dispatch(resetStack);
+                  this.props.navigation.navigate('Market');
+            }
+            
+        }
+        else {
+            this.props.navigation.navigate('Market');
+        }
+        
+                 
+    }, this.state.oldItemPostKey ? 1 : 1);
     
  }
 
@@ -616,8 +711,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
     return (
     
         <SafeAreaView style={{flex: 1}}>
+        {this.state.editItemBoolean ? <HeaderBar customFlex={0.13} navigation={this.props.navigation} hideCross={true}/> : null}
         <ScrollView
-        style={{flex: 1}}
+        style={{flex: this.state.editItemBoolean ? 0.87 : 1}}
         contentContainerStyle={styles.contentContainer}
         >
 

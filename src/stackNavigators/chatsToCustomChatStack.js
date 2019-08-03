@@ -8,11 +8,16 @@ import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
 import NotificationsAndChats from '../views/NotificationsAndChats';
 
+import OtherUserProducts from '../views/OtherUserProducts';
+import OtherUserSoldProducts from '../views/OtherUserSoldProducts';
+
 export const ChatsToCustomChatStack = createStackNavigator({
     NotificationsAndChats: NotificationsAndChats,
     CustomChat: CustomChat,
     OtherUserProfilePage: OtherUserProfilePage,
-    UserComments: UserComments
+    UserComments: UserComments,
+    OtherUserProducts,
+    OtherUserSoldProducts
 
 },{
     initialRouteName: 'NotificationsAndChats',

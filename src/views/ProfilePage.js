@@ -839,6 +839,7 @@ const styles = StyleSheet.create({
     ...textStyles.generic,
     marginTop: 10,
     fontSize: 18,
+    color: 'black'
   },
   pos: {
     ...textStyles.generic,

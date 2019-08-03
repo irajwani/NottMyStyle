@@ -3,7 +3,7 @@ import {Animated, Easing,} from 'react-native';
 import CreateItem from '../views/CreateItem';
 import MultipleAddButton from '../components/MultipleAddButton'
 import MultiplePictureCamera from '../components/MultiplePictureCamera'
-import ViewPhotos from '../views/ViewPhotos'
+// import ViewPhotos from '../views/ViewPhotos'
 import PriceSelection from '../views/PriceSelection'
 import ConditionSelection from '../views/ConditionSelection'
 import CameraForEachPicture from '../components/CameraForEachPicture';
@@ -11,7 +11,7 @@ import CameraForEachPicture from '../components/CameraForEachPicture';
 export const multipleAddButtonToMultiplePictureCameraToCreateItemStack = createStackNavigator({
 
     CreateItem: CreateItem,
-    ViewPhotos: ViewPhotos,
+    // ViewPhotos: ViewPhotos,
     MultiplePictureCamera: MultiplePictureCamera,
     CameraForEachPicture: CameraForEachPicture,
     MultipleAddButton: MultipleAddButton,

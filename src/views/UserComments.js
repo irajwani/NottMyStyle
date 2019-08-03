@@ -7,7 +7,7 @@ class UserComments extends React.Component {
         super(props);
     }
     render() {
-        return <Comments kind={'user'} navigation={this.props.navigation}/>
+        return <Comments type={'user'} navigation={this.props.navigation}/>
     }
 }
 

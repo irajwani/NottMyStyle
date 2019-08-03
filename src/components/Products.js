@@ -211,9 +211,9 @@ class Products extends Component {
 
   componentWillMount = () => {
     
-    setTimeout(() => {
+    this.timerID = setTimeout(() => {
       this.getMarketPlace(this.state.uid);
-      setInterval( () => {
+      this.intervalID = setInterval( () => {
         this.getMarketPlace(this.state.uid);
       },600000) //10 minutes
       
@@ -244,9 +244,10 @@ class Products extends Component {
   //     300000) //approximately every 5 minutes
   // }
 
-  // componentWillUnmount() {
-  //   clearInterval(this.dataRetrievalTimerId);
-  // }
+  componentWillUnmount() {
+    clearTimeout(this.timerID);
+    clearInterval(this.intervalID);
+  }
 
   // initializePushNotifications = () => {
   //   PushNotification.configure({
@@ -332,9 +333,9 @@ class Products extends Component {
       }
       else {
         Products = Object.values(Products);
-        const {showCollection, showYourProducts, showSoldProducts} = this.props;
+        const {showCollection, showYourProducts, showSoldProducts, showOtherUserProducts, showOtherUserSoldProducts, otherUser} = this.props;
         var emptyMarket = false;
-        var productKeys = [], collectionKeys = [];
+        var productKeys = [], collectionKeys = [], otherUserProductKeys = [];
 
         if(Users[uid].products) {
           productKeys = Object.keys(Users[uid].products)
@@ -359,6 +360,19 @@ class Products extends Component {
           Products = Products.filter((product) => collectionKeys.includes(product.key) );
           Products.length > 0 ? null : emptyMarket = true;          
         }
+
+        else if(showOtherUserProducts) {
+          if(Users[otherUser].products != "") {
+            otherUserProductKeys = Object.keys(Users[otherUser].products);
+            Products = Products.filter((product) => otherUserProductKeys.includes(product.key) );
+            if(showOtherUserSoldProducts) {
+              Products = Products.filter((product) => product.text.sold );
+            }
+            Products.length > 0 ? null : emptyMarket = true;
+          }
+          
+        }
+
         // else {
         //     // console.log('do nothing')
         // }
@@ -812,7 +826,18 @@ class Products extends Component {
   }
 
   navToEditItem(item) {
-    this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris.source, editItemBoolean: true});
+    this.props.navigation.navigate('CreateItem', {
+      data: item, 
+      pictureuris: item.uris.source, 
+      price: item.text.price, 
+      original_price: item.text.original_price, 
+      post_price: item.text.post_price > 0 ? item.text.post_price : 0,
+      condition: item.text.condition,
+      type: item.text.type,
+      size: item.text.size,
+      editItemBoolean: true,
+      isComingFrom: 'products',
+    });
     // alert('Please take brand new pictures');
   }
 
@@ -877,8 +902,8 @@ class Products extends Component {
   setSaleTo(soldStatus, uid, productKey) {
     var updates={};
     // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
-    updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
-    updates['Users/' + uid + '/products/' + productKey + '/dateSold/'] = soldStatus ? new Date : '';
+    updates['/Users/' + uid + '/products/' + productKey + '/text/sold/'] = soldStatus;
+    updates['/Users/' + uid + '/products/' + productKey + '/text/dateSold/'] = soldStatus ? new Date : '';
     // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
@@ -946,8 +971,8 @@ class Products extends Component {
                       {text: section.text.sold ? "Unmark as Sold" : "Mark as Sold", onPress: () => this.setSaleTo(section.text.sold ? false : true, section.uid, section.key)}
                     ]
                     .map((option, index) => (
-                      <TouchableOpacity key={index} onPress={option.onPress} style={[styles.menuOptionContainer, index != 2 ? {borderBottomWidth: 0.5} : {paddingVertical: 5}]}>
-                        <Text style={[textStyles.generic, {fontSize: index != 2 ? 18 : 13, color: 'black'}]}>{option.text}</Text>
+                      <TouchableOpacity key={index} onPress={option.onPress} style={[styles.menuOptionContainer, {borderBottomWidth: index != 2 ? 0.5 : null} ]}>
+                        <Text style={[textStyles.generic, {fontSize: 13, color: 'black'}]}>{option.text}</Text>
                       </TouchableOpacity>
                     )) 
                     }
@@ -1354,29 +1379,29 @@ class Products extends Component {
   }
 
   render() {
-    var {showCollection, showYourProducts, showSoldProducts} = this.props;
+    // var {showCollection, showYourProducts, showSoldProducts} = this.props;
     var {isGetting, emptyMarket, noResultsFromFilter} = this.state;
     
     if(isGetting == true) {
       return ( 
-        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+        <SafeAreaView style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
             <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
-        </View>
+        </SafeAreaView>
       )
     }
 
     else if(emptyMarket == true) {
       return (
-        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, flex: 1, backgroundColor: '#fff', padding: 10}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: '#fff', padding: 10}}>
           {/* <NothingHereYet specificText={showCollection == true ? emptyCollectionText : (showYourProducts == true && showSoldProducts == true) ? noSoldProductsText : (showYourProducts == true && showSoldProducts == false) ? noProductsOfYourOwnText : emptyMarketText } /> */}
-        </View>
+        </SafeAreaView>
       )
     }
 
     else if(noResultsFromFilter == true){
 
       return(
-        <View style={{flex: 1, marginTop: Platform.OS == 'ios' ? 22:0, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
 
           <View style={{flex: 0.2, }}>
             <NothingHereYet specificText={noResultsFromSearchText} />
@@ -1392,7 +1417,7 @@ class Products extends Component {
           </View>
           {this.renderFilterModal()}
 
-        </View>
+        </SafeAreaView>
       )
     }
 
@@ -1400,8 +1425,8 @@ class Products extends Component {
     // console.log('Entered MarketPlace render')
     return (
 
-      <SafeAreaView style={[{flex: 1}, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
-      <View style={[styles.container]}>
+      <SafeAreaView style={{flex: 1}}>
+      <View style={styles.container}>
 
       <ScrollView
           style={{flex: 1}}
@@ -1706,6 +1731,15 @@ class Products extends Component {
 //     showYourProducts: false,
 // }
 
+Products.defaultProps = {
+  showYourProducts: false,
+  showSoldProducts: false,
+  showCollection: false,
+  showOtherUserProducts: false,
+  showOtherUserSoldProducts: false,
+  otherUser: false
+}
+
 export default withNavigation(Products);
 
 const styles = StyleSheet.create({
@@ -1727,6 +1761,7 @@ const styles = StyleSheet.create({
   contentContainerStyle: {
     flexGrow: 4,   
     flexDirection: 'row',
+    justifyContent: 'flex-start',
     // flexWrap: 'wrap',
     // paddingTop: 20,
       },
@@ -1735,7 +1770,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     // flexWrap: 'wrap',
     // padding: 5,
-    justifyContent: 'space-evenly', 
+    // justifyContent: 'space-evenly', 
     // will lead to good spacing between cards but the product in last row will be in dead center
     // alignItems: 'center'
   },    
@@ -1811,14 +1846,14 @@ const styles = StyleSheet.create({
     // backgroundColor: 'green'
   },
 
-  menuContainer: {flex: 0.7, backgroundColor: '#fff', borderBottomLeftRadius: 10, width: 35, height: 75},
+  menuContainer: {flex: 0.7, backgroundColor: '#fff', borderBottomLeftRadius: 10, width: 35, height: 80},
 
   menuOptionContainer: {
     // backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
     // borderRadius: 0,
-    
+    paddingVertical: 5,
     borderColor: 'black',
     // padding: 7,
     // marginBottom: 4,

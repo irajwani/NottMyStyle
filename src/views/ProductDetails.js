@@ -224,7 +224,7 @@ class ProductDetails extends Component {
       //   null
       // console.log(addresses, typeof addresses);
       // console.log("KEY IS:", data.key)
-      console.log("Picture Is: " + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail[0]);
+      // console.log("Picture Is: " + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail[0]);
       this.setState( {
         isGetting: false,
         cloudDatabaseUsers,
@@ -357,8 +357,8 @@ class ProductDetails extends Component {
   setSaleTo(soldStatus, uid, productKey, isBuyer = false) {
     var updates={};
     // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
-    updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
-    updates['Users/' + uid + '/products/' + productKey + '/dateSold/'] = new Date;
+    updates['/Users/' + uid + '/products/' + productKey + '/text/sold/'] = soldStatus;
+    updates['/Users/' + uid + '/products/' + productKey + '/text/dateSold/'] = new Date;
     // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
@@ -389,7 +389,8 @@ class ProductDetails extends Component {
       condition: item.text.condition,
       type: item.text.type,
       size: item.text.size,
-      editItemBoolean: true
+      editItemBoolean: true,
+      isComingFrom: 'productDetails',
     });
     // alert('Please take brand new pictures');
   }
@@ -1537,16 +1538,25 @@ class ProductDetails extends Component {
           </View>
           {productKeys.includes(data.key) ?
             <View style={styles.actionIconContainer}>
-              <Icon
-                name='wrench'
-                size={32}
-                color={'black'}
-                onPress = { () => { 
-                    // console.log('going to edit item details');
-                    //subscribe to room key
-                    this.navToEditItem(data);
-                    } }
-              />
+              {isProductSold ?
+                <View
+                  style={[styles.purchaseButton, {backgroundColor: graphiteGray}]}
+                >
+                  <Text style={new avenirNextText("#fff",16,"400")}>Sold</Text>
+                </View>
+              :
+                <Icon
+                  name='wrench'
+                  size={32}
+                  color={'black'}
+                  onPress = { () => { 
+                      // console.log('going to edit item details');
+                      //subscribe to room key
+                      this.navToEditItem(data);
+                      } }
+                />
+              
+              }
             </View>
             :
             <View style={styles.actionIconContainer}>

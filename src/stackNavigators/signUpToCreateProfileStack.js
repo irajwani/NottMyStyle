@@ -5,7 +5,7 @@ import SignIn from '../views/SignIn';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
 // import HomeScreen from '../views/HomeScreen';
-import ViewPhotos from '../views/ViewPhotos';
+// import ViewPhotos from '../views/ViewPhotos';
 import CameraForEachPicture from '../components/CameraForEachPicture';
 
 export const SignUpToCreateProfileStack = createStackNavigator({
@@ -15,7 +15,7 @@ export const SignUpToCreateProfileStack = createStackNavigator({
     MultipleAddButton: MultipleAddButton,
     CameraForEachPicture: CameraForEachPicture,
     MultiplePictureCamera: MultiplePictureCamera,
-    ViewPhotos: ViewPhotos,
+    // ViewPhotos: ViewPhotos,
 
     
     // AppStack: HomeScreen,

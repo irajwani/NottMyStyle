@@ -11,6 +11,9 @@ import CreateItem from '../views/CreateItem';
 import ConditionSelection from '../views/ConditionSelection';
 import PriceSelection from '../views/PriceSelection';
 
+import OtherUserProducts from '../views/OtherUserProducts';
+import OtherUserSoldProducts from '../views/OtherUserSoldProducts';
+
 
 export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     Collection: Collection,
@@ -23,6 +26,8 @@ export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigato
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,
     CustomChat: CustomChat,
+    OtherUserProducts,
+    OtherUserSoldProducts,
 },
 {
     initialRouteName: 'Collection',

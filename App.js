@@ -8,7 +8,7 @@ export default class App extends Component {
 
   render() {
     console.disableYellowBox = true;
-    console.log('Initializing Application')
+    // console.log('Initializing Application')
     
     return (
       

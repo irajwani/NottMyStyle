@@ -3,8 +3,8 @@ import { View, StyleSheet, Image } from "react-native";
 import { logoGreen } from "../colors";
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
-const HeaderBar = ({navigation}) => (
-    <View style={styles.headerContainer}>
+const HeaderBar = ({customFlex,navigation,hideCross}) => (
+    <View style={[styles.headerContainer, {flex: customFlex ? customFlex : 0.1}]}>
         
         <FontAwesomeIcon
         name='arrow-left'
@@ -18,7 +18,7 @@ const HeaderBar = ({navigation}) => (
         <FontAwesomeIcon
         name='close'
         size={28}
-        color={'black'}
+        color={hideCross ? logoGreen : 'black'}
         onPress={()=>navigation.goBack()}
         />
           
@@ -29,7 +29,6 @@ export {HeaderBar}
 
 const styles = StyleSheet.create({
     headerContainer: {
-        flex: 0.1,
         backgroundColor: logoGreen,
         justifyContent: 'space-between',
         alignItems: 'center',

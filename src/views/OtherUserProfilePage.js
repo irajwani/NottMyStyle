@@ -202,6 +202,10 @@ class OtherUserProfilePage extends Component {
     .catch(console.error)
   }
 
+  navigateTo = (screen) => {
+    this.props.navigation.navigate(screen, {otherUser: this.state.otherUserUid });
+  }
+
   navToOtherUserProfilePage = (uid) => {
     this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
   }
@@ -287,7 +291,7 @@ class OtherUserProfilePage extends Component {
 
         <View style={styles.bottomContainer}>
               <ButtonContainer>
-                <View style={[styles.blackCircle]}>
+                <TouchableOpacity style={[styles.blackCircle]} onPress={()=>this.navigateTo('OtherUserProducts')}>
                   <Svg height={"60%"} width={"60%"} fill={'#fff'} viewBox="0 0 47.023 47.023">
                       <Path d="M45.405,25.804L21.185,1.61c-1.069-1.067-2.539-1.639-4.048-1.603L4.414,0.334C2.162,0.39,0.349,2.205,0.296,4.455
         L0.001,17.162c-0.037,1.51,0.558,2.958,1.627,4.026L25.848,45.38c2.156,2.154,5.646,2.197,7.8,0.042l11.761-11.774
@@ -305,13 +309,13 @@ class OtherUserProfilePage extends Component {
                   </Svg>
 
                   
-                </View>
+                </TouchableOpacity>
               </ButtonContainer>
 
               <ButtonContainer>
-                <View style={styles.blackCircle}>
+                <TouchableOpacity style={styles.blackCircle} onPress={()=>this.navigateTo('OtherUserSoldProducts')}>
                   <Text style={{fontFamily: 'Avenir Next', fontWeight: "700", fontSize: 16, color:'#fff'}}>SOLD</Text>
-                </View>
+                </TouchableOpacity>
               </ButtonContainer>
 
           </View>
@@ -744,67 +748,42 @@ const styles = StyleSheet.create({
     ...textStyles.generic,
     marginTop: 10,
     fontSize: 18,
+    color: 'black'
   },
-  numberProducts: {
-    fontFamily: avenirNext,
-    fontSize: 28,
-    color: graphiteGray,
-    fontWeight: 'normal'
-  },
-  soldProducts: {
-    fontFamily: avenirNext,
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold'
-  }
-  ,
-  pos: {
-    fontFamily: avenirNext,
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: '600',
-    fontStyle: 'italic'
-  },
-  insta: {
-    fontFamily: avenirNext,
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: '600',
-    fontStyle: 'italic'
-  },  
-  companyLogoContainer: {
-    justifyContent: 'center',
-    alignContent: 'center',
-    backgroundColor: '#122021',
-  },
-  companyLogo: {
-    //resizeMode: 'container',
-    borderWidth:1,
-    borderColor:'#207011',
-    alignItems:'center',
-    justifyContent:'center',
-    width:40,
-    height:40,
-    backgroundColor:'#fff',
-    borderRadius:0,
-    borderWidth: 2,
-    marginLeft: (width/4)-10,
-    paddingLeft: 25,
-    paddingRight: 25
 
-}, 
-naam: {
-  ...iOSUIKit.caption2,
-  fontSize: 11,
-  color: '#37a1e8'
+//   companyLogoContainer: {
+//     justifyContent: 'center',
+//     alignContent: 'center',
+//     backgroundColor: '#122021',
+//   },
+//   companyLogo: {
+//     //resizeMode: 'container',
+//     borderWidth:1,
+//     borderColor:'#207011',
+//     alignItems:'center',
+//     justifyContent:'center',
+//     width:40,
+//     height:40,
+//     backgroundColor:'#fff',
+//     borderRadius:0,
+//     borderWidth: 2,
+//     marginLeft: (width/4)-10,
+//     paddingLeft: 25,
+//     paddingRight: 25
 
-},
+// }, 
+// naam: {
+//   ...iOSUIKit.caption2,
+//   fontSize: 11,
+//   color: '#37a1e8'
 
-title: {
-  ...human.headline,
-  fontSize: 20,
-  color: '#656565'
-},
+// },
+
+// title: {
+//   ...human.headline,
+//   fontSize: 20,
+//   color: '#656565'
+// },
 
 reviewsHeaderContainer: {
   flexDirection: 'row',

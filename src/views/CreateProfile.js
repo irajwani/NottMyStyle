@@ -33,6 +33,25 @@ const fs = RNFetchBlob.fs;
 window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
 window.Blob = Blob;
 
+// const Fetch = RNFetchBlob.polyfill.Fetch
+// // replace built-in fetch
+// window.fetch = new Fetch({
+//     // enable this option so that the response data conversion handled automatically
+//     auto : true,
+//     // when receiving response data, the module will match its Content-Type header
+//     // with strings in this array. If it contains any one of string in this array, 
+//     // the response body will be considered as binary data and the data will be stored
+//     // in file system instead of in memory.
+//     // By default, it only store response data to file system when Content-Type 
+//     // contains string `application/octet`.
+//     binaryContentTypes : [
+//         'image/',
+//         'video/',
+//         'audio/',
+//         'foo/',
+//     ]
+// }).build()
+
 // const { State: TextInputState } = TextInput;
 
 // const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
@@ -302,7 +321,7 @@ class CreateProfile extends Component {
     
     updates['/Users/' + uid + '/profile/'] = postData; 
     // updates['/Users/' + uid + '/status/'] = 'offline';
-    updates['/Users' + uid + '/products/'] = '';
+    updates['/Users/' + uid + '/products/'] = '';
     //Now we have a user who may go through the app without components crashing
     
     let promiseToUploadPhoto = new Promise(async (resolve, reject) => {
@@ -340,7 +359,7 @@ class CreateProfile extends Component {
                 
             })
             .catch((error) => {
-            reject(error)
+                reject(error)
             })
         }
     
@@ -535,7 +554,7 @@ class CreateProfile extends Component {
             
         </View>
 
-        <TouchableOpacity style={{flex: 0.3}} onPress={this.toggleShowCountrySelect}>
+        <TouchableOpacity style={{flex: 0.3, justifyContent: 'center'}} onPress={this.toggleShowCountrySelect}>
             <Text 
             style={styles.inputText}
             >
@@ -656,7 +675,7 @@ class CreateProfile extends Component {
             </View>
 
 
-            <ScrollView style={{flex: 0.45}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
+            <ScrollView style={{flex: 0.375}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
             
             {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
             
@@ -1031,7 +1050,7 @@ const styles = StyleSheet.create({
     },
 
     backIconAndMABAndHelpContainer: {
-        flex: 0.3,flexDirection: 'row', 
+        flex: 0.4,flexDirection: 'row', 
         // backgroundColor: 'red',
         margin: 5,
         paddingVertical: 3, paddingRight: 2, paddingLeft: 1 
@@ -1058,7 +1077,7 @@ const styles = StyleSheet.create({
     
     inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
 
-    signUpButtonContainer: {flex: 0.25,justifyContent: 'center', alignItems: 'center'},
+    signUpButtonContainer: {flex: 0.225,justifyContent: 'center', alignItems: 'center'},
 
     signUpButton: {
         width: 175,

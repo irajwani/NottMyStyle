@@ -12,6 +12,9 @@ import PriceSelection from '../views/PriceSelection';
 import ConditionSelection from '../views/ConditionSelection';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
+import CameraForEachPicture from '../components/CameraForEachPicture';
+import OtherUserProducts from '../views/OtherUserProducts';
+import OtherUserSoldProducts from '../views/OtherUserSoldProducts';
 
 export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     MarketPlace: MarketPlace,
@@ -20,12 +23,15 @@ export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator(
     CreateItem: CreateItem,
     MultiplePictureCamera: MultiplePictureCamera,
     MultipleAddButton: MultipleAddButton,
+    CameraForEachPicture,
     PriceSelection: PriceSelection,
     ConditionSelection: ConditionSelection,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,
     CustomChat: CustomChat,
+    OtherUserProducts,
+    OtherUserSoldProducts,
 },
 {
     initialRouteName: 'MarketPlace',

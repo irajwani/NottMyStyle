@@ -11,12 +11,15 @@ import CreateItem from '../views/CreateItem';
 // import Users from '../views/Users';
 import UserComments from '../views/UserComments';
 import Settings from '../views/Settings';
-import ViewPhotos from '../views/ViewPhotos';
+// import ViewPhotos from '../views/ViewPhotos';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import CreateProfile from '../views/CreateProfile';
 import ConditionSelection from '../views/ConditionSelection';
 import PriceSelection from '../views/PriceSelection';
 import CameraForEachPicture from '../components/CameraForEachPicture';
+
+import OtherUserProducts from '../views/OtherUserProducts';
+import OtherUserSoldProducts from '../views/OtherUserSoldProducts';
 
 
 export const profileToEditProfileStack = createStackNavigator({
@@ -26,14 +29,16 @@ export const profileToEditProfileStack = createStackNavigator({
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,
     CameraForEachPicture: CameraForEachPicture,
-    ViewPhotos: ViewPhotos,
+    // ViewPhotos: ViewPhotos,
     YourProducts: YourProducts,
     SoldProducts: SoldProducts,
     CreateItem: CreateItem,
     PriceSelection: PriceSelection,
     ConditionSelection: ConditionSelection,
     UserComments: UserComments,
-    OtherUserProfilePage: OtherUserProfilePage
+    OtherUserProfilePage: OtherUserProfilePage,
+    OtherUserProducts,
+    OtherUserSoldProducts,
 },
 {   
     initialRouteName: 'ProfilePage',
