@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Platform, View, Text, StyleSheet, Image, TouchableHighlight, KeyboardAvoidingView } from 'react-native';
+import { Platform, SafeAreaView,View, Text, StyleSheet, Image, TouchableHighlight, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
@@ -291,7 +291,7 @@ class CustomChat extends Component {
     
     else {
       return (
-      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+      <SafeAreaView style={styles.mainContainer}>
 
         <View style={[styles.topRow, {backgroundColor: '#fff'}]}>
 
@@ -351,7 +351,7 @@ class CustomChat extends Component {
         </View>
         </DismissKeyboardView>
 
-      </View>
+      </SafeAreaView>
     )
   }
 

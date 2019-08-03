@@ -1077,7 +1077,7 @@ const styles = StyleSheet.create({
     
     inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
 
-    signUpButtonContainer: {flex: 0.225,justifyContent: 'center', alignItems: 'center'},
+    signUpButtonContainer: {flex: 0.225,justifyContent: 'center', alignItems: 'center', marginBottom: 4},
 
     signUpButton: {
         width: 175,

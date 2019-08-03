@@ -30,7 +30,7 @@ import { HeaderBar } from '../components/HeaderBar';
 // const darkGreen = '#0d4f10';
 // const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
-const priceAdjustmentReminder = "* NottMyStyle takes 15% of the selling price of your product to process payments through PayPal. Be sure to mark up your selling price accordingly.";
+const priceAdjustmentReminder = "* NottMyStyle takes 10% of the selling price of your product to process payments through PayPal. Be sure to mark up your selling price accordingly.";
 const Bullet = '\u2022';
 const categories = ["Men", "Women", "Accessories"]
 const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories

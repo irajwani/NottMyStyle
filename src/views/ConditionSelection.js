@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, TouchableHighlight } from 'react-native'
+import { Text, StyleSheet, SafeAreaView, View, ScrollView, TouchableHighlight } from 'react-native'
 // import { Jiro } from 'react-native-textinput-effects';
 import { darkGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -108,7 +108,7 @@ export default class ConditionSelection extends Component {
     // conditions.map( (t, index) => console.log(t,index) )
 
     return (
-      <View style={styles.mainContainer}>
+      <SafeAreaView style={styles.mainContainer}>
 
         <View style={styles.topRow}>
             <View style={[styles.iconContainer, {justifyContent: 'center',alignItems: 'flex-start'}]}>
@@ -181,7 +181,7 @@ export default class ConditionSelection extends Component {
 
         
         
-      </View>
+      </SafeAreaView>
     )
   }
 }
@@ -189,7 +189,7 @@ export default class ConditionSelection extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        marginTop: 20,
+        // marginTop: 20,
         justifyContent: 'flex-start',
         // paddingVertical: 4,
         paddingHorizontal: 2,

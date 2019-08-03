@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Platform, Text, Dimensions, StyleSheet, ScrollView, View, Image, TouchableOpacity, Modal } from 'react-native'
+import { Platform, Text, Dimensions, StyleSheet, ScrollView, SafeAreaView, View, Image, TouchableOpacity, Modal } from 'react-native'
 import firebase from '../cloud/firebase';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -1279,7 +1279,7 @@ class NotificationsAndChats extends Component {
 
         else {
           return (
-            <View style={[styles.container, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+            <SafeAreaView style={styles.container}>
               
                 {this.renderUpperNavTab()}
                 {this.state.showChats ?
@@ -1289,7 +1289,7 @@ class NotificationsAndChats extends Component {
                 }
               
                 
-            </View>
+            </SafeAreaView>
         )
         }
         

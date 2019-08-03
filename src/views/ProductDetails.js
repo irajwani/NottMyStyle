@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
+import { Platform, TouchableWithoutFeedback, Keyboard, ScrollView, SafeAreaView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
 
@@ -810,35 +810,35 @@ class ProductDetails extends Component {
 
   }
 
-  renderPictureModal = () => {
-    return (
-      <Modal 
-      animationType="slide"
-      transparent={false}
-      visible={this.state.showPictureModal}
+  // renderPictureModal = () => {
+  //   return (
+  //     <Modal 
+  //     animationType="slide"
+  //     transparent={false}
+  //     visible={this.state.showPictureModal}
       
-      >
-      <View style={styles.pictureModal}>
+  //     >
+  //     <View style={styles.pictureModal}>
 
-        <View style={styles.pictureModalHeader}>
-          <FontAwesomeIcon
-          name='close'
-          size={28}
-          color={'black'}
-          onPress = { () => { 
-              this.setState({showPictureModal: false })
-              } }
-          />
-        </View>
+  //       <View style={styles.pictureModalHeader}>
+  //         <FontAwesomeIcon
+  //         name='close'
+  //         size={28}
+  //         color={'black'}
+  //         onPress = { () => { 
+  //             this.setState({showPictureModal: false })
+  //             } }
+  //         />
+  //       </View>
 
-        <View style={[styles.pictureModalBody, {alignItems: 'center'}]}>
-          <FullScreenCarousel data={this.props.navigation.state.params.data.uris.source}/>
-        </View>
+  //       <View style={[styles.pictureModalBody, {alignItems: 'center'}]}>
+  //         <FullScreenCarousel data={this.props.navigation.state.params.data.uris.source}/>
+  //       </View>
 
-      </View>
-      </Modal>
-    )
-  }
+  //     </View>
+  //     </Modal>
+  //   )
+  // }
 
   renderPurchaseModal = () => {
     const {deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, deliveryOptionContainer, radioButton } = styles;
@@ -854,7 +854,7 @@ class ProductDetails extends Component {
         visible={this.state.showPurchaseModal}
         
         >
-          <View style={deliveryOptionModal}>
+          <SafeAreaView style={deliveryOptionModal}>
   
             <View style={deliveryOptionHeader}>
   
@@ -943,7 +943,7 @@ class ProductDetails extends Component {
             
            
   
-           </View>
+           </SafeAreaView>
   
         </Modal>
       )
@@ -957,7 +957,7 @@ class ProductDetails extends Component {
         visible={this.state.showPurchaseModal}
         
         >
-          <View style={deliveryOptionModal}>
+          <SafeAreaView style={deliveryOptionModal}>
   
             <View style={deliveryOptionHeader}>
   
@@ -1061,7 +1061,7 @@ class ProductDetails extends Component {
             
            
   
-           </View>
+           </SafeAreaView>
   
         </Modal>
       )
@@ -1075,7 +1075,7 @@ class ProductDetails extends Component {
       visible={this.state.showPurchaseModal}
       
       >
-        <View style={deliveryOptionModal}>
+        <SafeAreaView style={deliveryOptionModal}>
 
           <View style={deliveryOptionHeader}>
 
@@ -1208,7 +1208,7 @@ class ProductDetails extends Component {
           
          
 
-         </View>
+         </SafeAreaView>
 
       </Modal>
     )
@@ -1224,7 +1224,7 @@ class ProductDetails extends Component {
       visible={this.state.showPurchaseModal}
       
       >
-        <View style={deliveryOptionModal}>
+        <SafeAreaView style={deliveryOptionModal}>
 
           <View style={deliveryOptionHeader}>
 
@@ -1310,7 +1310,7 @@ class ProductDetails extends Component {
           
          
 
-         </View>
+         </SafeAreaView>
 
       </Modal>
     )
@@ -1341,7 +1341,7 @@ class ProductDetails extends Component {
         transparent={false}
         visible={this.state.showPurchaseModal}
         >
-          <View style={deliveryOptionModal}>
+          <SafeAreaView style={deliveryOptionModal}>
 
             <View style={deliveryOptionHeader}>
 
@@ -1398,7 +1398,7 @@ class ProductDetails extends Component {
               }
               
             
-          </View>  
+          </SafeAreaView>  
         </Modal>
       )
     }
@@ -1433,16 +1433,16 @@ class ProductDetails extends Component {
 
     if(navToChatLoading) {
       return(
-        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+        <SafeAreaView style={{flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
           <View style={{height: 200, justifyContent: 'center', alignItems: 'center', padding: 10}}>
             <LoadingIndicator isVisible={navToChatLoading} color={logoGreen} type={'Wordpress'}/>
           </View>  
-        </View>
+        </SafeAreaView>
       )
     }
 
     return (
-      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
+      <SafeAreaView style={styles.mainContainer}>
       <View style={styles.deliveryOptionHeader}>
         <FontAwesomeIcon
         name='arrow-left'
@@ -1712,12 +1712,12 @@ class ProductDetails extends Component {
                       
               )}
           
-        {this.renderPictureModal()}
+        {/* {this.renderPictureModal()} */}
         {this.renderReportUserModal()}
         {this.renderPurchaseModal()}
         {/* {this.r()} */}
       </ScrollView> 
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -2098,7 +2098,7 @@ pictureModalBody: {
 deliveryOptionModal: {
   backgroundColor: "#fff",
   flex: 1,
-  marginTop: Platform.OS == "ios" ? 22 : 0
+  // marginTop: Platform.OS == "ios" ? 22 : 0
 },
 deliveryOptionHeader: {
   flex: 0.1,

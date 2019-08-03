@@ -1107,8 +1107,6 @@ class Products extends Component {
     if(searchTerm) {
       brands = brands.filter( (brand) => brand.name.includes(searchTerm) );
     }
-    
-
     if(selectedCategory && selectedType) {
       var sizes = generateSizesBasedOn(selectedType, selectedCategory)
     }
