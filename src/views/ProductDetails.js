@@ -149,6 +149,7 @@ class ProductDetails extends Component {
 
   getUserAndProductAndOtherUserData(data) {
     firebase.database().ref().once("value", (snapshot) => {
+      console.log('Preparing Product Details')
       var d = snapshot.val();
       var cloudDatabaseUsers = d.Users;
       // console.log("OVER HEREEEE:" + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail);
@@ -212,7 +213,10 @@ class ProductDetails extends Component {
       //  = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
       // var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: "nothing"};
+      if(cloudDatabaseUsers[data.uid].products[data.key] != undefined) {
+        var productComments = cloudDatabaseUsers[data.uid].products[data.key].comments ? cloudDatabaseUsers[data.uid].products[data.key].comments : {a: "nothing"};
+      }
+      
       
       //When this component launches for the first time, we want to retrieve the person's addresses from the cloud (if they have any)
       //When this function is run everytime after
