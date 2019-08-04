@@ -48,7 +48,8 @@ export default class Comments extends React.Component {
         this.setState({ commentString, typingComment: true });
     }
 
-    uploadComment(name, comment, uid, uri, yourUid, productKey) {
+    uploadComment = (name, comment, uid, uri, yourUid, productKey) => {
+        console.log("Product Key is:" + productKey);
         var timeCommentedKey = Date.now();
         var now = new Date();
         var date = now.getDate();
@@ -60,10 +61,12 @@ export default class Comments extends React.Component {
         var updates = {}
         var postData = {text: comment, name: name, time: timeCommented, uri: uri, uid: yourUid }
         
-        this.state.comments[timeCommentedKey] = postData; // --> how to create a new key in the object with certain values, which in this case is another object containing the specific comment being uploaded
-        this.setState({ comments : this.state.comments });
+        const {...state} = this.state;
+        state.comments[timeCommentedKey] = postData; // --> how to create a new key in the object with certain values, which in this case is another object containing the specific comment being uploaded
+        this.setState(state);
         if(this.props.type == "product") {
-            updates['/Users/' + uid + '/products/' + productKey + '/comments/' + timeCommentedKey + '/'] = postData
+            // console.log("Commment wil be stored to:" + '/Users/' + uid + '/products/' + productKey + '/text/comments/' + timeCommentedKey + '/')
+            updates['/Users/' + uid + '/products/' + productKey + '/text/comments/' + timeCommentedKey + '/'] = postData
         }
 
         else {
@@ -111,6 +114,7 @@ export default class Comments extends React.Component {
             var {productInformation} = params;
             var productImage = productInformation.uris.thumbnail[0] //For row containing product Information
         }
+        console.log('Product Key In Comments Is:' + productKey);
         
         var {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         
@@ -235,8 +239,8 @@ export default class Comments extends React.Component {
                             style={[styles.postText, {opacity: this.state.commentString ? 1 : 0.5}]}
                             onPress={ () => {
                                 if(this.state.commentString) {
-                                    type == 'products' ? 
-                                        this.uploadComment(name, this.state.commentString, uid, uri, yourUid, key) 
+                                    type == 'product' ? 
+                                        this.uploadComment(name, this.state.commentString, uid, uri, yourUid, productKey) 
                                         : 
                                         this.uploadComment(name, this.state.commentString, uid, uri, yourUid, '');
                                     this.setState({commentString: ''}); 

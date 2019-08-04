@@ -215,7 +215,7 @@ class Products extends Component {
       this.getMarketPlace(this.state.uid);
       this.intervalID = setInterval( () => {
         this.getMarketPlace(this.state.uid);
-      },600000) //10 minutes
+      },60000) //10 minutes
       
     }, 100);
   }
@@ -908,7 +908,8 @@ class Products extends Component {
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
     var status = soldStatus ? 'sold' : 'available for purchase'
-    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please go back to the Market`)
+    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please go back to the Market`);
+    this.props.navigation.navigate('Market');
 
   }
 

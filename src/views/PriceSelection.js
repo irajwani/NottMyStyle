@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TextInput, StyleSheet, View, Keyboard, Platform } from 'react-native'
+import { Text, TextInput, StyleSheet, SafeAreaView, View, Keyboard, Platform } from 'react-native'
 import { Jiro } from 'react-native-textinput-effects';
 import { treeGreen, darkGray, lightGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -27,7 +27,7 @@ export default class PriceSelection extends Component {
     // console.log(( (this.state.price > 0) && (Number.isFinite(this.state.price)) ) || ( (this.state.original_price > 0) && (Number.isFinite(this.state.original_price)) ));
 
     return (
-      <View style={styles.mainContainer}>
+      <SafeAreaView style={styles.mainContainer}>
 
         <View style={styles.topRow}>
             <View style={[styles.iconContainer, {justifyContent: 'center',alignItems: 'flex-start'}]}>
@@ -86,7 +86,7 @@ export default class PriceSelection extends Component {
             
         </View>
         
-      </View>
+      </SafeAreaView>
     )
   }
 }
@@ -94,7 +94,7 @@ export default class PriceSelection extends Component {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        marginTop: 20,
+        // marginTop: 20,
         justifyContent: 'flex-start',
         // paddingVertical: 4,
         paddingHorizontal: 2,

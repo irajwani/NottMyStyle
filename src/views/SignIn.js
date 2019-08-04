@@ -810,12 +810,16 @@ class SignIn extends Component {
                 <View style={[styles.allAuthButtonsContainer]}>
 
                     <ViewWithChildAtPosition flex={1/7}  >
-                        <Icon
-                            name="google" 
-                            size={30} 
-                            color={this.state.googleIconColor}
-                            onPress={() => this.signInWithGoogle()}
-                        />
+                        {Platform.OS == "ios" ? 
+                            <Icon
+                                name="google" 
+                                size={30} 
+                                color={this.state.googleIconColor}
+                                onPress={() => this.signInWithGoogle()}
+                            />
+                        :
+                            null
+                        }
                     </ViewWithChildAtPosition>
 
                     <View style={styles.twoAuthButtonsContainer}>

@@ -373,7 +373,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             })
             .catch(err => {
-                this.callBackForProductUploadCompletion();
+                alert(err);
+                this.callBackForProductUploadCompletion(isError = true);
+
             })
 
 
@@ -517,7 +519,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 // // }
 // }
 
- callBackForProductUploadCompletion = () => {
+ callBackForProductUploadCompletion = (isError=false) => {
      //TODO: Some way to inform user product has been uploaded
     // alert(`Product named ${this.state.name} successfully uploaded to Market!`);
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
@@ -550,6 +552,12 @@ uploadToStore = (pictureuris, uid, postKey) => {
             this.props.navigation.navigate('Market');
         }
         
+        if(isError) {
+            alert('There was an error in uploading your product. Please try again.')
+        }
+        else {
+            alert('Product successfully uploaded. Note that it may take up to 1 minute for the product to be visible in the marketplace.')
+        }
                  
     }, this.state.oldItemPostKey ? 1 : 1);
     

@@ -214,7 +214,7 @@ class ProductDetails extends Component {
       
       // var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       if(cloudDatabaseUsers[data.uid].products[data.key] != undefined) {
-        var productComments = cloudDatabaseUsers[data.uid].products[data.key].comments ? cloudDatabaseUsers[data.uid].products[data.key].comments : {a: "nothing"};
+        var productComments = cloudDatabaseUsers[data.uid].products[data.key].text.comments ? cloudDatabaseUsers[data.uid].products[data.key].text.comments : {a: "nothing"};
       }
       
       
