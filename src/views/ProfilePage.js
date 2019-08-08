@@ -80,7 +80,7 @@ class ProfilePage extends Component {
   }
 
   componentWillMount() {
-    setTimeout(() => {
+    this.timerId = setTimeout(() => {
       
       const uid = firebase.auth().currentUser.uid;
       this.uid = uid;
@@ -89,6 +89,10 @@ class ProfilePage extends Component {
       this.getProfileAndCountOfProductsOnSaleAndSoldAndCommentsAndUpdatePushToken(uid);
     }, 200);
     
+  }
+
+  componentWillUnmount = () => {
+    clearTimeout(this.timerId)
   }
 
   // componentDidMount = () => {
@@ -505,8 +509,13 @@ class ProfilePage extends Component {
                         {comments[comment].uri ?
                         <TouchableHighlight
                         onPress={()=>this.navToOtherUserProfilePage(comments[comment].uid)}
-                        style={styles.commentPic}>
-                          <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                        style={styles.commentPic}
+                        >
+                          <ProgressiveImage 
+                            style= {styles.commentPic} 
+                            thumbnailSource={ require('../images/blank.jpg') }
+                            source={ {uri: comments[comment].uri} }
+                          />
                         </TouchableHighlight>                          
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>

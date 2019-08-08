@@ -9,6 +9,7 @@ import {Button} from 'react-native-elements';
 import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase';
 
+import ProgressiveImage from '../components/ProgressiveImage';
 import CustomCarousel from '../components/CustomCarousel';
 import FullScreenCarousel from '../components/FullScreenCarousel';
 // import CustomComments from '../components/CustomComments';
@@ -29,6 +30,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
 import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
+import { textStyles } from '../styles/textStyles';
 
 
 var {height, width} = Dimensions.get('window');
@@ -1367,7 +1369,11 @@ class ProductDetails extends Component {
               <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
 
                 <View style={{flex: 0.4, justifyContent: 'center', alignItems: 'center'}}>
-                  <Image source={{uri: this.state.productPictureURLs[0]}} style={styles.successProductImage} />
+                  <ProgressiveImage 
+                  style= {styles.successProductImage} 
+                  thumbnailSource={ require('../images/blur.png') }
+                  source={{uri: this.state.productPictureURLs[0]}}
+                  />
                 </View>
 
                 <View style={{flex: 0.6, alignItems: 'center'}}>
@@ -1523,7 +1529,11 @@ class ProductDetails extends Component {
         <View style={styles.sellerProfileAndActionsRow}>
             
           <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
-            <Image source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')} style={styles.profilePicture} />
+            <ProgressiveImage 
+              style= {styles.profilePicture} 
+              thumbnailSource={ require('../images/blank.jpg') }
+              source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')}
+            />
           </TouchableOpacity>
           <View style={styles.profileTextContainer}>
             <Text onPress={() => 
@@ -1535,7 +1545,7 @@ class ProductDetails extends Component {
               {profile.country}
             </Text>
             {profile.insta ? 
-              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "black"}]}>@{profile.insta}</Text>
+              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "black"}]}>@{profile.insta.length > 12 ? profile.insta.substring(0,12) + '...' : profile.insta}</Text>
              : 
               null
             }
@@ -1690,7 +1700,11 @@ class ProductDetails extends Component {
                             onPress={() => this.state.uid == productComments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(productComments[comment].uid)} 
                             style={styles.commentPic}
                           >
-                            <Image style= {styles.commentPic} source={ {uri: productComments[comment].uri} }/>
+                            <ProgressiveImage 
+                              style= {styles.commentPic} 
+                              thumbnailSource={ require('../images/blank.jpg') }
+                              source={ {uri: productComments[comment].uri} }
+                            />
                           </TouchableHighlight>  
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
@@ -1813,7 +1827,11 @@ const styles = StyleSheet.create( {
     alignItems: 'center',
     // backgroundColor: 'red'
   },
-  profileText: new avenirNextText("black", 14, "300"),
+  profileText: {
+    ...textStyles.generic,
+    fontSize: 14,
+    color: 'black'
+  },
   likeIconContainer: {
     padding: 5
   },
@@ -2058,11 +2076,15 @@ optionalDescriptionRow: {
   paddingHorizontal: 5
 },
 descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 0},
-descriptionHeader: new avenirNextText('black', 24, "300") ,
+descriptionHeader: {
+  ...textStyles.generic,
+  fontSize: 24,
+  color: 'black'
+},
 descriptionContainer: {
   justifyContent: 'flex-start'
 },
-description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300") },
+description: {textAlign: 'justify', ...textStyles.generic, color: graphiteGray},
 ////Picture Modal Stuff
 pictureModal: {
   flex: 1,
@@ -2203,7 +2225,10 @@ addressContainer: {
   // justifyContent: 'space-evenly',
   padding: 3,
 },
-addressText: new avenirNextText("black", 18, "300"),
+addressText: {
+  ...textStyles.generic,
+  color: 'black',
+},
 addDeliveryAddressButton: {
   width: 270,
   height: 40,
@@ -2229,7 +2254,14 @@ successProductImage: {
   width: 135,
   height: 135,
 },
-successText: new avenirNextText('black', 18, "300", "left"),
+
+successText: {
+  ...textStyles.generic,
+  color: 'black',
+  textAlign: 'left',
+  fontSize: 15,
+
+},
 ////////////
 ////////////
 ////////////

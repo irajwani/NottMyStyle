@@ -31,6 +31,7 @@ import { HeaderBar } from '../components/HeaderBar';
 // const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
 const priceAdjustmentReminder = "* NottMyStyle takes 10% of the selling price of your product to process payments through PayPal. Be sure to mark up your selling price accordingly.";
+paypalReminder = "* If you don't provide a PayPal ID, we can't transfer your money in case of a sale."
 const Bullet = '\u2022';
 const categories = ["Men", "Women", "Accessories"]
 const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories
@@ -111,7 +112,7 @@ class CreateItem extends Component {
         description: item ? item.text.description ? item.text.description : '' : '',
         typing: true,
         canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
-        paypal: item ? item.text.paypal : '',
+        paypal: item ? item.text.paypal ? item.text.paypal : '' : '',
         isUploading: false,
         pictureuris: 'nothing here',
         helpDialogVisible: false,
@@ -688,9 +689,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
     //When the condition to submit a product has partially been satisfied:
     var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) && (price < 1001) ) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (this.state.paypal);
-    var partialConditionMet = (this.state.name) || (this.state.brand) || (this.state.paypal) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
+    var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition) && (this.state.paypal);
+    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition);
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -848,25 +849,25 @@ uploadToStore = (pictureuris, uid, postKey) => {
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
             <View style={[styles.navToFillDetailRow, {borderBottomWidth: 0}]}>
             
-            <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
-            <Text style={styles.detailHeader}>Retail price (Optional)</Text>
-            </View>
+                <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Retail price (Optional)</Text>
+                </View>
 
-            {original_price > 0 ?
-            <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-            <Text style={styles.displayedPrice}>£{original_price}</Text>
-            </View>
-            :
-            null
-            }
+                {original_price > 0 ?
+                <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+                    <Text style={styles.displayedPrice}>£{original_price}</Text>
+                </View>
+                :
+                null
+                }
 
-            <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
-            <Icon 
-            name="chevron-right"
-            size={40}
-            color='black'
-            />
-            </View>
+                <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={40}
+                    color='black'
+                    />
+                </View>
 
             </View>
             </TouchableHighlight>
@@ -905,7 +906,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
             
             <View style={styles.priceAdjustmentReminderContainer}>
-            <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
+            <Text style={styles.priceAdjustmentReminder}>{priceAdjustmentReminder}</Text>
             </View>
 
             
@@ -1004,25 +1005,34 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 
             </TouchableHighlight>
 
+            {this.state.editItemBoolean ? 
+                null 
+            :
+                <View style={styles.priceAdjustmentReminderContainer}>
+                    <Text style={[styles.priceAdjustmentReminder, !this.state.paypal ? {color: 'red'} : null]}>{paypalReminder}</Text>
+                </View>
+            }
+
             
 
             {this.state.editItemBoolean ? 
                 null
             :
-                <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5, borderBottomColor: darkGray,}}>
-                    <TextInput
-                    style={{height: 50, width: 280, ...styles.detailHeader}}
-                    placeholder={"PayPal Email Address"}
-                    placeholderTextColor={lightGray}
-                    onChangeText={(paypal) => this.setState({paypal})}
-                    value={this.state.paypal}
-                    multiline={false}
-                    autoCorrect={false}
-                    clearButtonMode={'while-editing'}
-                    keyboardType={'email-address'}
-                    underlineColorAndroid={"transparent"}
-                    /> 
-                </View>
+            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5, borderBottomColor: darkGray,}}>
+                <TextInput
+                style={{height: 50, width: 280, ...styles.detailHeader}}
+                placeholder={"PayPal Email Address"}
+                placeholderTextColor={lightGray}
+                onChangeText={(paypal) => this.setState({paypal})}
+                value={this.state.paypal}
+                multiline={false}
+                autoCorrect={false}
+                clearButtonMode={'while-editing'}
+                keyboardType={'email-address'}
+                underlineColorAndroid={"transparent"}
+                /> 
+            </View>
+            
             }
 
             
@@ -1118,23 +1128,23 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
 
             {this.state.editItemBoolean ?
-            <View style={styles.actionButtonContainer}>
-            <Button
-            buttonStyle={{
-            backgroundColor: profoundPink,
-            width: 180,
-            height: 80,
-            borderColor: "transparent",
-            borderWidth: 3,
-            borderRadius: 40,
-            }}
-            icon={{name: 'delete-empty', type: 'material-community'}}
-            title='Delete Product'
-            onPress={() => { 
-            this.deleteProduct(uid, this.state.oldItemPostKey);
-            } }
-            />
-            </View>
+                <View style={styles.actionButtonContainer}>
+                    <Button
+                        buttonStyle={{
+                        backgroundColor: profoundPink,
+                        width: 180,
+                        height: 80,
+                        borderColor: "transparent",
+                        borderWidth: 3,
+                        borderRadius: 40,
+                        }}
+                        icon={{name: 'delete-empty', type: 'material-community'}}
+                        title='Delete Product'
+                        onPress={() => { 
+                        this.deleteProduct(uid, this.state.oldItemPostKey);
+                        } }
+                    />
+                </View>
             :
             null
             }
@@ -1280,6 +1290,8 @@ const styles = StyleSheet.create({
  borderBottomWidth: 0.5,
  borderColor: darkGray
  },
+
+ priceAdjustmentReminder: {...textStyles.generic, color: graphiteGray, textAlign: "left", fontSize: 13},
 
  displayedCondition: new avenirNextText('black', 16, "300"),
 

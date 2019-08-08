@@ -9,6 +9,7 @@ import {material} from 'react-native-typography';
 import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoundPink, rejectRed, logoGreen, mantisGreen, darkGray } from '../colors';
 import {avenirNextText} from '../constructors/avenirNextText'
 
+import ProgressiveImage from '../components/ProgressiveImage';
 import NothingHereYet from '../components/NothingHereYet';
 import { LoadingIndicator, CustomTouchableO, WhiteSpace } from '../localFunctions/visualFunctions';
 
@@ -758,7 +759,11 @@ class Notifications extends Component {
           </View>
 
           <View style={[productImageContainer, {padding: 10}]}>
-            <Image source={{uri: details.uri}} style={styles.detailsImage} />
+            <ProgressiveImage 
+              style= {styles.detailsImage} 
+              thumbnailSource={ require('../images/blur.png') }
+              source={ {uri: details.uri} }
+            />
           </View>
 
           <NotificationTextScroll>
@@ -834,7 +839,11 @@ class Notifications extends Component {
         </View>
 
         <View style={[productImageContainer, {padding: 10}]}>
-          <Image source={{uri: details.uri}} style={styles.detailsImage} />
+          <ProgressiveImage 
+            style= {styles.detailsImage} 
+            thumbnailSource={ require('../images/blur.png') }
+            source={ {uri: details.uri} }
+          />
         </View>
 
         <NotificationTextScroll>
@@ -894,7 +903,11 @@ class Notifications extends Component {
   
             
             <View style={[productImageContainer, {padding: 10}]}>
-              <Image source={{uri: details.uri}} style={styles.detailsImage} />
+              <ProgressiveImage 
+                style= {styles.detailsImage} 
+                thumbnailSource={ require('../images/blur.png') }
+                source={ {uri: details.uri} }
+              />
             </View>
             
             
@@ -956,7 +969,11 @@ class Notifications extends Component {
   
             
               <View style={[productImageContainer, {padding: 10}]}>
-                <Image source={{uri: details.uri}} style={styles.detailsImage} />
+                <ProgressiveImage 
+                  style= {styles.detailsImage} 
+                  thumbnailSource={ require('../images/blur.png') }
+                  source={ {uri: details.uri} }
+                />
               </View>
               
               <NotificationTextScroll>
@@ -1023,7 +1040,11 @@ class Notifications extends Component {
             <View style={[deliveryOptionBody, {flex: 0.82,padding: 5}]}>
 
               <View style={{flex: 0.4, justifyContent: 'center', alignItems: 'center'}}>
-                <Image style={styles.detailsImage} source={{uri: details.uri}}/>
+                <ProgressiveImage 
+                  style= {styles.detailsImage} 
+                  thumbnailSource={ require('../images/blur.png') }
+                  source={ {uri: details.uri} }
+                />
               </View>
 
               <NotificationTextScroll customFlex={0.6}>
@@ -1173,12 +1194,17 @@ class NotificationsAndChats extends Component {
     }
 
     componentDidMount() {
-      setTimeout(() => {
+      this.timerId = setTimeout(() => {
         this.getNotificationsCount();
-        setInterval(() => {
+        this.intervalId = setInterval(() => {
           this.getNotificationsCount();
         }, 10000);
       }, 1);
+    }
+
+    componentWillUnmount() {
+      clearTimeout(this.timerId)
+      clearInterval(this.intervalId)
     }
   
     getNotificationsCount() {

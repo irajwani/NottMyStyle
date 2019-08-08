@@ -379,6 +379,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'left',
     fontWeight: 'bold',
+    color: 'black'
   },
 
   profilePic: {

@@ -8,7 +8,7 @@ class OtherUserSoldProducts extends Component {
     }
     render() {
         const {otherUser} = this.props.navigation.state.params;
-        return <Products showOtherUserProducts={true} showOtherUserSoldProducts={true} otherUser={otherUser}/>
+        return <Products showOtherUserProducts={false} showOtherUserSoldProducts={true} otherUser={otherUser}/>
         
     }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, SafeAreaView, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, SafeAreaView, View, Image, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -26,7 +26,9 @@ const maxWidth = 320, maxHeight = 320, suppressionLevel = 0;
 const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
 
-const locations = [{country: "UK", flag: "🇬🇧"},{country: "Pakistan", flag: "🇵🇰"},{country: "USA", flag: "🇺🇸"}]
+// const locations = [{country: "UK", flag: "🇬🇧"},{country: "Pakistan", flag: "🇵🇰"},{country: "USA", flag: "🇺🇸"}]
+const locations = [{country: "UK", flag: "uk"},{country: "Pakistan", flag: "pk"},{country: "USA", flag: "usa"}]
+
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -588,7 +590,7 @@ class CreateProfile extends Component {
                     }} 
                     style={[{flexDirection: 'row'}, {borderBottomColor: '#fff', borderBottomWidth: 1}]}>
                         <View style={{margin: 5, ...new center()}}>
-                            <Text style={{fontSize: 20}}>{location.flag}</Text>
+                            <Image style={{width: 20, height: 20}} source={ location.flag == "usa" ? require('../images/usa.png') : location.flag == "uk" ? require('../images/uk.png') : require('../images/pk.png') }/>
                         </View>
                         <View style={{margin: 5, ...new center()}}>
                             <Text style={new avenirNextText("#fff", 20, "300")}>{location.country}</Text>

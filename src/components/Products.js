@@ -21,18 +21,19 @@ import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabel
 
 // import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
 
+import ProgressiveImage from '../components/ProgressiveImage';
 import NothingHereYet from './NothingHereYet.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
-import { GrayLine, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import { GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import { categories } from '../fashion/sizesAndTypes.js';
 import { textStyles } from '../styles/textStyles.js';
 
-const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
+// const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
 
-const emptyMarketText = "Wow, such empty..."
-const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market from the 'Sell' screen.";
-const noSoldProductsText = "So far, you have not sold any products. When a user purchases a product, that product will automatically be marked as sold."
-const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
+// const emptyMarketText = "Wow, such empty..."
+// const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market from the 'Sell' screen.";
+// const noSoldProductsText = "So far, you have not sold any products. When a user purchases a product, that product will automatically be marked as sold."
+// const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
 const noSelectedCategoryText = "Please select a Category"
 // const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
@@ -52,7 +53,7 @@ const cardFull = cardHeaderHeight + cardContentHeight;
 const popUpMenuHeight = 35;
 const popUpMenuWidth = 65;
 
-const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
+// const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
 
 const splitArrayIntoArraysOfSuccessiveElements = (array) => {
   var first, second;
@@ -156,7 +157,7 @@ class Products extends Component {
   constructor(props) {
       super(props);
       this.state = {
-        uid: firebase.auth().currentUser.uid,
+        uid: '',
         isGetting: true,
         //Products Stuff
         leftDS: new ListView.DataSource({
@@ -210,11 +211,11 @@ class Products extends Component {
 
 
   componentWillMount = () => {
-    
+    let {uid} = firebase.auth().currentUser
     this.timerID = setTimeout(() => {
-      this.getMarketPlace(this.state.uid);
+      this.getMarketPlace(uid);
       this.intervalID = setInterval( () => {
-        this.getMarketPlace(this.state.uid);
+        this.getMarketPlace(uid);
       },60000) //10 minutes
       
     }, 100);
@@ -345,14 +346,14 @@ class Products extends Component {
           var collectionKeys = removeKeysWithFalsyValuesFrom(Users[uid].collection);
         }
         
-        if(showYourProducts && showSoldProducts) {
-          Products = Products.filter((product) => productKeys.includes(product.key) && product.text.sold );
+        if(showYourProducts) {
+          Products = Products.filter((product) => productKeys.includes(product.key) && !product.text.sold );
           Products.length > 0 ? null : emptyMarket = true;
           // this.setState({isGetting: false, noProducts: true, productKeys})
         }
 
-        else if(showYourProducts && !showSoldProducts) {
-          Products = Products.filter((product) => productKeys.includes(product.key) );
+        else if(showSoldProducts) {
+          Products = Products.filter((product) => productKeys.includes(product.key) && product.text.sold );
           Products.length > 0 ? null : emptyMarket = true;
         }
 
@@ -361,16 +362,18 @@ class Products extends Component {
           Products.length > 0 ? null : emptyMarket = true;          
         }
 
-        else if(showOtherUserProducts) {
+        else if(showOtherUserProducts || showOtherUserSoldProducts) {
           if(Users[otherUser].products != "") {
             otherUserProductKeys = Object.keys(Users[otherUser].products);
-            Products = Products.filter((product) => otherUserProductKeys.includes(product.key) );
             if(showOtherUserSoldProducts) {
-              Products = Products.filter((product) => product.text.sold );
+              Products = Products.filter((product) => otherUserProductKeys.includes(product.key) && product.text.sold );
+            }
+            else {
+              // Just show products on sale
+              Products = Products.filter((product) => otherUserProductKeys.includes(product.key) && !product.text.sold );
             }
             Products.length > 0 ? null : emptyMarket = true;
           }
-          
         }
 
         // else {
@@ -442,12 +445,12 @@ class Products extends Component {
 
           var name = Users[uid].profile.name;
 
-          this.setState({emptyMarket, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, sizes, name, isGetting: false, noResultsFromFilter: false});
+          this.setState({uid, emptyMarket, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, sizes, name, isGetting: false, noResultsFromFilter: false});
 
         }
 
         else {
-          this.setState({isGetting: false, emptyMarket: true});
+          this.setState({isGetting: false, uid, emptyMarket: true});
         }
 
         

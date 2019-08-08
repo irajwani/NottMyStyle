@@ -1,31 +1,67 @@
 import React, { Component } from 'react'
-import { Platform, Text, StyleSheet, View, Image, CameraRoll} from 'react-native'
-import ImageResizer from 'react-native-image-resizer';
+import {View, WebView, StyleSheet} from 'react-native'
 
-//Image Resizer
+
+const payPalEndpoint = "https://calm-coast-12842.herokuapp.com", 
+// const payPalEndpoint = "http://localhost:5000",
+finalPrice = 1;
+
+
 export default class Test extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      name: 'asjnldbl',
+      description: 'klsfnflfl',
+      sku: 'ae8qe330'
+    }
+  }
 
-  resizeImage = () => {
-    CameraRoll.getPhotos({ first: 30 })
-      .then(async res => {
-        let photoArray = res.edges;
-        let image = photoArray[0].node.image.uri;
-        console.log(image);
-        let resizedImage = await ImageResizer.createResizedImage(image,3000, 3000,'JPEG',0);
-        console.log(resizedImage);
-        const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
-
-      })
+  handleResponse = (data) => {
+    console.log(data)
+    console.log(data.title)
   }
 
   render() {
     return (
-      <View style={styles.container} >
-        <Text onPress={this.resizeImage}>Resize Image</Text>
+      <View style={styles.container}>
+        <WebView 
+            source={{uri: payPalEndpoint + `/?price=${finalPrice}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}`}} 
+            onNavigationStateChange={data => this.handleResponse(data)}
+            injectedJavaScript={`document.f1.submit()`}
+          />
       </View>
     )
   }
 }
+
+// import { Platform, Text, StyleSheet, View, Image, CameraRoll} from 'react-native'
+// import ImageResizer from 'react-native-image-resizer';
+
+// //Image Resizer
+// export default class Test extends Component {
+
+//   resizeImage = () => {
+//     CameraRoll.getPhotos({ first: 30 })
+//       .then(async res => {
+//         let photoArray = res.edges;
+//         let image = photoArray[0].node.image.uri;
+//         console.log(image);
+//         let resizedImage = await ImageResizer.createResizedImage(image,3000, 3000,'JPEG',0);
+//         console.log(resizedImage);
+//         const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
+
+//       })
+//   }
+
+//   render() {
+//     return (
+//       <View style={styles.container} >
+//         <Text onPress={this.resizeImage}>Resize Image</Text>
+//       </View>
+//     )
+//   }
+// }
 
 const styles = StyleSheet.create({
   container: {
