@@ -9,6 +9,7 @@ import {withNavigation, StackNavigator} from 'react-navigation'; // Version can 
 import firebase from '../cloud/firebase.js';
 
 import PushNotification from 'react-native-push-notification';
+import {initializePushNotifications} from '../Services/NotificationService'
 
 import ActionSheet from 'react-native-actionsheet'
 
@@ -79,7 +80,8 @@ class ProfilePage extends Component {
 
   }
 
-  componentWillMount() {
+  async componentWillMount() {
+    initializePushNotifications(willSaveToken = false);
     this.timerId = setTimeout(() => {
       
       const uid = firebase.auth().currentUser.uid;
@@ -117,6 +119,8 @@ class ProfilePage extends Component {
       var d = snapshot.val();
       let currentUser = d.Users[your_uid];
       // console.log(d.val(), d.Users, your_uid);
+
+      //In the scenario where this is the person's first time logging in, update token in the cloud
       var token = await AsyncStorage.getItem('token');
       if(currentUser.pushToken == undefined && token) {
         this.updatePushToken(your_uid, token);
@@ -126,13 +130,13 @@ class ProfilePage extends Component {
       //check if whether this person deserves Upload Item notification
       if(token && currentUser.profile.isNoob == true) {
         console.log('Send Upload item Notification')
-        let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`,
-        notificationDate = new Date();
+        let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`;
+        let notificationDate = new Date()
         notificationDate.setMinutes(notificationDate.getMinutes() + 3);
         PushNotification.localNotificationSchedule({
             message: message,// (required)
             date: notificationDate,
-            vibrate: false,
+            vibrate: true,
         });
         
       }
@@ -223,6 +227,7 @@ class ProfilePage extends Component {
     // var tasks = Object.keys(notificationsObj)
     // tasks.forEach
     var message;
+    var notificationDate;
     // var notificationData;
     if(notificationsObj.priceReductions) {
         for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
@@ -248,7 +253,7 @@ class ProfilePage extends Component {
                     PushNotification.localNotificationSchedule({
                         message: specificNotification.message,// (required)
                         date: notificationDate,
-                        vibrate: false,
+                        vibrate: true,
                     });
                 })
                     
@@ -260,6 +265,80 @@ class ProfilePage extends Component {
             
         }
     }
+
+    if(notificationsObj.itemsSold) {
+      for(var specificNotification of Object.values(notificationsObj.itemsSold)) {
+          if(specificNotification.localNotificationSent == false) {
+              let localNotificationProperty = {};
+              localNotificationProperty[`/Users/${specificNotification.uid}/notifications/itemsSold/${specificNotification.key}/localNotificationSent/`] = true;
+              let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+              promiseToScheduleNotification.then( () => {
+                  // var month = new Date().getMonth() + 1;
+                  // var date= new Date().getDate();
+                  // var year = new Date().getFullYear();
+                  
+                  //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+                  // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                  let d = new Date();
+                  // notificationDate = d.setDate(d.getDate() + 4)
+                  notificationDate = d.setMinutes(d.getMinutes() + 1);
+                  // console.log(month, date)
+                  message =  `${specificNotification.buyerName} has purchased ${specificNotification.name} for ${specificNotification.price} from your closet.${specificNotification.postOrNah == 'post' ? "Please use the in-app notification to mark when the item has been shipped." : "The buyer has chosen to collect this item in person. Please use the in-app chats feature to get in touch with the buyer."}`;
+                  //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                  // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                  // console.log(message);
+                  PushNotification.localNotificationSchedule({
+                      message: message,// (required)
+                      date: notificationDate,
+                      vibrate: true,
+                  });
+              })
+                  
+          }
+
+          else {
+              console.log('doing nothing')
+          }
+          
+      }
+  }
+
+  if(notificationsObj.purchaseReceipts) {
+    for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
+        if(specificNotification.localNotificationSent == false) {
+            let localNotificationProperty = {};
+            localNotificationProperty[`/Users/${specificNotification.uid}/notifications/purchaseReceipts/${specificNotification.key}/localNotificationSent/`] = true;
+            let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+            promiseToScheduleNotification.then( () => {
+                // var month = new Date().getMonth() + 1;
+                // var date= new Date().getDate();
+                // var year = new Date().getFullYear();
+                
+                //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+                // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                let d = new Date();
+                // notificationDate = d.setDate(d.getDate() + 4)
+                notificationDate = d.setMinutes(d.getMinutes() + 1);
+                // console.log(month, date)
+                message =  specificNotification.postOrNah == 'post' ? `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive within 2 weeks.` : `Please get in touch with ${specificNotification.sellerName} regarding your acquisition of their ${specificNotification.name}.`
+                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                // console.log(message);
+                PushNotification.localNotificationSchedule({
+                    message: message,// (required)
+                    date: notificationDate,
+                    vibrate: true,
+                });
+            })
+                
+        }
+
+        else {
+            console.log('doing nothing')
+        }
+        
+    }
+}
 
     //TODO: Mirror this for itemSold notification
 

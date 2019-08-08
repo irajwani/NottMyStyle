@@ -33,6 +33,9 @@ import com.pusher.pushnotifications.PushNotifications;
 
 import com.react.rnspinkit.RNSpinkitPackage;
 
+//import com.splashscreen.SplashScreen;
+//import com.splashscreen.SplashScreenPackage;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,7 +67,8 @@ public class MainApplication extends Application implements ReactApplication {
           new ReactNativePushNotificationPackage(),
           new RNSpinkitPackage(),
           new ImageResizerPackage(),
-          new ImagePickerPackage()
+          new ImagePickerPackage(),
+//          new SplashScreenPackage()
       );
     }
 
@@ -84,6 +88,7 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     PushNotifications.start(getApplicationContext(), "9c23a8e4-a4f1-4e41-ab34-e627e7d23d2c");
     PushNotifications.addDeviceInterest("hello");
+//    SplashScreen.show(MainApplication.this);
     SoLoader.init(this, /* native exopackage */ false);
   }
 }

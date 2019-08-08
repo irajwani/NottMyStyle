@@ -1403,19 +1403,24 @@ class Products extends Component {
     else if(noResultsFromFilter == true){
 
       return(
-        <SafeAreaView style={{flex: 1, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: '#fff', padding: 10, alignItems: 'center'}}>
 
           <View style={{flex: 0.2, }}>
             <NothingHereYet specificText={noResultsFromSearchText} />
           </View>
 
           <View style={{flex: 0.8, alignItems: 'center', justifyContent: 'center'}}>
-            <Button  
-              buttonStyle={styles.filterButtonStyleNoMarket}
-              icon={{name: 'filter', type: 'material-community'}}
-              title='Filter'
-              onPress={() => this.setState({ showFilterModal: true }) } 
-            />
+            <TouchableOpacity 
+            onPress={() => this.setState({ showFilterModal: true }) } 
+            style={styles.filterButton}>
+            
+              <Icon 
+                name="filter-outline" 
+                size={15} 
+                color='#fff'
+              />
+            
+            </TouchableOpacity>
           </View>
           {this.renderFilterModal()}
 
@@ -1428,10 +1433,10 @@ class Products extends Component {
     return (
 
       <SafeAreaView style={{flex: 1}}>
-      <View style={styles.container}>
+      
 
       <ScrollView
-          style={{flex: 1}}
+          style={styles.container}
           contentContainerStyle={styles.contentContainerStyle}>
 
             
@@ -1522,7 +1527,7 @@ class Products extends Component {
             
             </TouchableOpacity>
           </View>
-      </View>
+      
       </SafeAreaView>
 
     
@@ -1749,9 +1754,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    // paddingHorizontal: 5,
     // marginTop: 22,
     paddingBottom: 3,
-    paddingHorizontal: 3,
+    paddingLeft: 6,
     // width: 320,
     // height: height,
     // flexDirection: 'column',
@@ -1761,9 +1767,9 @@ const styles = StyleSheet.create({
   },
 
   contentContainerStyle: {
-    flexGrow: 4,   
+    // flexGrow: 4,   
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    // justifyContent: 'flex-start',
     // flexWrap: 'wrap',
     // paddingTop: 20,
       },
@@ -1959,7 +1965,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 
-  contentCardText: new avenirNextText('black', 14, "300"),
+  contentCardText: {
+    ...textStyles.generic,
+    color: 'black'
+  },
 
   //header Card
   card: {
@@ -2005,13 +2014,33 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  original_price: new avenirNextText('black', 17, "500"),
+  original_price: {
+    ...textStyles.generic,
+    fontSize: 17,
+    color: 'black',
+    fontWeight: "500"
+  },
 
-  price: new avenirNextText(limeGreen,17,"500"),
+  price: {
+    ...textStyles.generic,
+    fontSize: 17,
+    color: limeGreen,
+    fontWeight: "500"
+  },
 
-  brand: new avenirNextText('black',15,"200"),
+  brand: {
+    ...textStyles.generic,
+    fontSize: 15,
+    color: 'black',
+    fontWeight: "200"
+  },
 
-  size: new avenirNextText('black',15,"400"),
+  size: {
+    ...textStyles.generic,
+    fontSize: 15,
+    color: 'black',
+    fontWeight: "400"
+  },
 
 
   filterButton: {
@@ -2117,7 +2146,12 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red'
   },
 
-  option: new avenirNextText('#fff', 22, "500"),
+  option: {
+    ...textStyles.generic,
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: "500"
+  },
 
   categoriesContainer: {
     flex: 0.7,

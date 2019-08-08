@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Platform, TouchableWithoutFeedback, Keyboard, ScrollView, SafeAreaView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
+import {initializePushNotifications} from '../Services/NotificationService'
 
 // import {Button  as RNButton} from 'react-native';
 import {Button} from 'react-native-elements';
@@ -126,9 +127,9 @@ class ProductDetails extends Component {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const {params} = this.props.navigation.state;
-    // this.initializePushNotifications();
+    await initializePushNotifications(willSaveToken = false);
     setTimeout(() => {
       this.getUserAndProductAndOtherUserData(params.data);
     }, 4);
@@ -665,8 +666,15 @@ class ProductDetails extends Component {
         //check if this notification will at least contribute to being unread
         unreadCount: true,
 
+        //boolean to later handle notification
+        localNotificationSent: false,
+        
+        //boolean to control what the notification message will look for buyer and seller
+        postOrNah: this.state.postOrNah,
+
         //handleLongPress property
         selected: false
+
       };
       console.log(productAcquisitionPostData);
       let productAcquisitionUpdate = {};
@@ -765,51 +773,6 @@ class ProductDetails extends Component {
   closePurchaseModal = () => {
     //TODO: clear selected options in deliveryOptions
     this.setState({showPurchaseModal: false });
-  }
-
-  initializePushNotifications = () => {
-    PushNotification.configure({
-
-      // (optional) Called when Token is generated (iOS and Android)
-      onRegister: function(token) {
-          console.log( 'TOKEN:', token );
-      },
-  
-      // (required) Called when a remote or local notification is opened or received
-      onNotification: function(notification) {
-          const {userInteraction} = notification;
-          console.log( 'NOTIFICATION:', notification, userInteraction );
-        //   if(userInteraction) {
-        //     //this.props.navigation.navigate('YourProducts');
-        //     alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
-        //   }
-          
-          //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
-      },
-  
-      // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
-      //senderID: "YOUR GCM SENDER ID",
-  
-      // IOS ONLY (optional): default: all - Permissions to register.
-      permissions: {
-          alert: true,
-          badge: true,
-          sound: true
-      },
-  
-      // Should the initial notification be popped automatically
-      // default: true
-      popInitialNotification: true,
-  
-      /**
-        * (optional) default: true
-        * - Specified if permissions (ios) and token (android and ios) will requested or not,
-        * - if not, you must call PushNotificationsHandler.requestPermissions() later
-        */
-      requestPermissions: false,
-  });
-
-
   }
 
   // renderPictureModal = () => {
