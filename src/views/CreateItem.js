@@ -373,7 +373,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             })
             .catch(err => {
-                alert(err);
+                // alert(err);
                 this.callBackForProductUploadCompletion(isError = true);
 
             })
