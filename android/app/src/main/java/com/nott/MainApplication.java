@@ -67,7 +67,7 @@ public class MainApplication extends Application implements ReactApplication {
           new ReactNativePushNotificationPackage(),
           new RNSpinkitPackage(),
           new ImageResizerPackage(),
-          new ImagePickerPackage(),
+          new ImagePickerPackage()
 //          new SplashScreenPackage()
       );
     }

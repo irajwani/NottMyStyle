@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Platform, TouchableWithoutFeedback, Keyboard, ScrollView, SafeAreaView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
-import {initializePushNotifications} from '../Services/NotificationService'
+// import {initializePushNotifications} from '../Services/NotificationService'
 
 // import {Button  as RNButton} from 'react-native';
 import {Button} from 'react-native-elements';
@@ -129,7 +129,7 @@ class ProductDetails extends Component {
 
   async componentDidMount() {
     const {params} = this.props.navigation.state;
-    await initializePushNotifications(willSaveToken = false);
+    await this.initializePushNotifications();
     setTimeout(() => {
       this.getUserAndProductAndOtherUserData(params.data);
     }, 4);
@@ -138,6 +138,53 @@ class ProductDetails extends Component {
       this.getUserAndProductAndOtherUserData(params.data);
     }, 10000);
 
+  }
+
+  initializePushNotifications = () => {
+    console.log('About to ask user for access')
+    // PushNotification.requestPermissions(); 
+    PushNotification.configure({
+  
+      // (optional) Called when Token is generated (iOS and Android)
+      onRegister: function(token) {
+          console.log( 'TOKEN:', token );
+          // willSaveToken ? AsyncStorage.setItem('token', token.token) : null;
+      },
+  
+      // (required) Called when a remote or local notification is opened or received
+      onNotification: function(notification) {
+          const {userInteraction} = notification;
+          console.log( 'NOTIFICATION:', notification, userInteraction );
+        //   if(userInteraction) {
+        //     //this.props.navigation.navigate('YourProducts');
+        //     alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
+        //   }
+          
+          //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
+      },
+  
+      // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
+      //senderID: "YOUR GCM SENDER ID",
+  
+      // IOS ONLY (optional): default: all - Permissions to register.
+      permissions: {
+          alert: true,
+          badge: true,
+          sound: true
+      },
+  
+      // Should the initial notification be popped automatically
+      // default: true
+      popInitialNotification: true,
+  
+      /**
+        * (optional) default: true
+        * - Specified if permissions (ios) and token (android and ios) will requested or not,
+        * - if not, you must call PushNotificationsHandler.requestPermissions() later
+        */
+      requestPermissions: true,
+  });
+  
   }
 
   // componentDidUpdate = () => {
@@ -645,7 +692,7 @@ class ProductDetails extends Component {
 
   handleResponse = (data) => {
     if(data.title == "success") {
-      console.log('Payment was successful. React Native knows we are viewing index.ejs page');
+      // console.log('Payment was successful. React Native knows we are viewing index.ejs page');
       // this.initializePushNotifications();
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris.thumbnail[0],
@@ -676,7 +723,7 @@ class ProductDetails extends Component {
         selected: false
 
       };
-      console.log(productAcquisitionPostData);
+      // console.log(productAcquisitionPostData);
       let productAcquisitionUpdate = {};
       let buyerRef = `/Users/${this.state.uid}/notifications/purchaseReceipts/${this.state.sku}/`;
       let sellerRef = `/Users/${this.state.otherUserUid}/notifications/itemsSold/${this.state.sku}/`;
@@ -698,7 +745,7 @@ class ProductDetails extends Component {
         this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, ()=> {
           
           const {params} = this.props.navigation.state;
-          console.log("OVER HEREEEEE, Rendering After Payment Screen" + params.data);
+          // console.log("OVER HEREEEEE, Rendering After Payment Screen" + params.data);
           this.getUserAndProductAndOtherUserData(params.data);
 
           // console.log("Notifications updated for buyer and seller")

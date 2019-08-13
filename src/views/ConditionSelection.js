@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, SafeAreaView, View, ScrollView, TouchableHighlight } from 'react-native'
+import { Text, StyleSheet, SafeAreaView, View, ScrollView, TouchableOpacity, Dimensions } from 'react-native'
 // import { Jiro } from 'react-native-textinput-effects';
 import { darkGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { GrayLine, WhiteSpace } from '../localFunctions/visualFunctions';
 import { conditions } from '../fashion/sizesAndTypes';
+import { textStyles } from '../styles/textStyles';
 
 // const categories = [0,1,2]
+
+const {width} = Dimensions.get('screen')
 
 const generateTypesBasedOn = (category) => {
     var types;
@@ -129,10 +132,10 @@ export default class ConditionSelection extends Component {
             <ScrollView style={styles.selectionContainer} contentContainerStyle={styles.typesContainer}>
                     {types.map( (t, index) => 
                         <View key={index} style={styles.conditionRow}>
-                            <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('type', t)}>
-                                <Text style={[styles.condition, {fontSize: 26}]}>{t}</Text>
-                            </TouchableHighlight>
-                            <GrayLine/>
+                            <TouchableOpacity underlayColor={'#fff'} onPress={()=>this.navToCreateItem('type', t)}>
+                                <Text style={[styles.condition, {fontSize: 22}]}>{t}</Text>
+                            </TouchableOpacity>
+                            {/* <GrayLine/> */}
 
                         </View>
                 
@@ -150,12 +153,12 @@ export default class ConditionSelection extends Component {
                         {
                             sizes.map( (s, index) => 
                                 <View key={index} style={styles.conditionRow}>
-                                    {index == 0 ? <GrayLine/> : null}
-                                    <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('size', s)}>
+                                    {/* {index == 0 ? <GrayLine/> : null} */}
+                                    <TouchableOpacity underlayColor={'#fff'} onPress={()=>this.navToCreateItem('size', s)}>
                                         <Text style={styles.condition}>{s}</Text>
-                                    </TouchableHighlight>
-                                    <GrayLine/>
-                                    <WhiteSpace height={5}/>
+                                    </TouchableOpacity>
+                                    {/* <GrayLine/> */}
+                                    {/* <WhiteSpace height={5}/> */}
                                 </View>
                             )
                         }
@@ -165,11 +168,11 @@ export default class ConditionSelection extends Component {
                         {conditions.map( (c, index) => 
                             
                             <View key={index} style={styles.conditionRow}>
-                                <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('condition', c)}>
+                                <TouchableOpacity underlayColor={'#fff'} onPress={()=>this.navToCreateItem('condition', c)}>
                                     <Text style={styles.condition}>{c}</Text>
-                                </TouchableHighlight>
-                                <GrayLine/>
-                                <WhiteSpace height={5}/>
+                                </TouchableOpacity>
+                                {/* <GrayLine/> */}
+                                {/* <WhiteSpace height={5}/> */}
                             </View>
                         
                         )
@@ -226,12 +229,25 @@ const styles = StyleSheet.create({
     },
 
     conditionRow: {
-        justifyContent: 'center', paddingLeft: 8, paddingHorizontal: 5, paddingVertical: 3, width: 310
+        backgroundColor: '#fff',
+        margin: 10,
+        borderRadius: 15,
+        borderWidth: 0.3,
+        borderColor: 'black',
+        // justifyContent: 'center', 
+        // paddingLeft: 8, 
+        padding: 8,
+        // paddingHorizontal: 5, paddingVertical: 3, 
+        width: width - 30,
+        shadowOpacity: 1,
+        shadowRadius: 0.5,
+        shadowColor: 'black',
+        shadowOffset: {width: -1, height: 1},
     },
 
     condition: {
         fontFamily: 'Avenir Next',
-        fontSize: 32,
+        fontSize: 22,
         fontWeight: '300',
         color: 'black'
     },
@@ -241,5 +257,9 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
     },
 
-    sizesInfoText: new avenirNextText(darkGray, 15, "300"),
+    sizesInfoText: {
+        ...textStyles.generic,
+        color: darkGray,
+        fontSize: 15
+    },
 })

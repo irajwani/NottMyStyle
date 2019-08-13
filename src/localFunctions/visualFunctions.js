@@ -161,7 +161,7 @@ class LoadingIndicator extends React.Component {
 }
 
 const MarketplaceIcon = ({strokeWidth, focused}) => (
-  <View style={{width: 35, height: 35, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5}}>
+  <View style={{width: 30, height: 30, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3}}>
     <Svg height={"100%"} width={"100%"} fill={!focused ? "black" : treeGreen} viewBox={"0 0 400 400"}>
         
         <Path 
