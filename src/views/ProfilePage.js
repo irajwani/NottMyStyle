@@ -54,12 +54,12 @@ class ProfilePage extends Component {
 
   constructor(props) {
     super(props);
-    this.gradientColors = {
-      0: ['#7de853','#0baa26', '#064711'],
-      1: ['#7de853','#0baa26', '#064711'],
-      2: ['#7de853','#0baa26', '#064711'],
-      3: ['#7de853','#0baa26', '#064711'],
-    }
+    // this.gradientColors = {
+    //   0: ['#7de853','#0baa26', '#064711'],
+    //   1: ['#7de853','#0baa26', '#064711'],
+    //   2: ['#7de853','#0baa26', '#064711'],
+    //   3: ['#7de853','#0baa26', '#064711'],
+    // }
     this.state = {
       name: '',
       email: '',
@@ -71,12 +71,13 @@ class ProfilePage extends Component {
       products: [],
       isGetting: true,
       noComments: false,
-      gradient: this.gradientColors[0],
-      isMenuActive: false
+      // gradient: this.gradientColors[0],
+      isMenuActive: false,
+      backgroundColor: yellowGreen,
 
     }
 
-    // this.uid = ''
+    this.uid = firebase.auth().currentUser.uid;
 
   }
 
@@ -84,11 +85,11 @@ class ProfilePage extends Component {
     await this.initializePushNotifications();
     this.timerId = setTimeout(() => {
       
-      const uid = firebase.auth().currentUser.uid;
-      this.uid = uid;
+      // const uid = firebase.auth().currentUser.uid;
+      // this.uid = uid;
       
 
-      this.getProfileAndCountOfProductsOnSaleAndSoldAndCommentsAndUpdatePushToken(uid);
+      this.getProfileAndCountOfProductsOnSaleAndSoldAndCommentsAndUpdatePushToken(this.uid);
     }, 200);
     
   }
@@ -162,37 +163,36 @@ class ProfilePage extends Component {
     console.log(your_uid);
     const keys = [];
     //read the value of refreshed cloud db so a user may seamlessly transition from registration to profile page
-    firebase.database().ref().on("value", async (snapshot) => {
-      var d = snapshot.val();
-      let currentUser = d.Users[your_uid];
+    firebase.database().ref('/Users/' + your_uid + '/').on("value", async (snapshot) => {
+      let currentUser = snapshot.val();
+      // var d = snapshot.val();
+      // let currentUser = d.Users[your_uid];
       // console.log(d.val(), d.Users, your_uid);
 
       //In the scenario where this is the person's first time logging in, update token in the cloud
-      var token = await AsyncStorage.getItem('token');
+      var token = await AsyncStorage.getItem('fcmToken');
       if(currentUser.pushToken == undefined && token) {
         this.updatePushToken(your_uid, token);
       }
 
-      
+      //TODO: Revive local notification functionality if FCM does not achieve goal
       //check if whether this person deserves Upload Item notification
-      if(token && currentUser.profile.isNoob == true) {
-        console.log('Send Upload item Notification')
-        let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`;
-        let notificationDate = new Date()
-        notificationDate.setMinutes(notificationDate.getMinutes() + 3);
-        PushNotification.localNotificationSchedule({
-            message: message,// (required)
-            date: notificationDate,
-            vibrate: true,
-        });
+      // if(token && currentUser.profile.isNoob == true) {
+      //   console.log('Send Upload item Notification')
+      //   let message = `Hey ${currentUser.profile.name},\nStill haven't uploaded any items on the NottMyStyle Marketplace? Take the first step to detox your closet and making money by uploading something on the Marketplace today.`;
+      //   let notificationDate = new Date()
+      //   notificationDate.setMinutes(notificationDate.getMinutes() + 3);
+      //   PushNotification.localNotificationSchedule({
+      //       message: message,// (required)
+      //       date: notificationDate,
+      //       vibrate: true,
+      //   });
         
-      }
-      
-
-      if(currentUser.notifications && token) {
-        //PriceReduction Notifications
-        this.shouldSendNotifications(currentUser.notifications);
-      }
+      // }
+      // if(currentUser.notifications && token) {
+      //   //PriceReduction Notifications
+      //   this.shouldSendNotifications(currentUser.notifications);
+      // }
 
       var soldProducts = 0;
       var numberProducts=0;
@@ -213,18 +213,22 @@ class ProfilePage extends Component {
       //   soldProducts = 0;
       //   numberProducts = 0;
       // }
-      
+
+      var backgroundColor = yellowGreen;
+      if(currentUser.color) {
+        backgroundColor = currentUser.color;
+      }
       
       var {country, insta, name, size, uri} = currentUser.profile
 
       var comments;
       if(currentUser.comments) {
         comments = currentUser.comments;
-        this.setState({ name, country, uri, insta, numberProducts, soldProducts, comments, isGetting: false })
+        this.setState({ name, country, uri, insta, numberProducts, soldProducts, backgroundColor, comments, isGetting: false })
         // this.setState({comments})
       }
       else {
-        this.setState({ name, country, uri, insta, numberProducts, soldProducts, noComments: true, isGetting: false })
+        this.setState({ name, country, uri, insta, numberProducts, soldProducts, backgroundColor, noComments: true, isGetting: false })
       }
       
       // console.log(comments);
@@ -270,127 +274,127 @@ class ProfilePage extends Component {
     
   }
 
-  shouldSendNotifications(notificationsObj) {
-    // var tasks = Object.keys(notificationsObj)
-    // tasks.forEach
-    var message;
-    var notificationDate;
-    // var notificationData;
-    if(notificationsObj.priceReductions) {
-        for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
-            if(specificNotification.localNotificationSent == false) {
-                let localNotificationProperty = {};
-                localNotificationProperty[`/Users/${specificNotification.uid}/notifications/priceReductions/${specificNotification.key}/localNotificationSent/`] = true;
-                let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
-                promiseToScheduleNotification.then( () => {
-                    // var month = new Date().getMonth() + 1;
-                    // var date= new Date().getDate();
-                    // var year = new Date().getFullYear();
+//   shouldSendNotifications(notificationsObj) {
+//     // var tasks = Object.keys(notificationsObj)
+//     // tasks.forEach
+//     var message;
+//     var notificationDate;
+//     // var notificationData;
+//     if(notificationsObj.priceReductions) {
+//         for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
+//             if(specificNotification.localNotificationSent == false) {
+//                 let localNotificationProperty = {};
+//                 localNotificationProperty[`/Users/${specificNotification.uid}/notifications/priceReductions/${specificNotification.key}/localNotificationSent/`] = true;
+//                 let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+//                 promiseToScheduleNotification.then( () => {
+//                     // var month = new Date().getMonth() + 1;
+//                     // var date= new Date().getDate();
+//                     // var year = new Date().getFullYear();
                     
-                    //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
-                    // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
-                    let d = new Date();
-                    // notificationDate = d.setDate(d.getDate() + 4)
-                    notificationDate = d.setMinutes(d.getMinutes() + 1);
-                    // console.log(month, date)
+//                     //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+//                     // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+//                     let d = new Date();
+//                     // notificationDate = d.setDate(d.getDate() + 4)
+//                     notificationDate = d.setMinutes(d.getMinutes() + 1);
+//                     // console.log(month, date)
     
-                    //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                    // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-                    // console.log(message);
-                    PushNotification.localNotificationSchedule({
-                        message: specificNotification.message,// (required)
-                        date: notificationDate,
-                        vibrate: true,
-                    });
-                })
+//                     //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+//                     // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+//                     // console.log(message);
+//                     PushNotification.localNotificationSchedule({
+//                         message: specificNotification.message,// (required)
+//                         date: notificationDate,
+//                         vibrate: true,
+//                     });
+//                 })
                     
-            }
+//             }
 
-            else {
-                console.log('doing nothing')
-            }
+//             else {
+//                 console.log('doing nothing')
+//             }
             
-        }
-    }
+//         }
+//     }
 
-    if(notificationsObj.itemsSold) {
-      for(var specificNotification of Object.values(notificationsObj.itemsSold)) {
-          if(specificNotification.localNotificationSent == false) {
-              let localNotificationProperty = {};
-              localNotificationProperty[`/Users/${specificNotification.uid}/notifications/itemsSold/${specificNotification.key}/localNotificationSent/`] = true;
-              let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
-              promiseToScheduleNotification.then( () => {
-                  // var month = new Date().getMonth() + 1;
-                  // var date= new Date().getDate();
-                  // var year = new Date().getFullYear();
+//     if(notificationsObj.itemsSold) {
+//       for(var specificNotification of Object.values(notificationsObj.itemsSold)) {
+//           if(specificNotification.localNotificationSent == false) {
+//               let localNotificationProperty = {};
+//               localNotificationProperty[`/Users/${specificNotification.uid}/notifications/itemsSold/${specificNotification.key}/localNotificationSent/`] = true;
+//               let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+//               promiseToScheduleNotification.then( () => {
+//                   // var month = new Date().getMonth() + 1;
+//                   // var date= new Date().getDate();
+//                   // var year = new Date().getFullYear();
                   
-                  //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
-                  // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
-                  let d = new Date();
-                  // notificationDate = d.setDate(d.getDate() + 4)
-                  notificationDate = d.setMinutes(d.getMinutes() + 1);
-                  // console.log(month, date)
-                  message =  `${specificNotification.buyerName} has purchased ${specificNotification.name} for ${specificNotification.price} from your closet.${specificNotification.postOrNah == 'post' ? "Please use the in-app notification to mark when the item has been shipped." : "The buyer has chosen to collect this item in person. Please use the in-app chats feature to get in touch with the buyer."}`;
-                  //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                  // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-                  // console.log(message);
-                  PushNotification.localNotificationSchedule({
-                      message: message,// (required)
-                      date: notificationDate,
-                      vibrate: true,
-                  });
-              })
+//                   //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+//                   // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+//                   let d = new Date();
+//                   // notificationDate = d.setDate(d.getDate() + 4)
+//                   notificationDate = d.setMinutes(d.getMinutes() + 1);
+//                   // console.log(month, date)
+//                   message =  `${specificNotification.buyerName} has purchased ${specificNotification.name} for ${specificNotification.price} from your closet.${specificNotification.postOrNah == 'post' ? "Please use the in-app notification to mark when the item has been shipped." : "The buyer has chosen to collect this item in person. Please use the in-app chats feature to get in touch with the buyer."}`;
+//                   //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+//                   // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+//                   // console.log(message);
+//                   PushNotification.localNotificationSchedule({
+//                       message: message,// (required)
+//                       date: notificationDate,
+//                       vibrate: true,
+//                   });
+//               })
                   
-          }
+//           }
 
-          else {
-              console.log('doing nothing')
-          }
+//           else {
+//               console.log('doing nothing')
+//           }
           
-      }
-  }
+//       }
+//   }
 
-  if(notificationsObj.purchaseReceipts) {
-    for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
-        if(specificNotification.localNotificationSent == false) {
-            let localNotificationProperty = {};
-            localNotificationProperty[`/Users/${specificNotification.uid}/notifications/purchaseReceipts/${specificNotification.key}/localNotificationSent/`] = true;
-            let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
-            promiseToScheduleNotification.then( () => {
-                // var month = new Date().getMonth() + 1;
-                // var date= new Date().getDate();
-                // var year = new Date().getFullYear();
+//   if(notificationsObj.purchaseReceipts) {
+//     for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
+//         if(specificNotification.localNotificationSent == false) {
+//             let localNotificationProperty = {};
+//             localNotificationProperty[`/Users/${specificNotification.uid}/notifications/purchaseReceipts/${specificNotification.key}/localNotificationSent/`] = true;
+//             let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+//             promiseToScheduleNotification.then( () => {
+//                 // var month = new Date().getMonth() + 1;
+//                 // var date= new Date().getDate();
+//                 // var year = new Date().getFullYear();
                 
-                //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
-                // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
-                let d = new Date();
-                // notificationDate = d.setDate(d.getDate() + 4)
-                notificationDate = d.setMinutes(d.getMinutes() + 1);
-                // console.log(month, date)
-                message =  specificNotification.postOrNah == 'post' ? `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive within 2 weeks.` : `Please get in touch with ${specificNotification.sellerName} regarding your acquisition of their ${specificNotification.name}.`
-                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-                // console.log(message);
-                PushNotification.localNotificationSchedule({
-                    message: message,// (required)
-                    date: notificationDate,
-                    vibrate: true,
-                });
-            })
+//                 //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+//                 // notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+//                 let d = new Date();
+//                 // notificationDate = d.setDate(d.getDate() + 4)
+//                 notificationDate = d.setMinutes(d.getMinutes() + 1);
+//                 // console.log(month, date)
+//                 message =  specificNotification.postOrNah == 'post' ? `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive within 2 weeks.` : `Please get in touch with ${specificNotification.sellerName} regarding your acquisition of their ${specificNotification.name}.`
+//                 //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+//                 // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+//                 // console.log(message);
+//                 PushNotification.localNotificationSchedule({
+//                     message: message,// (required)
+//                     date: notificationDate,
+//                     vibrate: true,
+//                 });
+//             })
                 
-        }
+//         }
 
-        else {
-            console.log('doing nothing')
-        }
+//         else {
+//             console.log('doing nothing')
+//         }
         
-    }
-}
+//     }
+// }
 
-    //TODO: Mirror this for itemSold notification
+//     //TODO: Mirror this for itemSold notification
 
 
-}
+// }
 
   logOut = () => {
     firebase.auth().signOut().then(() => {
@@ -431,9 +435,9 @@ class ProfilePage extends Component {
 
   }
 
-  setGradient = (index) => {
-    this.setState({gradient: this.gradientColors[index]})
-  }
+  // setGradient = (index) => {
+  //   this.setState({gradient: this.gradientColors[index]})
+  // }
 
   navToEditProfile = () => {
     this.props.navigation.navigate('CreateProfile', {editProfileBoolean: true})
@@ -445,11 +449,12 @@ class ProfilePage extends Component {
 
   render() {
     var {isGetting, comments, gradient} = this.state;
+    // var backgroundColor = ;
     // console.log(comments, 'the user has no comments, perfectly harmless');
     // const gradientColors = ["#a2f76c", "#1c3a09"]
     //kinda like this one
     // const gradientColors = ["#c8f966", "#307206", "#1c3a09"]; 
-    const gradientColors = ["#c8f966", "#307206", highlightGreen]; 
+    // const gradientColors = ["#c8f966", "#307206", highlightGreen]; 
 
     
     // const gradientColors = [limeGreen,lightGreen, treeGreen];
@@ -470,7 +475,7 @@ class ProfilePage extends Component {
 
         <View style={styles.linearGradient}>
           
-          <View style={styles.oval}/>
+          <View style={[styles.oval, {backgroundColor: this.props.navigation.getParam('backgroundColor', this.state.backgroundColor)}]}/>
           
           
         
@@ -628,7 +633,7 @@ class ProfilePage extends Component {
           <Text style={styles.reviewsHeader}>REVIEWS</Text>
           {this.state.noComments ? null : Object.keys(comments).map(
                   (comment) => (
-                  <View key={comment} style={styles.commentContainer}>
+                  <View key={comment} style={[styles.commentContainer, Platform.OS == 'android' ? {borderWidth: 0.5, borderColor: 'black'} : null]}>
 
                       <View style={styles.commentPicAndTextRow}>
 
@@ -794,7 +799,7 @@ const styles = StyleSheet.create({
       {scaleX: 2}
     ],
     // top: 10,
-    backgroundColor: yellowGreen
+    // backgroundColor: yellowGreen
   },
 
   iconColumn: {

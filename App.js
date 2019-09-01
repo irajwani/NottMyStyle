@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Test from './src/views/Test';
+// import Test from './src/views/Test';
 import AuthOrAppSwitch from './src/switchNavigators/AuthOrAppSwitch';
 // import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
 // import { HangerLoadingIndicator } from './src/localFunctions/visualFunctions';

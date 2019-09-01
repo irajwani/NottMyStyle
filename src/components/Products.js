@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Platform, Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
+import { Platform, Dimensions, Alert, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 // import { Text,  } from 'native-base';
@@ -49,11 +49,17 @@ const cardWidth = width/2 - 10;
 const cardHeaderHeight = 200;
 const cardContentHeight = 50
 const cardFull = cardHeaderHeight + cardContentHeight;
+const cardFullPlus = cardFull + 20;
+// const cardFullPlusPlus = cardFullPlus + 10;
 
 const popUpMenuHeight = 35;
 const popUpMenuWidth = 65;
 
 // const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
+
+// const onlyUnique = (value, index, self) => { 
+//   return self.indexOf(value) === index;
+// }
 
 const splitArrayIntoArraysOfSuccessiveElements = (array) => {
   var first, second;
@@ -158,6 +164,7 @@ class Products extends Component {
       super(props);
       this.state = {
         uid: '',
+        currency: '',
         isGetting: true,
         //Products Stuff
         leftDS: new ListView.DataSource({
@@ -324,133 +331,159 @@ class Products extends Component {
   // }
 
   getMarketPlace = (uid) => {
+    //TODO: Reduce expense by only getting Products, yourUser and otherUser
     //here uid refers to currentUser UID
     this.setState({isGetting: true});
     firebase.database().ref().on('value', (snapshot) => {
       var {Products, Users} = snapshot.val();
+      var location = Users[uid].profile.country;
+      location = location.replace(/\s+/g, '').split(',')[1]
+      var currency;
+      switch(location) {
+        case "UK":
+          currency = '£';
+          break;
+        case "Pakistan":
+          currency = 'Rs.';
+          break;
+        default:
+          currency = '$';
+          break;
+      }
       // console.log(Products, typeof Products);
+        
       if(Products == undefined || Products.length < 1) {
         this.setState({isGetting: false, emptyMarket: true});
       }
+
       else {
-        Products = Object.values(Products);
-        const {showCollection, showYourProducts, showSoldProducts, showOtherUserProducts, showOtherUserSoldProducts, otherUser} = this.props;
-        var emptyMarket = false;
-        var productKeys = [], collectionKeys = [], otherUserProductKeys = [];
+        // There is at least one product
+        // Now we check if there's at least one product for this persons location
+        Products = Object.values(Products).filter(p => {return p.location == location});
 
-        if(Users[uid].products) {
-          productKeys = Object.keys(Users[uid].products)
+        if(Products.length < 1) {
+          this.setState({isGetting: false, emptyMarket: true});
         }
+        // Products = Object.values(Products);
+        else {
+          const {showCollection, showYourProducts, showSoldProducts, showOtherUserProducts, showOtherUserSoldProducts, otherUser} = this.props;
+          var emptyMarket = false;
+          var productKeys = [], collectionKeys = [], otherUserProductKeys = [];
 
-        if(Users[uid].collection) {
-          var collectionKeys = removeKeysWithFalsyValuesFrom(Users[uid].collection);
-        }
-        
-        if(showYourProducts) {
-          Products = Products.filter((product) => productKeys.includes(product.key) && !product.text.sold );
-          Products.length > 0 ? null : emptyMarket = true;
-          // this.setState({isGetting: false, noProducts: true, productKeys})
-        }
+          if(Users[uid].products) {
+            productKeys = Object.keys(Users[uid].products)
+          }
 
-        else if(showSoldProducts) {
-          Products = Products.filter((product) => productKeys.includes(product.key) && product.text.sold );
-          Products.length > 0 ? null : emptyMarket = true;
-        }
+          if(Users[uid].collection) {
+            var collectionKeys = removeKeysWithFalsyValuesFrom(Users[uid].collection);
+          }
+          
+          if(showYourProducts) {
+            Products = Products.filter((product) => productKeys.includes(product.key) && !product.text.sold );
+            Products.length > 0 ? null : emptyMarket = true;
+            // this.setState({isGetting: false, noProducts: true, productKeys})
+          }
 
-        else if(showCollection) {
-          Products = Products.filter((product) => collectionKeys.includes(product.key) );
-          Products.length > 0 ? null : emptyMarket = true;          
-        }
-
-        else if(showOtherUserProducts || showOtherUserSoldProducts) {
-          if(Users[otherUser].products != "") {
-            otherUserProductKeys = Object.keys(Users[otherUser].products);
-            if(showOtherUserSoldProducts) {
-              Products = Products.filter((product) => otherUserProductKeys.includes(product.key) && product.text.sold );
-            }
-            else {
-              // Just show products on sale
-              Products = Products.filter((product) => otherUserProductKeys.includes(product.key) && !product.text.sold );
-            }
+          else if(showSoldProducts) {
+            Products = Products.filter((product) => productKeys.includes(product.key) && product.text.sold );
             Products.length > 0 ? null : emptyMarket = true;
           }
-        }
 
-        // else {
-        //     // console.log('do nothing')
-        // }
-        if(!emptyMarket) {
-          //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
-          Products = Products.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-          // console.log('after sort ' + all)
-          // var test;
-          // test = 
-          // console.log(test);
-          Products.forEach((product) => {
-            product['isActive'] = false;  //boolean for rowData UI expansion
-            product['isMenuActive'] = false;
-          })
-          // console.log("OVER HERE"+Products)
-          // console.log('before split: ' + all);
-          // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
-          var leftProducts = Products.filter( (e, index) => index % 2 == 0);
-          var rightProducts = Products.filter( (e, index) => index % 2 != 0);
+          else if(showCollection) {
+            Products = Products.filter((product) => collectionKeys.includes(product.key) );
+            Products.length > 0 ? null : emptyMarket = true;          
+          }
 
-          //Second Level is to extract list of information to be displayed in the filterModal
-          //first extract the list of current brands:
-          var brands = [];
-          var typesForCategory = {Men: [], Women: [], Accessories: []};
-          var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
-          //Default Sizes
-          var sizes = womenUpperWear;
-          //Now because there's a fixed number of values of SIZE for each TYPE, 
-          //just generate the sizes based on the type selected by the person when they tap the category
-          //and for CONDITION We're good because there's only 4 values that apply to any type of product
-          // var sizesForType = {}
-
-          // var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
-          // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
-
-          Products.forEach((product)=> {
-            // console.log(product.text.brand);
-            brands.push({name: product.text.brand, selected: false});
-            switch(product.text.gender) {
-              case "Men":
-                typesForCategory.Men.push({name: product.text.type, selected: false});
-                break;
-              case "Women":
-                typesForCategory.Women.push({name: product.text.type, selected: false});
-                break;
-              case "Accessories":
-                typesForCategory.Accessories.push({name: product.text.type, selected: false});
-                break;  
-              default: 
-                break;
+          else if(showOtherUserProducts || showOtherUserSoldProducts) {
+            if(Users[otherUser].products != "") {
+              otherUserProductKeys = Object.keys(Users[otherUser].products);
+              if(showOtherUserSoldProducts) {
+                Products = Products.filter((product) => otherUserProductKeys.includes(product.key) && product.text.sold );
+              }
+              else {
+                // Just show products on sale
+                Products = Products.filter((product) => otherUserProductKeys.includes(product.key) && !product.text.sold );
+              }
+              Products.length > 0 ? null : emptyMarket = true;
             }
+          }
 
-          })
-          // console.log(typesForCategory)
+          // else {
+          //     // console.log('do nothing')
+          // }
+          if(!emptyMarket) {
+            //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
+            Products = Products.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
+            // console.log('after sort ' + all)
+            // var test;
+            // test = 
+            // console.log(test);
+            Products.forEach((product) => {
+              product['isActive'] = false;  //boolean for rowData UI expansion
+              product['isMenuActive'] = false;
+            })
+            // console.log("OVER HERE"+Products)
+            // console.log('before split: ' + all);
+            // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
+            var leftProducts = Products.filter( (e, index) => index % 2 == 0);
+            var rightProducts = Products.filter( (e, index) => index % 2 != 0);
 
-          // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
-          // console.log("Raw Brands:" + JSON.stringify(brands))
-          brands = removeDuplicates(brands, "name");
-          // console.log("Brands:" + JSON.stringify(brands))
-          typesForCategory.Men = removeDuplicates(typesForCategory['Men'], "name");
-          typesForCategory.Women = removeDuplicates(typesForCategory['Women'], "name");
-          typesForCategory.Accessories = removeDuplicates(typesForCategory['Accessories'], "name");
+            //Second Level is to extract list of information to be displayed in the filterModal
+            //first extract the list of current brands:
+            var brands = [];
+            var typesForCategory = {Men: [], Women: [], Accessories: []};
+            var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
+            //Default Sizes
+            var sizes = womenUpperWear;
+            //Now because there's a fixed number of values of SIZE for each TYPE, 
+            //just generate the sizes based on the type selected by the person when they tap the category
+            //and for CONDITION We're good because there's only 4 values that apply to any type of product
+            // var sizesForType = {}
 
-          // console.log(brands, typesForCategory);
+            // var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
+            // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
 
-          
+            Products.forEach((product)=> {
+              // console.log(product.text.brand);
+              brands.push({name: product.text.brand, selected: false});
+              switch(product.text.gender) {
+                case "Men":
+                  typesForCategory.Men.push({name: product.text.type, selected: false});
+                  break;
+                case "Women":
+                  typesForCategory.Women.push({name: product.text.type, selected: false});
+                  break;
+                case "Accessories":
+                  typesForCategory.Accessories.push({name: product.text.type, selected: false});
+                  break;  
+                default: 
+                  break;
+              }
 
-          var name = Users[uid].profile.name;
+            })
+            // console.log(typesForCategory)
 
-          this.setState({uid, emptyMarket, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, sizes, name, isGetting: false, noResultsFromFilter: false});
+            // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+            // console.log("Raw Brands:" + JSON.stringify(brands))
+            brands = removeDuplicates(brands, "name");
+            // console.log("Brands:" + JSON.stringify(brands))
+            typesForCategory.Men = removeDuplicates(typesForCategory['Men'], "name");
+            typesForCategory.Women = removeDuplicates(typesForCategory['Women'], "name");
+            typesForCategory.Accessories = removeDuplicates(typesForCategory['Accessories'], "name");
 
-        }
+            // console.log(brands, typesForCategory);
 
-        else {
-          this.setState({isGetting: false, uid, emptyMarket: true});
+            
+
+            var name = Users[uid].profile.name;
+
+            this.setState({uid, emptyMarket, currency, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, sizes, name, isGetting: false, noResultsFromFilter: false});
+
+          }
+
+          else {
+            this.setState({isGetting: false, uid, emptyMarket: true});
+          }
         }
 
         
@@ -467,11 +500,23 @@ class Products extends Component {
     const {...state} = this.state;
     const {selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize} = state;
 
-    products = selectedBrands.length > 0 ? products.filter( (product) => selectedBrands.includes(product.text.brand)) : products;
-    products = products.filter( (product) => selectedCategory == product.text.gender);
-    products = selectedType ? products.filter( (product) => selectedType == product.text.type ) : products;
-    products = selectedConditions.length > 0 ? products.filter( (product) => selectedConditions.includes(product.text.condition)) : products;
-    products = selectedSize ? products.filter( (product) => selectedSize == product.text.size ) : products;
+    var brandsProducts, categoryProducts, typeProducts, conditionsProducts, sizeProducts;
+    
+    brandsProducts = selectedBrands.length > 0 ? products.filter( (product) => selectedBrands.includes(product.text.brand)) : [];
+    categoryProducts = selectedCategory ? products.filter( (product) => selectedCategory == product.text.gender) : [];
+    typeProducts = selectedType ? products.filter( (product) => selectedType == product.text.type ) : [];
+    conditionsProducts = selectedConditions.length > 0 ? products.filter( (product) => selectedConditions.includes(product.text.condition)) : [];
+    sizeProducts = selectedSize ? products.filter( (product) => selectedSize == product.text.size ) : [];
+
+    brandsProducts = brandsProducts.concat(categoryProducts, typeProducts, conditionsProducts, sizeProducts);
+
+    products = brandsProducts.filter(onlyUnique);
+
+    // products = selectedBrands.length > 0 ? products.filter( (product) => selectedBrands.includes(product.text.brand)) : products;
+    // products = products.filter( (product) => selectedCategory == product.text.gender);
+    // products = selectedType ? products.filter( (product) => selectedType == product.text.type ) : products;
+    // products = selectedConditions.length > 0 ? products.filter( (product) => selectedConditions.includes(product.text.condition)) : products;
+    // products = selectedSize ? products.filter( (product) => selectedSize == product.text.size ) : products;
 
     return products
   }
@@ -916,8 +961,8 @@ class Products extends Component {
 
   }
 
-  navToProductDetails(data, collectionKeys, productKeys) {
-      this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
+  navToProductDetails(data, collectionKeys, productKeys, currency) {
+      this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys, currency})
   }
 
   renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction, column) => {
@@ -928,7 +973,7 @@ class Products extends Component {
       underlayColor={'transparent'}
       onPress={() => {
         // section.isActive ? this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys) : null;
-        !section.isActive ? expandFunction() : this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys);
+        !section.isActive ? expandFunction() : this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys, this.state.currency);
       }}
       >
       
@@ -1023,11 +1068,11 @@ class Products extends Component {
             
             <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
               {(section.text.original_price > 0) == true?
-                <Text style={[styles.original_price, {textDecorationLine: 'line-through',}]}>£{section.text.original_price}</Text>
+                <Text style={[styles.original_price, {textDecorationLine: 'line-through',}]}>{this.state.currency + section.text.original_price}</Text>
                 :
                 null
               }
-              <Text style={styles.price}>£{section.text.price}</Text>
+              <Text style={styles.price}>{this.state.currency + section.text.price}</Text>
             </View>
 
             {section.isActive == true? 
@@ -1069,8 +1114,8 @@ class Products extends Component {
                   
                 
                 <Animatable.View style={styles.brandAndSizeCol} transition='backgroundColor'>
-                  <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'} easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.brand}</Animatable.Text>
-                  <Animatable.Text style={[styles.contentCardText]} direction={column == 'left' ? 'normal' : 'alternate'}  easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
+                  <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'} easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.name.length > 11 ? section.text.brand.substring(0,9) + '..' : section.text.brand}</Animatable.Text>
+                  <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'}  easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
                 </Animatable.View>
 
                 <Animatable.View style={styles.magnifyingGlassCol} transition='backgroundColor'>
@@ -1079,7 +1124,7 @@ class Products extends Component {
                   size={30} 
                   color={limeGreen}
                   onPress={ () => { 
-                      this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
+                      this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys, this.state.currency); 
                       }}  
                   />
                 </Animatable.View>  
@@ -1122,7 +1167,8 @@ class Products extends Component {
       transparent={true}
       visible={this.state.showFilterModal}
       onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
+        this.setState({showFilterModal: false})
+        // Alert.alert('Modal has been closed.');
       }}
       >
       <View style={[{flex: 1},{backgroundColor: lightBlack }, styles.filterModal, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
@@ -1954,11 +2000,11 @@ const styles = StyleSheet.create({
     //200
     //marginLeft: 2,
     //marginRight: 2,
-    marginTop: 2,
-    paddingTop: 3,
-    // paddingRight: 7,
-    paddingLeft: 7,
-    paddingBottom: 5
+    // marginTop: 2,
+    // paddingTop: 3,
+    paddingRight: 5,
+    paddingLeft: 5,
+    // paddingBottom: 5
   },
   content: {
     padding: 20,
@@ -1967,7 +2013,8 @@ const styles = StyleSheet.create({
 
   contentCardText: {
     ...textStyles.generic,
-    color: 'black'
+    color: 'black',
+    fontSize: 15,
   },
 
   //header Card
