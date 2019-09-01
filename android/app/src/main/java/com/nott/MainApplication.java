@@ -3,11 +3,13 @@ package com.nott;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.facebook.react.BuildConfig;
 
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+
 
 import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
