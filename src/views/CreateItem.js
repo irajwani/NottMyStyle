@@ -9,7 +9,7 @@ import Dialog, { DialogTitle, DialogContent, DialogButton, SlideAnimation } from
 import RNFetchBlob from 'rn-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 // import CustomModalPicker from '../components/CustomModalPicker';
-import ProductLabel from '../components/ProductLabel.js';
+// import ProductLabel from '../components/ProductLabel.js';
 // import {signInContainer} from '../styles.js';
 import firebase from '../cloud/firebase.js';
 
@@ -17,8 +17,8 @@ import ImageResizer from 'react-native-image-resizer';
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 // import * as Animatable from 'react-native-animatable';
-import { iOSColors } from 'react-native-typography';
-import { PacmanIndicator } from 'react-native-indicators';
+// import { iOSColors } from 'react-native-typography';
+// import { PacmanIndicator } from 'react-native-indicators';
 import { highlightGreen,lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen, almostWhite } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions';
@@ -40,7 +40,6 @@ const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accesso
 const maxWidth = 320, maxHeight = 320, suppressionLevel = 0;
 
 // const {height, width} = Dimensions.get('window');
-
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
 window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
@@ -144,7 +143,7 @@ class CreateItem extends Component {
                 currency = '£';
                 break;
             case "Pakistan":
-                currency = 'Rs. ';
+                currency = 'RS';
                 break;
             default:
                 currency = '$';
@@ -313,10 +312,14 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
         dateSold: '',
         post_price: post_price ? post_price : 0,
-        paypal: paypal //TODO: test if paypal value is remembered and the user can't see it
+        paypal: paypal, //TODO: test if paypal value is remembered and the user can't see it
+        
      };
     
      updates[productTextPath] = postData;
+
+     var productViewsPath = '/Users/' + uid + '/products/' + actualPostKey + '/usersVisited/'; //TODO: iOS
+     updates[productViewsPath] = '';
  }
  
  updates['/Users/' + uid + '/profile/isNoob/'] = false;
