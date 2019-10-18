@@ -186,7 +186,8 @@ class BadgeIcon extends React.Component {
         }
     }
 
-    componentWillMount = () => {
+    //TODO: used to be CWM
+    componentDidMount = () => {
         if(this.props.unreadCount) {
             setTimeout(() => {
                 

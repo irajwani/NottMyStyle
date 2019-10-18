@@ -144,7 +144,7 @@ class CreateItem extends Component {
                 currency = '£';
                 break;
             case "Pakistan":
-                currency = 'Rs.';
+                currency = 'Rs. ';
                 break;
             default:
                 currency = '$';
@@ -1028,16 +1028,6 @@ uploadToStore = (pictureuris, uid, postKey) => {
             </TouchableHighlight>
 
             {this.state.editItemBoolean ? 
-                null 
-            :
-                <View style={styles.priceAdjustmentReminderContainer}>
-                    <Text style={[styles.priceAdjustmentReminder, !this.state.paypal ? {color: 'red'} : null]}>{paypalReminder}</Text>
-                </View>
-            }
-
-            
-
-            {this.state.editItemBoolean ? 
                 null
             :
             <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start', borderBottomWidth: 0.5, borderBottomColor: darkGray,}}>
@@ -1057,8 +1047,14 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
             }
 
-            
-            
+            {this.state.editItemBoolean ? 
+                null 
+            :
+                <View style={styles.priceAdjustmentReminderContainer}>
+                    <Text style={[styles.priceAdjustmentReminder, !this.state.paypal ? {color: 'red'} : null]}>{paypalReminder}</Text>
+                </View>
+            }
+
             <View style={styles.navToFillDetailRow}>
 
                 <View style={[styles.detailHeaderContainer, {paddingHorizontal: 6,flex: 0.8}]}>
