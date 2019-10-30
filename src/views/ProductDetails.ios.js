@@ -33,6 +33,7 @@ import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunction
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
 import { textStyles } from '../styles/textStyles';
 
+import { ifIphoneX } from 'react-native-iphone-x-helper'
 
 var {height, width} = Dimensions.get('window');
 
@@ -1428,43 +1429,44 @@ class ProductDetails extends Component {
     
   }
 
-//    _getHeaderColor = () => {
-//     const {scrollY} = this.state;
 
-//     return scrollY.interpolate({
-//         inputRange,
-//         outputRange: ['transparent', 'transparent', logoGreen],
-//         extrapolate: 'clamp',
-//         useNativeDriver: true
-//     });
-//   }
+  _getHeaderColor = () => {
+    const {scrollY} = this.state;
 
-//   _getArrowColor = () => {
-//     const {scrollY} = this.state;
+    return scrollY.interpolate({
+        inputRange,
+        outputRange: ['transparent', 'transparent', logoGreen],
+        extrapolate: 'clamp',
+        useNativeDriver: true
+    });
+  }
 
-//     return scrollY.interpolate({
-//         inputRange,
-//         outputRange: ['#fff', almostWhite, 'black'],
-//         extrapolate: 'clamp',
-//         useNativeDriver: true
-//     });
-//   }
+  _getArrowColor = () => {
+    const {scrollY} = this.state;
 
-//   _getHeaderLogoOpacity = () => {
-//       const {scrollY} = this.state;
+    return scrollY.interpolate({
+        inputRange,
+        outputRange: ['#fff', almostWhite, 'black'],
+        extrapolate: 'clamp',
+        useNativeDriver: true
+    });
+  }
 
-//       return scrollY.interpolate({
-//           inputRange,
-//           outputRange: [0, 0.1, 1],
-//           extrapolate: 'clamp',
-//           useNativeDriver: true
-//       });
+  _getHeaderLogoOpacity = () => {
+      const {scrollY} = this.state;
 
-//   };
+      return scrollY.interpolate({
+          inputRange,
+          outputRange: [0, 0.1, 1],
+          extrapolate: 'clamp',
+          useNativeDriver: true
+      });
+
+  };
 
   render() {
-    // const headerLogoOpacity = this._getHeaderLogoOpacity();
-    // const headerColor = this._getHeaderColor();
+    const headerLogoOpacity = this._getHeaderLogoOpacity();
+    const headerColor = this._getHeaderColor();
     // const arrowColor = this._getArrowColor();
 
     const { params } = this.props.navigation.state, { data, productKeys } = params, 
@@ -1504,7 +1506,29 @@ class ProductDetails extends Component {
     return (
       <SafeAreaView style={styles.mainContainer}>
       {/* Header Bar */}
-      <View style={styles.deliveryOptionHeader}>
+      <Animated.View style={[styles.deliveryOptionHeader, {position: "absolute",zIndex: 1,width: "100%",backgroundColor: headerColor, 
+      marginTop: Platform.OS == 'ios' ? ifIphoneX(44, 22) : 0 
+      }]}
+      >
+        <FontAwesomeIcon
+        name='arrow-left'
+        size={30}
+        color={"#fff"}
+        onPress = { () => { 
+            this.props.navigation.goBack();
+            } }
+        />
+
+        <Animated.Image style={{width: 40, height: 40, opacity: headerLogoOpacity}} source={require("../images/nottmystyleLogo.png")}/>
+            
+        <FontAwesomeIcon
+          name='close'
+          size={30}
+          color={'transparent'}
+        />
+      </Animated.View>
+
+      {/* <View style={styles.deliveryOptionHeader}>
         <FontAwesomeIcon
         name='arrow-left'
         size={30}
@@ -1520,9 +1544,16 @@ class ProductDetails extends Component {
           size={28}
           color={logoGreen}
         />
-      </View>
+      </View> */}
 
-      <ScrollView 
+      <Animated.ScrollView 
+      onScroll={Animated.event(
+        [
+          {
+            nativeEvent: {contentOffset: {y: this.state.scrollY}}
+          }
+        ]
+      )}
       style={styles.scrollContainer} 
       contentContainerStyle={styles.contentContainer}
       >
@@ -1788,7 +1819,7 @@ class ProductDetails extends Component {
         {this.renderReportUserModal()}
         {this.renderPurchaseModal()}
         {/* {this.r()} */}
-      </ScrollView> 
+      </Animated.ScrollView> 
       </SafeAreaView>
     );
   }

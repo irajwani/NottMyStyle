@@ -127,7 +127,7 @@ export default class AuthLoadingScreen extends Component {
           <LoadingIndicator isVisible={true} color={lightGreen} type={'Wordpress'} />
         </View>
         <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text>Version {VersionNumber.buildVersion}</Text>
+          <Text>Version {Platform.OS == "ios" ? "1.58" : VersionNumber.buildVersion}</Text>
         </View>
       </SafeAreaView>
     )

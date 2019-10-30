@@ -33,6 +33,8 @@ import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunction
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
 import { textStyles } from '../styles/textStyles';
 
+import { ifIphoneX } from 'react-native-iphone-x-helper'
+
 
 var {height, width} = Dimensions.get('window');
 
@@ -1532,7 +1534,9 @@ class ProductDetails extends Component {
     return (
       <SafeAreaView style={styles.mainContainer}>
       {/* Header Bar */}
-      <Animated.View style={[styles.deliveryOptionHeader, {position: "absolute",zIndex: 1,width: "100%",backgroundColor: headerColor}]}>
+      <Animated.View style={[styles.deliveryOptionHeader, {position: "absolute",zIndex: 1,width: "100%",backgroundColor: headerColor,
+      marginTop: Platform.OS == 'ios' ? ifIphoneX(44, 22) : 0
+      }]}>
         <FontAwesomeIcon
         name='arrow-left'
         size={30}
@@ -1542,7 +1546,7 @@ class ProductDetails extends Component {
             } }
         />
 
-        <Animated.Image style={{...styles.logo, opacity: headerLogoOpacity}} source={require("../images/nottmystyleLogo.png")}/>
+        <Animated.Image style={{width: 45, height: 45, opacity: headerLogoOpacity}} source={require("../images/nottmystyleLogo.png")}/>
             
         <FontAwesomeIcon
           name='close'
