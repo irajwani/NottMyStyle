@@ -2,11 +2,12 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "LaunchScreen.jpg",
+      "filename" : "LaunchImage~iphone-320x480.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "LaunchImage~iphone_640x960.png",
       "scale" : "2x"
     },
     {

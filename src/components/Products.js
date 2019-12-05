@@ -188,6 +188,9 @@ class Products extends Component {
         emptyCollection: false,
         refreshing: false,
         ////////////
+        // For likes modal
+        ////////////
+        isUpdating: false,
 
 
 
@@ -776,7 +779,7 @@ class Products extends Component {
       //   alert("This product is already in your Wish List.")
       // } 
       // else {
-        // this.setState({isGetting: true});
+        this.setState({isUpdating: true});
         var userCollectionUpdates = {};
         userCollectionUpdates['/Users/' + this.state.uid + '/collection/' + key + '/'] = true;
         let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
@@ -796,6 +799,7 @@ class Products extends Component {
           state[specificArrayOfProducts][index].text.likes += 1;
           // state[specificArrayOfProducts][key].text.likes += 1;
           state.collectionKeys.push(key);
+          state.isUpdating = false;
           this.setState(state);
           // setTimeout(() => {
           //   this.getMarketPlace(this.state.uid);  
@@ -843,6 +847,7 @@ class Products extends Component {
     //this func applies when heart icon is red
     // console.log('decrement number of likes');
     // if(this.state.collectionKeys.includes(key) == true) {
+      this.setState({isUpdating: true});
       var userCollectionUpdates = {};
       // let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
       userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
@@ -861,6 +866,7 @@ class Products extends Component {
         //by locally changing the state to reflect as such
         state[specificArrayOfProducts][index].text.likes -= 1;
         state.collectionKeys = state.collectionKeys.filter( collectionKey => collectionKey != key );
+        state.isUpdating = false;
         this.setState(state);
         // setTimeout(() => {
         //   this.getMarketPlace(this.state.uid);  
@@ -1427,6 +1433,27 @@ class Products extends Component {
 
   }
 
+  renderLoadingModal = () => (
+    
+        <Modal
+        animationType="slide"
+        transparent={true}
+        visible={this.state.isUpdating}
+        onRequestClose={() => {
+          this.setState({isUpdating: false})
+          
+        }}
+        >
+          <View
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}
+          >
+            <LoadingIndicator />
+          </View>
+          
+        </Modal>
+      
+  )
+
   render() {
     // var {showCollection, showYourProducts, showSoldProducts} = this.props;
     var {isGetting, emptyMarket, noResultsFromFilter} = this.state;
@@ -1434,7 +1461,7 @@ class Products extends Component {
     if(isGetting == true) {
       return ( 
         <SafeAreaView style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
-            <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
+            <LoadingIndicator />            
         </SafeAreaView>
       )
     }
@@ -1560,7 +1587,7 @@ class Products extends Component {
 
           </ScrollView>
 
-        <View style={styles.filterButtonContainer}>
+          <View style={styles.filterButtonContainer}>
 
             <TouchableOpacity 
             onPress={() => this.setState({ showFilterModal: true }) } 
@@ -1574,6 +1601,8 @@ class Products extends Component {
             
             </TouchableOpacity>
           </View>
+
+          {this.renderLoadingModal()}
       
       </SafeAreaView>
 

@@ -40,7 +40,8 @@ const limeGreen = '#2e770f';
 // const profoundPink = '#c64f5f';
 const modalAnimationType = "slide";
 const paymentScreensIconSize = 45;
-const payPalEndpoint = "https://calm-coast-12842.herokuapp.com/";
+// const payPalEndpoint = 
+const payPalEndpoint = "https://calm-coast-12842.herokuapp.com";
 // const payPalEndpoint = "https://localhost:5000";
 
 const inputRange = [0, 160, 280];
@@ -211,6 +212,8 @@ class ProductDetails extends Component {
       // console.log("OVER HEREEEE:" + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail);
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
+      
+      var seller = cloudDatabaseUsers[otherUserUid], views = 0;
 
       //get current user's profile info
       const yourProfile = d.Users[uid].profile;
@@ -269,10 +272,31 @@ class ProductDetails extends Component {
       //  = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
       // var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      if(cloudDatabaseUsers[data.uid].products[data.key] != undefined) {
-        var productComments = cloudDatabaseUsers[data.uid].products[data.key].text.comments ? cloudDatabaseUsers[data.uid].products[data.key].text.comments : {a: "nothing"};
+      if(seller.products[data.key] != undefined) {
+        var productComments = seller.products[data.key].text.comments ? seller.products[data.key].text.comments : {a: "nothing"};
+
+        //TODO: iOS
+        //check if usersVisited array deserves an addition
+        if(seller.products[data.key].usersVisited == '') {
+          let update = {};
+          update[`/Users/${otherUserUid}/products/${data.key}/usersVisited/${uid}/`] = true;
+          firebase.database().ref().update(update);
+        }
+
+        else {
+
+          views = Object.values(seller.products[data.key].usersVisited).filter((u)=> {return u == true }).length;
+
+          if(!Object.keys(seller.products[data.key].usersVisited).includes(uid)) {
+            let update = {};
+            update[`/Users/${otherUserUid}/products/${data.key}/usersVisited/${uid}/`] = true;
+            firebase.database().ref().update(update);
+          }
+          
+        }
+        //TODO: iOS
+        
       }
-      
       
       //When this component launches for the first time, we want to retrieve the person's addresses from the cloud (if they have any)
       //When this function is run everytime after
@@ -292,6 +316,7 @@ class ProductDetails extends Component {
         productPictureURLs: cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail,
         sold: data.text.sold,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
+        views, //TODO: iOS
         chat,
         totalPrice: Number(data.text.price) + Number(data.text.post_price),
         canChatWithOtherUser,
@@ -1344,7 +1369,7 @@ class ProductDetails extends Component {
         visible={this.state.showPurchaseModal}
         >
           <WebView 
-            source={{uri: payPalEndpoint + `?price=${finalPrice}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}&currency=${this.state.currency}`}} 
+            source={{uri: payPalEndpoint + `/?price=${finalPrice}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}&currency=${this.state.currency}`}} 
             onNavigationStateChange={data => this.handleResponse(data)}
             injectedJavaScript={`document.f1.submit()`}
           />
@@ -1428,47 +1453,50 @@ class ProductDetails extends Component {
     
   }
 
-//    _getHeaderColor = () => {
-//     const {scrollY} = this.state;
+   _getHeaderColor = () => {
+    const {scrollY} = this.state;
 
-//     return scrollY.interpolate({
-//         inputRange,
-//         outputRange: ['transparent', 'transparent', logoGreen],
-//         extrapolate: 'clamp',
-//         useNativeDriver: true
-//     });
-//   }
+    return scrollY.interpolate({
+        inputRange,
+        outputRange: ['transparent', 'transparent', logoGreen],
+        extrapolate: 'clamp',
+        useNativeDriver: true
+    });
+  }
 
-//   _getArrowColor = () => {
-//     const {scrollY} = this.state;
+  _getArrowColor = () => {
+    const {scrollY} = this.state;
 
-//     return scrollY.interpolate({
-//         inputRange,
-//         outputRange: ['#fff', almostWhite, 'black'],
-//         extrapolate: 'clamp',
-//         useNativeDriver: true
-//     });
-//   }
+    return scrollY.interpolate({
+        inputRange,
+        outputRange: ['#fff', almostWhite, 'black'],
+        extrapolate: 'clamp',
+        useNativeDriver: true
+    });
+  }
 
-//   _getHeaderLogoOpacity = () => {
-//       const {scrollY} = this.state;
+  _getHeaderLogoOpacity = () => {
+      const {scrollY} = this.state;
 
-//       return scrollY.interpolate({
-//           inputRange,
-//           outputRange: [0, 0.1, 1],
-//           extrapolate: 'clamp',
-//           useNativeDriver: true
-//       });
+      return scrollY.interpolate({
+          inputRange,
+          outputRange: [0, 0.1, 1],
+          extrapolate: 'clamp',
+          useNativeDriver: true
+      });
 
-//   };
+  };
 
   render() {
-    // const headerLogoOpacity = this._getHeaderLogoOpacity();
-    // const headerColor = this._getHeaderColor();
+    const headerLogoOpacity = this._getHeaderLogoOpacity();
+    const headerColor = this._getHeaderColor();
     // const arrowColor = this._getArrowColor();
 
     const { params } = this.props.navigation.state, { data, productKeys } = params, 
-    { isGetting, profile, navToChatLoading, productComments, uid, collectionKeys } = this.state,
+    { 
+      isGetting, profile, navToChatLoading, productComments, uid, collectionKeys, 
+      views //TODO: iOS
+    } = this.state,
     {text} = data,
     details = {
       brand: text.brand,
@@ -1477,6 +1505,7 @@ class ProductDetails extends Component {
       type: text.type,
       condition: text.condition,
       post_price: text.post_price,
+      views, //TODO: iOS
       
       // original_price: text.original_price
     };
@@ -1504,25 +1533,33 @@ class ProductDetails extends Component {
     return (
       <SafeAreaView style={styles.mainContainer}>
       {/* Header Bar */}
-      <View style={styles.deliveryOptionHeader}>
+      <Animated.View style={[styles.deliveryOptionHeader, {position: "absolute",zIndex: 1,width: "100%",backgroundColor: headerColor}]}>
         <FontAwesomeIcon
         name='arrow-left'
         size={30}
-        color={'black'}
+        color={"#fff"}
         onPress = { () => { 
             this.props.navigation.goBack();
             } }
         />
-        <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+
+        <Animated.Image style={{...styles.logo, opacity: headerLogoOpacity}} source={require("../images/nottmystyleLogo.png")}/>
             
         <FontAwesomeIcon
           name='close'
-          size={28}
-          color={logoGreen}
+          size={30}
+          color={'transparent'}
         />
-      </View>
+      </Animated.View>
 
-      <ScrollView 
+      <Animated.ScrollView 
+      onScroll={Animated.event(
+        [
+          {
+            nativeEvent: {contentOffset: {y: this.state.scrollY}}
+          }
+        ]
+      )}
       style={styles.scrollContainer} 
       contentContainerStyle={styles.contentContainer}
       >
@@ -1566,16 +1603,16 @@ class ProductDetails extends Component {
           
             {text.original_price > 0 ?
               <View style={[styles.priceContainer]}>
-                <Text style={[styles.original_price, {color: 'black', textDecorationLine: 'line-through',}]} >
+                <Text style={[styles.original_price, {color: 'black', textDecorationLine: 'line-through', fontSize: String(text.original_price).length > 3 ? 11 : 17}]} >
                   {this.state.currency + text.original_price}
                 </Text>
-                <Text style={[styles.original_price, {color: limeGreen}]} >
+                <Text style={[styles.original_price, {color: limeGreen, fontSize: String(text.original_price).length > 3 ? 11 : 17}]} >
                   {this.state.currency + text.price}
                 </Text>
               </View>
             :
               <View style={[styles.priceContainer]}>
-                <Text style={[styles.original_price, {fontSize: 22, color: limeGreen}]} >
+                <Text style={[styles.original_price, {fontSize: String(text.price).length > 3 ? 11 : 17, color: limeGreen}]} >
                   {this.state.currency + text.price}
                 </Text>
               </View>
@@ -1788,7 +1825,7 @@ class ProductDetails extends Component {
         {this.renderReportUserModal()}
         {this.renderPurchaseModal()}
         {/* {this.r()} */}
-      </ScrollView> 
+      </Animated.ScrollView> 
       </SafeAreaView>
     );
   }
