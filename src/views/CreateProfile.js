@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, SafeAreaView, View, Fragment,Image, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
+import { ImageBackground, Linking, Dimensions, Text, StyleSheet, SafeAreaView, View,Image, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import {Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -12,13 +12,15 @@ import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { lightGray, treeGreen, bobbyBlue, mantisGreen, bgBlack, flashOrange, logoGreen, woodBrown } from '../colors.js';
+import { lightGray, treeGreen, bobbyBlue, mantisGreen, bgBlack, flashOrange, logoGreen, woodBrown, darkGreen } from '../colors.js';
 // import { PacmanIndicator } from 'react-native-indicators';
 import {GrayLine, LoadingIndicator, CustomTextInput} from '../localFunctions/visualFunctions';
 import { shadow } from '../constructors/shadow.js';
+import { textStyles } from '../styles/textStyles.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 import { center } from '../constructors/center.js';
 import ImageResizer from 'react-native-image-resizer';
+import { Images } from '../Theme/index.js';
 
 const {width, height} = Dimensions.get('window');
 const resizedWidth = 5000, resizedHeight = 5000;
@@ -574,7 +576,7 @@ class CreateProfile extends Component {
 
   renderLocationSelect = () => (
     <View style={[{flexDirection: 'row'}, styles.inputContainer]}>
-        <View style={{flex: 0.7}}>
+        <View style={{flex: 0.7, marginHorizontal: 5, borderBottomWidth: 1, borderColor: '#fff', marginRight: 10}}>
             <TextInput 
             style={styles.inputText}
             placeholder={"City"} 
@@ -589,8 +591,9 @@ class CreateProfile extends Component {
             
         </View>
 
-        <TouchableOpacity style={{flex: 0.3, justifyContent: 'center'}} onPress={this.toggleShowCountrySelect}>
+        <TouchableOpacity style={{flex: 0.3, justifyContent: 'center', borderBottomWidth: 1, borderColor: '#fff'}} onPress={this.toggleShowCountrySelect}>
             <Text 
+            // style={styles.inputText}
             style={[styles.inputText, {color: this.state.country ? '#fff' : lightGray }]}
             >
             {this.state.country ? this.state.country : "Country"}
@@ -623,10 +626,10 @@ class CreateProfile extends Component {
                     }} 
                     style={[{flexDirection: 'row'}, {borderBottomColor: '#fff', borderBottomWidth: 1}]}>
                         <View style={styles.specificLocationContainer}>
-                            <Image style={{width: 20, height: 20}} source={ location.flag == "usa" ? require('../images/usa.png') : location.flag == "uk" ? require('../images/uk.png') : require('../images/pk.png') }/>
+                            <Image style={{width: 30, height: 30}} source={ location.flag == "usa" ? require('../images/usa.png') : location.flag == "uk" ? require('../images/uk.png') : require('../images/pk.png') }/>
                         </View>
                         <View style={styles.specificLocationContainer}>
-                            <Text style={new avenirNextText("#fff", 20, "300")}>{location.country}</Text>
+                            <Text style={new avenirNextText("black", 24, "600")}>{location.country}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -650,25 +653,112 @@ class CreateProfile extends Component {
         null
   }
 
-  renderEditableInputFields = () => (
+  renderAuthInputFields = (passwordConditionMet) => (
+      <View>
+                            
+        <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
+
+        
+
+        <CustomTextInput 
+        placeholder={"Password"} 
+        value={this.state.pass} 
+        onChangeText={pass => this.setState({ pass })}
+        maxLength={16}
+        secureTextEntry={true}
+        />
+
+        
+
+        
+        <View style={{
+            flexDirection: 'row', 
+            // borderWidth: this.state.pass && this.state.pass2 ? 0.5 : 0, borderColor: passwordConditionMet ? mantisGreen : flashOrange
+            }}>
+            <View style={{flex: passwordConditionMet ? 1 : 0.85}}>
+                <CustomTextInput 
+                placeholder={"Retype Password"} 
+                value={this.state.pass2} 
+                onChangeText={pass2 => this.setState({ pass2 })}
+                maxLength={16}
+                secureTextEntry={true}
+                />
+            </View>
+            {passwordConditionMet && 
+            <View style={{flex: 0.15, justifyContent: 'center', alignItems: 'center'}}>
+                <Icon 
+                    name="verified" 
+                    size={30} 
+                    color={darkGreen}
+                />
+            </View>
+            }
+
+        </View>
+
+        
+
+        
+        
+
+        {/* {this.state.pass && this.state.pass2?
+            passwordConditionMet ?
+            <View style={styles.passwordStatusRow}>
+            <Text style={[styles.passwordStatusText, {color: mantisGreen}]}>Passwords Match!</Text>
+            <Icon 
+                name="verified" 
+                size={30} 
+                color={mantisGreen}
+            />
+            </View> 
+            :
+            <View style={styles.passwordStatusRow}>
+            <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
+            <Icon 
+                name="alert-circle" 
+                size={30} 
+                color={flashOrange}
+            />
+            </View>
+        :
+        null
+        } */}
+
+
+
+
+    </View>
+  )
+
+  renderEditableInputFields = (passwordConditionMet) => (
       <View>
         <CustomTextInput maxLength={20} placeholder={"Username"} value={this.state.username} onChangeText={username => this.setState({ username })}/>
 
-        <CustomTextInput 
-        placeholder={"First Name"} 
-        value={this.state.firstName} 
-        onChangeText={firstName => this.setState({ firstName })}
-        maxLength={13}
-        />
+        <View style={{flexDirection: 'row', }}>
+            <View style={{flex: 0.5, marginRight: 10}}>
+                <CustomTextInput 
+                placeholder={"First Name"} 
+                value={this.state.firstName} 
+                onChangeText={firstName => this.setState({ firstName })}
+                maxLength={13}
+                />
+            </View>
+            <View style={{flex: 0.5}}>
+                <CustomTextInput 
+                placeholder={"Last Name"} 
+                value={this.state.lastName} 
+                onChangeText={lastName => this.setState({ lastName })}
+                maxLength={13}
+                />
+            </View>
+        </View>
 
-        <CustomTextInput 
-        placeholder={"Last Name"} 
-        value={this.state.lastName} 
-        onChangeText={lastName => this.setState({ lastName })}
-        maxLength={13}
-        />
+        {!this.state.editProfileBoolean ?
 
-        {this.renderLocationSelect()}
+            this.renderAuthInputFields(passwordConditionMet)
+            :
+            null
+        } 
 
         <CustomTextInput 
         placeholder={"Instagram Handle (w/o @)"} 
@@ -676,6 +766,10 @@ class CreateProfile extends Component {
         onChangeText={insta => this.setState({ insta })}
         maxLength={16}
         />
+
+        {this.renderLocationSelect()}
+
+        
       </View>
   )
 
@@ -727,12 +821,13 @@ class CreateProfile extends Component {
 
     return (
         <SafeAreaView style={styles.mainContainer}>
+        <ImageBackground source={Images.createProfileBg} style={styles.mainContainer}>
 
-            <View style={styles.backIconAndMABAndHelpContainer}>
-                <View style={{flex: 0.1, justifyContent: 'flex-start',}}>
+            <View style={styles.headerRow}>
+                <View style={{flex: 0.1, justifyContent: 'flex-start'}}>
                     <FontAwesomeIcon
                     name='arrow-left'
-                    size={28}
+                    size={35}
                     color={'#fff'}
                     onPress = { () => { 
                         this.props.navigation.goBack();
@@ -740,13 +835,15 @@ class CreateProfile extends Component {
 
                     />
                 </View>
-                <View style={{flex: 0.80, justifyContent: 'flex-start', alignItems: 'center',  }}>
-                    <MultipleAddButton navToComponent={'CreateProfile'} pictureuris={pictureuris} />
+                <View style={{flex: 0.80, justifyContent: 'flex-start', alignItems: 'center'}}>
+                    <Text style={{color: '#fff', fontWeight: "700", fontSize: 26}}>
+                        {this.state.editProfileBoolean ? "Edit Profile" : "Sign Up" }
+                    </Text>
                 </View>
                 <View style={{flex: 0.1, justifyContent: 'flex-start', alignItems: 'center'}}>
                     <Icon
                     name='information-variant'
-                    size={28}
+                    size={35}
                     color={'#fff'}
                     onPress={() => this.setState({infoModalVisible: true}) } 
 
@@ -754,155 +851,31 @@ class CreateProfile extends Component {
                 </View>    
             </View>
 
-
-            <ScrollView style={{flex: 0.375}} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
-            
-            {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
-            
-            
+            <View style={styles.pictureRow}>
+                <MultipleAddButton navToComponent={'CreateProfile'} pictureuris={pictureuris} />
+            </View>
 
 
+            <ScrollView style={styles.inputsRow} contentContainerStyle={[styles.container, {paddingBottom: this.state.keyboardShown ? height/5 : 0}]}>
+            
             {
                 Platform.OS == 'ios' ?
                     <KeyboardAvoidingView behavior={'padding'} keyboardVerticalOffset={80} enabled={this.state.keyboardShown ? true : false}>
-                        {!this.state.editProfileBoolean ?
+                          
 
-                        <View>
-
-                            <CustomTextInput 
-                            maxLength={40} placeholder={"Email Address"} 
-                            value={this.state.email} onChangeText={email => this.setState({ email })}
-                                
-                            />
-
-                            <CustomTextInput 
-                            placeholder={"Password"} 
-                            value={this.state.pass} 
-                            onChangeText={pass => this.setState({ pass })}
-                            maxLength={16}
-                            secureTextEntry={true}
-                            
-                            />
-                            
-                            <View style={{borderBottomWidth: this.state.pass && this.state.pass2 ? 0.5 : 0, borderBottomColor: passwordConditionMet ? mantisGreen : flashOrange}}>
-                                <CustomTextInput 
-                                placeholder={"Retype Password"} 
-                                value={this.state.pass2} 
-                                onChangeText={pass2 => this.setState({ pass2 })}
-                                maxLength={16}
-                                secureTextEntry={true}
-                                />
-                            </View>
-
-                            {/* {this.state.pass && this.state.pass2 ?
-                                passwordConditionMet ?
-                                this.renderPasswordsMatch(true)
-                                :
-                                this.renderPasswordsMatch(false)
-                            :
-                            null
-                            
-                            } */}
-                        </View>
-                        :
-                        null
-                    }   
-
-                    {this.renderEditableInputFields()}
+                        {this.renderEditableInputFields(passwordConditionMet)}
 
                     
                     </KeyboardAvoidingView>
                 :
                     <View>
-                    {
-                        !this.state.editProfileBoolean ?
+                        
 
-                        <View>
-                            
-                            <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
-
-                            
-
-                            <GrayLine/>
-
-                            <CustomTextInput 
-                            placeholder={"Password"} 
-                            value={this.state.pass} 
-                            onChangeText={pass => this.setState({ pass })}
-                            maxLength={16}
-                            secureTextEntry={true}
-                            />
-
-                            
-
-                            
-                            <View style={{flexDirection: 'row', borderWidth: this.state.pass && this.state.pass2 ? 0.5 : 0, borderColor: passwordConditionMet ? mantisGreen : flashOrange}}>
-                                <View style={{flex: passwordConditionMet ? 1 : 0.85}}>
-                                    <CustomTextInput 
-                                    placeholder={"Retype Password"} 
-                                    value={this.state.pass2} 
-                                    onChangeText={pass2 => this.setState({ pass2 })}
-                                    maxLength={16}
-                                    secureTextEntry={true}
-                                    />
-                                </View>
-                                {passwordConditionMet && 
-                                <View style={{flex: 0.15, justifyContent: 'center', alignItems: 'center'}}>
-                                    <Icon 
-                                        name="verified" 
-                                        size={30} 
-                                        color={mantisGreen}
-                                    />
-                                </View>}
-
-                            </View>
-
-                            
-
-                            
-                            
-                    
-                            {/* {this.state.pass && this.state.pass2?
-                                passwordConditionMet ?
-                                <View style={styles.passwordStatusRow}>
-                                <Text style={[styles.passwordStatusText, {color: mantisGreen}]}>Passwords Match!</Text>
-                                <Icon 
-                                    name="verified" 
-                                    size={30} 
-                                    color={mantisGreen}
-                                />
-                                </View> 
-                                :
-                                <View style={styles.passwordStatusRow}>
-                                <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
-                                <Icon 
-                                    name="alert-circle" 
-                                    size={30} 
-                                    color={flashOrange}
-                                />
-                                </View>
-                            :
-                            null
-                            } */}
-
-
-
-
-                        </View>
-                        :
-                        null
-                    }   
-
-                    {this.renderEditableInputFields()}
+                        {this.renderEditableInputFields(passwordConditionMet)}
 
                     </View>
             }
     
-            
-            
-            
-    
-            
             
     
             {/* Modal to show legal docs and agree to them before one can create Profile */}
@@ -999,7 +972,10 @@ class CreateProfile extends Component {
             actions={[ 
             <DialogButton
             text="OK"
-            onPress={() => {this.setState({ infoModalVisible: false });}}
+            onPress={() => {
+                this.setState({ infoModalVisible: false })
+            }}
+            textStyle={{color: 'black'}}
             />,
             ]}
             onTouchOutside={() => {
@@ -1008,7 +984,7 @@ class CreateProfile extends Component {
             >
             <DialogContent>
                 <View style={{padding: 5,}}>
-                {/* { !(Array.isArray(pictureuris)) || !(pictureuris.length == 1) ? <TextForMissingDetail detail={'Profile Picture'} /> : null } */}
+                
                 { !this.state.email ? <TextForMissingDetail detail={'Email Address'} /> : null }
                 { !passwordConditionMet ? <TextForMissingDetail detail={'Matching Passwords'} /> : null }
                 { !this.state.firstName ? <TextForMissingDetail detail={'First Name'} /> : null }
@@ -1021,25 +997,7 @@ class CreateProfile extends Component {
             </DialogContent>
             </Dialog>
 
-            {/* <Modal
-            animationType="slide"
-            transparent={false}
-            visible={this.state.infoModalVisible}
-            onRequestClose={() => {
-                Alert.alert('Modal has been closed.');
-            }}
-            >
-                <View style={styles.modal}>
-                    <ScrollView contentContainerStyle={styles.licenseContainer}>
-                        <Text style={styles.info}>{info}</Text>
-                    </ScrollView>
-                    <Text onPress={() => { this.setState({infoModalVisible: false}) }} style={styles.gotIt}>
-                        Got It!
-                    </Text>
-                </View>
-            </Modal> */}
-
-            {/* Action Buttons */}
+            
 
             {this.renderLocationSelectModal()}
             
@@ -1065,7 +1023,7 @@ class CreateProfile extends Component {
             </TouchableOpacity>
         </TouchableOpacity>
         
-
+        </ImageBackground>
         </SafeAreaView>
         )
       
@@ -1091,7 +1049,7 @@ const styles = StyleSheet.create({
 
     mainContainer: {
         flex: 1,
-        backgroundColor: bgBlack,
+        // backgroundColor: bgBlack,
         // height: '100%',
         // justifyContent: 'space-around',
         // left: 0,
@@ -1120,11 +1078,27 @@ const styles = StyleSheet.create({
 
     },
 
-    backIconAndMABAndHelpContainer: {
-        flex: 0.4,flexDirection: 'row', 
+    headerRow: {
+        flex: 0.1,
+        flexDirection: 'row', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
+
         // backgroundColor: 'red',
         margin: 5,
-        paddingVertical: 3, paddingRight: 2, paddingLeft: 1 
+        paddingVertical: 1, paddingHorizontal: 10,
+    },
+
+    pictureRow: {
+        flex: 0.275,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: 5,
+        marginBottom: 10,
+    },
+
+    inputsRow: {
+        flex: 0.4
     },
 
     inputContainer: {
@@ -1156,7 +1130,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: "#fff",
         justifyContent: 'center', alignItems: 'center',
-        ...new shadow(4,2,'black', -4,4)
+        ...new shadow(4,1,darkGreen, 0,4)
     },
 
     headerBar: {

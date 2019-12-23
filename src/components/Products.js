@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Platform, Dimensions, Alert, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
+import { Platform, Dimensions, Alert, View, Text, TextInput, Image, StyleSheet, ScrollView, FlatList, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 // import { Text,  } from 'native-base';
@@ -27,6 +27,11 @@ import { avenirNextText } from '../constructors/avenirNextText.js';
 import { GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import { categories } from '../fashion/sizesAndTypes.js';
 import { textStyles } from '../styles/textStyles.js';
+
+import {Metrics, Colors, Fonts} from '../Theme'
+import { removeValueFromArray } from '../localFunctions/arrayFunctions.js';
+
+const {smallMargin} = Metrics;
 
 // const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
 
@@ -218,6 +223,9 @@ class Products extends Component {
         
         // selectedTypes: [],
         // selectedSizes: [],
+
+        // quickFilter
+        categoriesSelected: [],
       };
       //this.navToChat = this.navToChat.bind(this);
   }
@@ -431,8 +439,11 @@ class Products extends Component {
             // console.log("OVER HERE"+Products)
             // console.log('before split: ' + all);
             // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
-            var leftProducts = Products.filter( (e, index) => index % 2 == 0);
-            var rightProducts = Products.filter( (e, index) => index % 2 != 0);
+
+
+            //TODO: fix force split of products
+            // var leftProducts = Products.filter( (e, index) => index % 2 == 0);
+            // var rightProducts = Products.filter( (e, index) => index % 2 != 0);
 
             //Second Level is to extract list of information to be displayed in the filterModal
             //first extract the list of current brands:
@@ -483,7 +494,14 @@ class Products extends Component {
 
             var name = Users[uid].profile.name;
 
-            this.setState({uid, emptyMarket, currency, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, sizes, name, isGetting: false, noResultsFromFilter: false});
+            this.setState({
+              uid, 
+              emptyMarket, currency, collectionKeys, productKeys, 
+              Products,
+              // leftProducts, rightProducts, 
+              typesForCategory, brands, conditions, sizes, name, 
+              isGetting: false, noResultsFromFilter: false
+            });
 
           }
 
@@ -974,134 +992,282 @@ class Products extends Component {
       this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys, currency})
   }
 
-  renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction, column) => {
-    return (
-      
-      <TouchableOpacity
-      // style={{height: section.isActive == true ? cardFull : cardImageHeight + cardPriceAndIconRowHeight}}
-      underlayColor={'transparent'}
-      onPress={() => {
-        // section.isActive ? this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys) : null;
-        !section.isActive ? expandFunction() : this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys, this.state.currency);
-      }}
-      >
+  quickFilterBy = (category) => {
+    const {categoriesSelected} = this.state;
+    if(categoriesSelected.includes(category)) {
+      this.setState({categoriesSelected: removeValueFromArray(categoriesSelected, category)})
+    }
 
-        <View 
-        style={[styles.card, section.isActive == true ? styles.active : styles.inactive]}
-        // fazool ki array of styles just to show I have control
-        >
+    else {
+      if(this.state.categoriesSelected.length >= 1) {
+        this.setState({categoriesSelected: [...categoriesSelected, category]})
+      }
+      else {
+        this.setState({categoriesSelected: [category]})
+      }
+    }
+    
+  }
+
+  renderHeaderBar = () => (
+    <View style={styles.headerBar}>
+      <Text style={styles.headerText}>Marketplace</Text>
+    </View>
+  )
+
+  renderFilterBar = () => (
+    <View style={styles.quickFilterBar}>
+      {categories.map(category => (
+        <TouchableOpacity onPress={() => this.quickFilterBy(category)} style={[styles.quickFilterContainer, this.state.categoriesSelected.includes(category) ? {borderBottomColor: highlightGreen, borderBottomWidth: 3} : null]}>
+          <Text style={styles.quickFilter}>{category.toLowerCase()}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+
+  )
+
+  renderProductsScroll = () => {
+
+      let {Products, categoriesSelected} = this.state
+      if(categoriesSelected.length > 0) {
+        Products = Products.filter(p => categoriesSelected.includes(p.text.gender))
+      }
+      
+      return (
+      <FlatList 
+        style={styles.productScrollContainer}
+        data={Products}
+        showsVerticalScrollIndicator={true}
+        renderItem={(item, index) => this.renderProduct(item.item, index)}
+        keyExtractor={item => item.key}
+        numColumns={3}
+      />
+      )
+    
+
+
+  }
+
+  renderProduct = (product, index) => (
+    <TouchableOpacity
+    style={[styles.productContainer, index % 3 != 0 ? {marginRight: smallMargin} : null]}
+    underlayColor={'transparent'}
+    onPress={() => {this.navToProductDetails(product, this.state.collectionKeys, this.state.productKeys, this.state.currency);}}
+    >
+      <Image 
+          source={{uri: product.uris.pd[0]}}
+          style={styles.productImage}
+      />
+    </TouchableOpacity>
+  )
+
+  // renderProductsScroll_Old =  () => (
+  //   <ScrollView
+  //         style={styles.container}
+  //         contentContainerStyle={styles.contentContainerStyle}>
+
+  //         <ListView
+  //             contentContainerStyle={styles.listOfProducts}
+  //             dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
+  //             renderRow={(rowData) => this.renderRow(
+  //               rowData, 
+  //               () => {
+                    
+  //                   this.props.showYourProducts ? this.hideMenus() : null;
+
+  //                   let index = this.state.leftProducts.indexOf(rowData);
+  //                   this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
+  //                   this.setState({leftProducts: this.state.leftProducts});
+  //                   },
+  //               () => {
+  //                   this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+  //               },
+  //               () => {
+  //                   this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+  //               },
+  //               () => {
+  //                 let index = this.state.leftProducts.indexOf(rowData);
+  //                 this.state.leftProducts[index].isMenuActive = !this.state.leftProducts[index].isMenuActive;
+  //                 this.setState({leftProducts: this.state.leftProducts});
+  //               },
+  //               "left"
+                  
+  //             )
+  //             }
+  //             enableEmptySections={true}
+  //             removeClippedSubviews={false}
+  //         />
+
+          
+  //         { this.state.rightProducts ?
+  //           <ListView
+  //             contentContainerStyle={styles.listOfProducts}
+  //             dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
+  //             renderRow={(rowData) => this.renderRow(
+  //               rowData, 
+  //               () => {
+                  
+  //                 this.props.showYourProducts ? this.hideMenus() : null;
+
+  //                 let index = this.state.rightProducts.indexOf(rowData);
+  //                 this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
+  //                 this.setState({rightProducts: this.state.rightProducts});
+  //               },
+  //               () => {
+  //                 this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
+  //               },
+  //               () => {
+  //                 this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
+  //               },
+  //               () => {
+  //                 let index = this.state.rightProducts.indexOf(rowData);
+  //                 this.state.rightProducts[index].isMenuActive = !this.state.rightProducts[index].isMenuActive;
+  //                 this.setState({rightProducts: this.state.rightProducts});
+  //               },
+  //               "right"
+  //             )}
+  //             enableEmptySections={true}
+  //             removeClippedSubviews={false}
+  //         />
+  //         :
+  //         null
+  //         }
         
-          <View style={[styles.productImageContainer, {height: cardImageHeight}]}>
-              <View style={styles.interactionButtonsRow}>
+
+
+  //       {/* TODO: revive {this.renderFilterModal()} */}
+
+  //     </ScrollView>
+  // )
+
+  // renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction, column) => {
+  //   return (
+      
+  //     <TouchableOpacity
+  //     // style={{height: section.isActive == true ? cardFull : cardImageHeight + cardPriceAndIconRowHeight}}
+  //     underlayColor={'transparent'}
+  //     onPress={() => {
+  //       // section.isActive ? this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys) : null;
+  //       !section.isActive ? expandFunction() : this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys, this.state.currency);
+  //     }}
+  //     >
+
+  //       <View 
+  //       style={[styles.card, section.isActive == true ? styles.active : styles.inactive]}
+  //       // fazool ki array of styles just to show I have control
+  //       >
+        
+  //         <View style={[styles.productImageContainer, {height: cardImageHeight}]}>
+  //             <View style={styles.interactionButtonsRow}>
                 
-                <View style={styles.likesContainer}>
-                  {this.state.collectionKeys.includes(section.key) == true ? 
-                    <Icon 
-                      name="heart" 
-                      size={25} 
-                      color={this.state.productKeys.includes(section.key) == true ? limeGreen : '#800000'}
-                      onPress={this.state.productKeys.includes(section.key) == true ? null : decrementLikesFunction}
+  //               <View style={styles.likesContainer}>
+  //                 {this.state.collectionKeys.includes(section.key) == true ? 
+  //                   <Icon 
+  //                     name="heart" 
+  //                     size={25} 
+  //                     color={this.state.productKeys.includes(section.key) == true ? limeGreen : '#800000'}
+  //                     onPress={this.state.productKeys.includes(section.key) == true ? null : decrementLikesFunction}
                               
 
-                    /> 
-                  :  
-                    <Icon 
-                      name="heart-outline" 
-                      size={25} 
-                      color={this.state.productKeys.includes(section.key) == true ? limeGreen : '#800000'}
-                      onPress={this.state.productKeys.includes(section.key) == true ? null : incrementLikesFunction}
-                    />
-                  }
+  //                   /> 
+  //                 :  
+  //                   <Icon 
+  //                     name="heart-outline" 
+  //                     size={25} 
+  //                     color={this.state.productKeys.includes(section.key) == true ? limeGreen : '#800000'}
+  //                     onPress={this.state.productKeys.includes(section.key) == true ? null : incrementLikesFunction}
+  //                   />
+  //                 }
                 
 
-                  <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) == true ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
-                </View>
+  //                 <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) == true ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
+  //               </View>
 
-                {this.props.showYourProducts == true ?
-                  section.isMenuActive == true?
-                  <View style={styles.menuContainer}>
-                    {[
-                      {text: 'Edit', onPress: () => this.navToEditItem(section)}, 
-                      {text: 'Delete', onPress: () => this.deleteProduct(section.uid, section.key)},
-                      {text: section.text.sold ? "Unmark as Sold" : "Mark as Sold", onPress: () => this.setSaleTo(section.text.sold ? false : true, section.uid, section.key)}
-                    ]
-                    .map((option, index) => (
-                      <TouchableOpacity key={index} onPress={option.onPress} style={[styles.menuOptionContainer, {borderBottomWidth: index != 2 ? 0.5 : null} ]}>
-                        <Text style={[textStyles.generic, {fontSize: 13, color: 'black'}]}>{option.text}</Text>
-                      </TouchableOpacity>
-                    )) 
-                    }
+  //               {this.props.showYourProducts == true ?
+  //                 section.isMenuActive == true?
+  //                 <View style={styles.menuContainer}>
+  //                   {[
+  //                     {text: 'Edit', onPress: () => this.navToEditItem(section)}, 
+  //                     {text: 'Delete', onPress: () => this.deleteProduct(section.uid, section.key)},
+  //                     {text: section.text.sold ? "Unmark as Sold" : "Mark as Sold", onPress: () => this.setSaleTo(section.text.sold ? false : true, section.uid, section.key)}
+  //                   ]
+  //                   .map((option, index) => (
+  //                     <TouchableOpacity key={index} onPress={option.onPress} style={[styles.menuOptionContainer, {borderBottomWidth: index != 2 ? 0.5 : null} ]}>
+  //                       <Text style={[textStyles.generic, {fontSize: 13, color: 'black'}]}>{option.text}</Text>
+  //                     </TouchableOpacity>
+  //                   )) 
+  //                   }
                     
-                  </View>
-                  :
-                  <View style={styles.dotsContainer}>
-                    <Icon
-                      name="dots-vertical"
-                      size={25} 
-                      color={"#fff"}
-                      onPress={menuExpandFunction}
-                    /> 
-                  </View>
-                :
-                  null
-                }
+  //                 </View>
+  //                 :
+  //                 <View style={styles.dotsContainer}>
+  //                   <Icon
+  //                     name="dots-vertical"
+  //                     size={25} 
+  //                     color={"#fff"}
+  //                     onPress={menuExpandFunction}
+  //                   /> 
+  //                 </View>
+  //               :
+  //                 null
+  //               }
 
 
 
-              </View>
-              {section.text.sold == true ? 
-                <View style={styles.soldTextContainer}>
-                  <Text style={[styles.soldText, Platform.OS == "ios" ? {borderWidth: 2,} : null]}>SOLD</Text>
-                  <Image 
-                  source={{uri: section.uris.pd[0]}}
-                  style={styles.productImage} 
-                  />
-                </View>
+  //             </View>
+  //             {section.text.sold == true ? 
+  //               <View style={styles.soldTextContainer}>
+  //                 <Text style={[styles.soldText, Platform.OS == "ios" ? {borderWidth: 2,} : null]}>SOLD</Text>
+  //                 <Image 
+  //                 source={{uri: section.uris.pd[0]}}
+  //                 style={styles.productImage} 
+  //                 />
+  //               </View>
                 
-              :
-              <Image 
-                  source={{uri: section.uris.pd[0]}}
-                  style={styles.productImage}
-              />
-              }  
-          </View>
+  //             :
+  //             <Image 
+  //                 source={{uri: section.uris.pd[0]}}
+  //                 style={styles.productImage}
+  //             />
+  //             }  
+  //         </View>
 
-          {/* Price(s) and Dropdown arrow footer */}
-          <TouchableOpacity 
-          onPress={expandFunction}
-          // section.text.original_price.length > 3 || section.text.price.length > 3 
-          style= {[styles.headerPriceMagnifyingGlassRow, {height: cardPriceAndIconRowHeight}]}
-          >
+  //         {/* Price(s) and Dropdown arrow footer */}
+  //         <TouchableOpacity 
+  //         onPress={expandFunction}
+  //         // section.text.original_price.length > 3 || section.text.price.length > 3 
+  //         style= {[styles.headerPriceMagnifyingGlassRow, {height: cardPriceAndIconRowHeight}]}
+  //         >
             
-            <View style={{flexDirection: 'row',justifyContent: 'flex-start'}}>
-              {(section.text.original_price > 0) == true?
-                <Text style={[styles.price, {textDecorationLine: 'line-through', color: 'black', fontSize: String(section.text.original_price).length > 3 ? 13 : 17}]}>{this.state.currency + section.text.original_price}</Text>
-                :
-                null
-              }
-              <Text style={[styles.original_price, {color: limeGreen, fontSize: String(section.text.price).length > 3 ? 13 : 17}]}>{this.state.currency + section.text.price}</Text>
-            </View>
+  //           <View style={{flexDirection: 'row',justifyContent: 'flex-start'}}>
+  //             {(section.text.original_price > 0) == true?
+  //               <Text style={[styles.price, {textDecorationLine: 'line-through', color: 'black', fontSize: String(section.text.original_price).length > 3 ? 13 : 17}]}>{this.state.currency + section.text.original_price}</Text>
+  //               :
+  //               null
+  //             }
+  //             <Text style={[styles.original_price, {color: limeGreen, fontSize: String(section.text.price).length > 3 ? 13 : 17}]}>{this.state.currency + section.text.price}</Text>
+  //           </View>
 
-            {section.isActive == true? 
-              <Icon name="chevron-up" 
-                    size={30} 
-                    color='black'
+  //           {section.isActive == true? 
+  //             <Icon name="chevron-up" 
+  //                   size={30} 
+  //                   color='black'
                     
-              />
-            :
-              <Icon name="chevron-down" 
-                    size={30} 
-                    color='black'
+  //             />
+  //           :
+  //             <Icon name="chevron-down" 
+  //                   size={30} 
+  //                   color='black'
                     
-              />
-            }
+  //             />
+  //           }
             
 
-          </TouchableOpacity>        
+  //         </TouchableOpacity>        
           
           
 
-        </View>  
+  //       </View>  
         
         
 
@@ -1112,35 +1278,35 @@ class Products extends Component {
 
           
 
-          {section.isActive == true ?
-            <View style={styles.contentCard}>
-              <Animatable.View
-                duration={400}
-                style={[section.isActive ? styles.active : styles.inactive, {flexDirection: 'row',flex: 1}]}
-                transition="backgroundColor">
+  //         {section.isActive == true ?
+  //           <View style={styles.contentCard}>
+  //             <Animatable.View
+  //               duration={400}
+  //               style={[section.isActive ? styles.active : styles.inactive, {flexDirection: 'row',flex: 1}]}
+  //               transition="backgroundColor">
                   
                 
-                <Animatable.View style={styles.brandAndSizeCol} transition='backgroundColor'>
-                  <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'} easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.name.length > 13 ? section.text.brand.substring(0,12) + '..' : section.text.brand}</Animatable.Text>
-                  <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'}  easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
-                </Animatable.View>
+  //               <Animatable.View style={styles.brandAndSizeCol} transition='backgroundColor'>
+  //                 <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'} easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.name.length > 13 ? section.text.brand.substring(0,12) + '..' : section.text.brand}</Animatable.Text>
+  //                 <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'}  easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
+  //               </Animatable.View>
 
-                <Animatable.View style={styles.magnifyingGlassCol} transition='backgroundColor'>
-                  <Icon 
-                  name="magnify" 
-                  size={30} 
-                  color={limeGreen}
-                  onPress={ () => { 
-                      this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys, this.state.currency); 
-                      }}  
-                  />
-                </Animatable.View>  
+  //               <Animatable.View style={styles.magnifyingGlassCol} transition='backgroundColor'>
+  //                 <Icon 
+  //                 name="magnify" 
+  //                 size={30} 
+  //                 color={limeGreen}
+  //                 onPress={ () => { 
+  //                     this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys, this.state.currency); 
+  //                     }}  
+  //                 />
+  //               </Animatable.View>  
                 
-              </Animatable.View>
-            </View>   
-          :
-            null
-            } 
+  //             </Animatable.View>
+  //           </View>   
+  //         :
+  //           null
+  //           } 
 
 
 
@@ -1151,10 +1317,10 @@ class Products extends Component {
 
         
 
-      </TouchableOpacity>
+  //     </TouchableOpacity>
       
-    )
-  }
+  //   )
+  // }
 
   renderFilterModal = () => {
 
@@ -1433,6 +1599,22 @@ class Products extends Component {
 
   }
 
+  renderFilterButton = () => (
+    <View style={styles.filterButtonContainer}>
+      <TouchableOpacity 
+      onPress={() => this.setState({ showFilterModal: true }) } 
+      style={styles.filterButton}>
+      
+        <Icon 
+          name="filter-outline" 
+          size={15} 
+          color='#fff'
+        />
+      
+      </TouchableOpacity>
+    </View>
+  )
+
   renderLoadingModal = () => (
     
         <Modal
@@ -1506,103 +1688,15 @@ class Products extends Component {
     // console.log('Entered MarketPlace render')
     return (
 
-      <SafeAreaView style={{flex: 1}}>
-      
+      <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
 
-      <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.contentContainerStyle}>
+        {this.renderHeaderBar()}
+        {this.renderFilterBar()}
+        {this.renderProductsScroll()}
 
-            
-            
-              <ListView
-                  contentContainerStyle={styles.listOfProducts}
-                  dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
-                  renderRow={(rowData) => this.renderRow(
-                    rowData, 
-                    () => {
-                        
-                        this.props.showYourProducts ? this.hideMenus() : null;
+        {/* {this.renderFilterButton()} */}
 
-                        let index = this.state.leftProducts.indexOf(rowData);
-                        this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
-                        this.setState({leftProducts: this.state.leftProducts});
-                        },
-                    () => {
-                        this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
-                    },
-                    () => {
-                        this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
-                    },
-                    () => {
-                      let index = this.state.leftProducts.indexOf(rowData);
-                      this.state.leftProducts[index].isMenuActive = !this.state.leftProducts[index].isMenuActive;
-                      this.setState({leftProducts: this.state.leftProducts});
-                    },
-                    "left"
-                      
-                  )
-                  }
-                  enableEmptySections={true}
-                  removeClippedSubviews={false}
-              />
-
-              
-              { this.state.rightProducts ?
-                <ListView
-                  contentContainerStyle={styles.listOfProducts}
-                  dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
-                  renderRow={(rowData) => this.renderRow(
-                    rowData, 
-                    () => {
-                      
-                      this.props.showYourProducts ? this.hideMenus() : null;
-
-                      let index = this.state.rightProducts.indexOf(rowData);
-                      this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
-                      this.setState({rightProducts: this.state.rightProducts});
-                    },
-                    () => {
-                      this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
-                    },
-                    () => {
-                      this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
-                    },
-                    () => {
-                      let index = this.state.rightProducts.indexOf(rowData);
-                      this.state.rightProducts[index].isMenuActive = !this.state.rightProducts[index].isMenuActive;
-                      this.setState({rightProducts: this.state.rightProducts});
-                    },
-                    "right"
-                  )}
-                  enableEmptySections={true}
-                  removeClippedSubviews={false}
-              />
-              :
-              null
-              }
-            
-
-            {this.renderFilterModal()}
-
-          </ScrollView>
-
-          <View style={styles.filterButtonContainer}>
-
-            <TouchableOpacity 
-            onPress={() => this.setState({ showFilterModal: true }) } 
-            style={styles.filterButton}>
-            
-              <Icon 
-                name="filter-outline" 
-                size={15} 
-                color='#fff'
-              />
-            
-            </TouchableOpacity>
-          </View>
-
-          {this.renderLoadingModal()}
+        {this.renderLoadingModal()}
       
       </SafeAreaView>
 
@@ -1827,6 +1921,66 @@ export default withNavigation(Products);
 
 const styles = StyleSheet.create({
 
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  // New marketplace styles
+  
+  headerBar: {
+    flex: 0.13,
+    backgroundColor: Colors.limeGreen,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingLeft: 5,
+  },
+
+  headerText: {
+    ...textStyles.generic,
+    color: '#fff',
+    ...Fonts.h2
+  },
+
+  quickFilterBar: {
+    flex: 0.1,
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
+
+  quickFilterContainer: {
+    flex: 0.333,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // borderBottomWidth:1,
+    // borderBottomColor: '#fff'
+  },
+
+  quickFilter: {
+    ...textStyles.generic,
+    color: Colors.black,
+  },
+
+  productScrollContainer: {
+    flex: 0.77,
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  },
+
+  productContainer: {
+    width: width/3,
+    marginBottom: smallMargin
+  },
+
+  productImage: {
+    width: width/3,
+    height: height/3.85,
+  },
+
+
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -1842,6 +1996,8 @@ const styles = StyleSheet.create({
     
   },
 
+  
+
   contentContainerStyle: {
     // flexGrow: 4,   
     flexDirection: 'row',
@@ -1850,14 +2006,14 @@ const styles = StyleSheet.create({
     // paddingTop: 20,
       },
 
-  listOfProducts: {
-    // flexDirection: 'row',
-    // flexWrap: 'wrap',
-    // padding: 5,
-    // justifyContent: 'space-evenly', 
-    // will lead to good spacing between cards but the product in last row will be in dead center
-    // alignItems: 'center'
-  },    
+  // listOfProducts: {
+  //   // flexDirection: 'row',
+  //   // flexWrap: 'wrap',
+  //   // padding: 5,
+  //   // justifyContent: 'space-evenly', 
+  //   // will lead to good spacing between cards but the product in last row will be in dead center
+  //   // alignItems: 'center'
+  // },    
 
   // sectionContainer: {width: cardWidth, padding: 3},
 
@@ -2011,18 +2167,18 @@ const styles = StyleSheet.create({
     top: 0, left: 0, right: 0, bottom: 0, 
     justifyContent: 'center', alignItems: 'center'
   },
-  productImage: { 
-    height: cardHeaderHeight - 37, width: cardWidth,  position: 'absolute',
-    zIndex: -1,
-    //  top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' 
-   },
-  headerText: {
-    fontFamily: avenirNext,
-    color: rejectRed,
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: '500',
-  },
+  // productImage: { 
+  //   height: cardHeaderHeight - 37, width: cardWidth,  position: 'absolute',
+  //   zIndex: -1,
+  //   //  top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' 
+  //  },
+  // headerText: {
+  //   fontFamily: avenirNext,
+  //   color: rejectRed,
+  //   textAlign: 'center',
+  //   fontSize: 20,
+  //   fontWeight: '500',
+  // },
   contentCard: {
     backgroundColor: '#fff',
     width: cardWidth,

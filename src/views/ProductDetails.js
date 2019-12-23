@@ -27,16 +27,19 @@ import Chatkit from "@pusher/chatkit-client";
 import {Config} from '../Config';
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { almostWhite,lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen, lightGray } from '../colors';
+import { almostWhite,lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen, lightGray, silver } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import {Fonts} from '../Theme';
 // import BackButton from '../components/BackButton';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
-import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
+import { WhiteSpace, LoadingIndicator, CustomTouchableO, GraySeparation } from '../localFunctions/visualFunctions';
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
 import { textStyles } from '../styles/textStyles';
 
 import { ifIphoneX } from 'react-native-iphone-x-helper'
+import randomUsernameString from '../fashion/randomUsernameString';
 
+randomUsername = new randomUsernameString();
 
 var {height, width} = Dimensions.get('window');
 
@@ -70,6 +73,9 @@ const cancelTransactionText = "Transaction Canceled."
 const chatButtonWidth = 210;
 const paymentButtonWidth = 200;
 
+const deliveryFee = 150;
+const businessCut = 0.02;
+
 
 function removeFalsyValuesFrom(object) {
   const newObject = {};
@@ -88,6 +94,21 @@ const DismissKeyboardView = ({children}) => (
 const SelectedOptionBullet = () => (
   <View style={{width: 20, height: 20, borderRadius: 10, backgroundColor: 'black'}}/>
 )
+
+const DetailCard = ({type, value, key}) => (
+  <View key={key} style={{flexDirection: 'row', borderBottomWidth: 0.7, borderColor: silver, justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 17}}>
+    <Text style={{...textStyles.generic, fontWeight: "600", }}>{type}</Text>
+    <Text style={{...textStyles.generic, }}>{value}</Text>
+  </View>
+)
+
+///Payment Modals Stuff
+const NextButton = ({text, onPress, disabled}) => (
+  <TouchableOpacity style={styles.nextButton} onPress={onPress} disabled = {disabled ? true : false}>
+    <Text style={styles.nextButtonText}>{text}</Text>
+  </TouchableOpacity>
+)
+////////
 
 class ProductDetails extends Component {
 
@@ -110,6 +131,7 @@ class ProductDetails extends Component {
       report: '',
       //Purchase Modal Stuff
       showPurchaseModal: false,
+      showPakPurchaseModal: false,
       activeScreen: "initial",
       deliveryOptions: [
         {text: "Collection in person", selected: false, options: ["Contact via Chat", "OR",  paymentText], },
@@ -121,6 +143,8 @@ class ProductDetails extends Component {
       postCode: "",
       city: "",
       selectedAddress: "",
+
+      cashOnDelivery: false,
       //PayPal Modal stuff
       sku: '',
       price: '',
@@ -138,14 +162,16 @@ class ProductDetails extends Component {
   }
 
   async componentDidMount() {
+    const uid = firebase.auth().currentUser.uid;
     const {params} = this.props.navigation.state;
     await this.initializePushNotifications();
     setTimeout(() => {
-      this.getUserAndProductAndOtherUserData(params.data);
+      this.getUserAndProductAndOtherUserData(params.data, uid);
+      this.updateProductViews(params.data.uid, params.data.key);
     }, 4);
 
     setInterval(() => {
-      this.getUserAndProductAndOtherUserData(params.data);
+      this.getUserAndProductAndOtherUserData(params.data, uid);
     }, 10000);
 
   }
@@ -207,13 +233,13 @@ class ProductDetails extends Component {
   // }
 
 
-  getUserAndProductAndOtherUserData(data) {
+  getUserAndProductAndOtherUserData(data, uid) {
     firebase.database().ref().once("value", (snapshot) => {
       console.log('Preparing Product Details')
       var d = snapshot.val();
       var cloudDatabaseUsers = d.Users;
       // console.log("OVER HEREEEE:" + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail);
-      const uid = firebase.auth().currentUser.uid;
+      // const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
       
       var seller = cloudDatabaseUsers[otherUserUid], views = 0;
@@ -277,28 +303,6 @@ class ProductDetails extends Component {
       // var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       if(seller.products[data.key] != undefined) {
         var productComments = seller.products[data.key].text.comments ? seller.products[data.key].text.comments : {a: "nothing"};
-
-        //TODO: iOS
-        //check if usersVisited array deserves an addition
-        if(seller.products[data.key].usersVisited == '') {
-          let update = {};
-          update[`/Users/${otherUserUid}/products/${data.key}/usersVisited/${uid}/`] = true;
-          firebase.database().ref().update(update);
-        }
-
-        else {
-
-          views = Object.values(seller.products[data.key].usersVisited).filter((u)=> {return u == true }).length;
-
-          if(!Object.keys(seller.products[data.key].usersVisited).includes(uid)) {
-            let update = {};
-            update[`/Users/${otherUserUid}/products/${data.key}/usersVisited/${uid}/`] = true;
-            firebase.database().ref().update(update);
-          }
-          
-        }
-        //TODO: iOS
-        
       }
       
       //When this component launches for the first time, we want to retrieve the person's addresses from the cloud (if they have any)
@@ -312,7 +316,7 @@ class ProductDetails extends Component {
       // console.log(addresses, typeof addresses);
       // console.log("KEY IS:", data.key)
       // console.log("Picture Is: " + cloudDatabaseUsers[data.uid].products[data.key].uris.thumbnail[0]);
-      this.setState( {
+      this.setState({
         isGetting: false,
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
@@ -323,9 +327,49 @@ class ProductDetails extends Component {
         chat,
         totalPrice: Number(data.text.price) + Number(data.text.post_price),
         canChatWithOtherUser,
-      } )
+      })
     })
     
+  }
+
+  updateProductViews = (otherUserUid, key) => {
+    firebase.database().ref(`/Users/${otherUserUid}/`).once("value", (snapshot) => {
+      const seller = snapshot.val();
+      //TODO: iOS
+      //NEW WAY: every time a user visits the product, update the views by 1
+      let usersVisited = seller.products[key].usersVisited;
+      if(usersVisited == '') {
+        let update = {};
+        update[`/Users/${otherUserUid}/products/${key}/usersVisited/`] = 1;
+        firebase.database().ref().update(update);  
+      }
+
+      else {
+        let update = {};
+        update[`/Users/${otherUserUid}/products/${key}/usersVisited/`] = usersVisited + 1;
+        firebase.database().ref().update(update);
+      }
+
+      //OLD WAY: check if usersVisited array deserves an addition based on if whether the current user has already visited prod or not
+      // if(seller.products[data.key].usersVisited == '') {
+      //   let update = {};
+      //   update[`/Users/${otherUserUid}/products/${data.key}/usersVisited/${uid}/`] = true;
+      //   firebase.database().ref().update(update);
+      // }
+
+      // else {
+
+      //   views = Object.values(seller.products[data.key].usersVisited).filter((u)=> {return u == true }).length;
+
+      //   if(!Object.keys(seller.products[data.key].usersVisited).includes(uid)) {
+      //     let update = {};
+      //     update[`/Users/${otherUserUid}/products/${data.key}/usersVisited/${uid}/`] = true;
+      //     firebase.database().ref().update(update);
+      //   }
+        
+      // }
+      //TODO: iOS
+    })
   }
 
   incrementLikes = (likes, key) => {
@@ -569,8 +613,8 @@ class ProductDetails extends Component {
                   productSellerId: uid, productImageURL: this.props.navigation.state.params.data.uris.thumbnail[0], 
                   createdByUserId: CHATKIT_USER_NAME, name: room.name, id: room.id, 
                   buyerIdentification: CHATKIT_USER_NAME, sellerIdentification: uid,
-                  seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, 
-                  buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri,
+                  seller: this.state.profile.username ? this.state.profile.username : randomUsername, sellerAvatar: this.state.profile.uri, 
+                  buyer: this.state.yourProfile.username ? this.state.yourProfile.username : randomUsername, buyerAvatar: this.state.yourProfile.uri,
                   lastMessage: {lastMessageText, lastMessageDate, lastMessageSenderIdentification},
                   unread: false,
                   presence: "offline", //isUserInChatRoom
@@ -583,7 +627,11 @@ class ProductDetails extends Component {
           // console.log(`Created room called ${room.name}`)
           this.setState({navToChatLoading: false});
           //TODO: next line is untested
-          this.props.navigation.navigate('CustomChat', {productSellerId: this.state.otherUserUid, id: room.id, buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri, seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, buyerIdentification: this.state.uid, sellerIdentification: this.state.otherUserUid })
+          this.props.navigation.navigate('CustomChat', {
+            productSellerId: this.state.otherUserUid, id: room.id, 
+            buyer: this.state.yourProfile.username ? this.state.yourProfile.username : randomUsername, 
+            seller: this.state.profile.username ? this.state.profile.username : randomUsername, 
+            buyerAvatar: this.state.yourProfile.uri, sellerAvatar: this.state.profile.uri, buyerIdentification: this.state.uid, sellerIdentification: this.state.otherUserUid })
           // this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
         })
         .catch(err => {
@@ -820,15 +868,29 @@ class ProductDetails extends Component {
   }
 
   goToNextPage = () => {
-    switch(this.state.activeScreen) {
-      case "postalDelivery":
-        this.setState({activeScreen: "visaCheckoutScreen"});
-        break;
-      default:
-        this.setState({activeScreen: this.state.deliveryOptions[0].selected ? 'collectionInPerson' : 'postalDelivery'});
-        break;
+    if(this.state.currency == "RS") {
+      //pakPurchaseModal
+      switch(this.state.activeScreen) {
+        case "initial":
+          this.setState({activeScreen: "choosePaymentMethod"});
+          break;
+        case "choosePaymentMethod":
+          this.setState({activeScreen: "afterPaymentScreen"});
+          break;
 
+      }
+    } else {
+      switch(this.state.activeScreen) {
+        case "postalDelivery":
+          this.setState({activeScreen: "visaCheckoutScreen"});
+          break;
+        default:
+          this.setState({activeScreen: this.state.deliveryOptions[0].selected ? 'collectionInPerson' : 'postalDelivery'});
+          break;
+  
+      }
     }
+    
     
     // this.props.navigation.navigate()
   }
@@ -839,6 +901,11 @@ class ProductDetails extends Component {
 
   goToPreviousPage = () => {
     //Depending on the active screen, navigate to the previous page accordingly
+    if(this.state.currency == "RS") {
+      //pakPurchaseModal
+      this.setState({activeScreen: "initial"});
+    } 
+    else {
     switch(this.state.activeScreen) {
       case ("collectionInPerson" || "postalDelivery"):
         this.setState({activeScreen: "initial"});
@@ -849,6 +916,8 @@ class ProductDetails extends Component {
       default:
         this.setState({activeScreen: "initial"})
     }
+
+  }
   }
 
   closePurchaseModal = () => {
@@ -886,9 +955,82 @@ class ProductDetails extends Component {
   //   )
   // }
 
+  renderAddAddressScrollBlock= (totalFlex = 0.7) => (
+    <View style={{flex: totalFlex}}>
+      {this.renderAddresses(0.6)}
+      <TouchableOpacity onPress={this.goToAddDeliveryAddress} style={styles.addDeliveryAddressButton}>
+          <View style={{
+            flexDirection: 'row',
+            paddingHorizontal: 20,
+            paddingVertical: 15,
+            justifyContent: 'space-evenly',
+            alignItems: 'center'
+          }}>
+            <Icon
+              name="plus"
+              size={30}
+              color={mantisGreen}
+            />
+            <Text style={new avenirNextText("black", 20, "300")}>
+              Add your delivery address
+            </Text>
+            
+          </View>
+      </TouchableOpacity>
+    </View>
+  )
+// The addresses scrollView will always take up 0.35 space and then 0.35 + whatever flex of add addresses button's parent View will be the rest, 
+// and that maximum flex (with or without any addresses) is constant i.e. the sum of the flexes of two independent parent Views, where the
+// existence of one is conditional.
+  renderAddresses = (scrollFlex) => (
+    this.state.addresses ?
+      <ScrollView style={{flex: scrollFlex, paddingTop: 5}} contentContainerStyle={styles.addressesContainer}>
+        {Object.keys(this.state.addresses).map( (key, index) => (
+          <View>
+          <TouchableOpacity 
+          onPress={ () => {
+            // console.log(this.state.addresses)
+            const {...state} = this.state;
+
+            Object.keys(state.addresses).forEach( (k) => {
+              state.addresses[k].selected = false
+            });
+            state.addresses[key].selected = !state.addresses[key].selected;
+            state.selectedAddress = state.addresses[key];
+            this.setState(state); 
+          }}
+          style={[styles.addressContainerButton, {backgroundColor: this.state.addresses[key].selected ? lightGray : '#fff' }]}
+          >
+            <View style={styles.addressContainer}>
+
+              <View style={{flex: 0.2, padding: 3}}>
+                <View style={styles.radioButton}>
+                  {this.state.addresses[key].selected ? <SelectedOptionBullet/> : null}
+                </View>
+              </View>
+
+              <View style={{flex: 0.8, padding: 5}}>
+                <Text style={styles.addressText}>{this.state.addresses[key].addressOne + ", " + this.state.addresses[key].addressTwo + ", " + this.state.addresses[key].city + ", " + this.state.addresses[key].postCode}</Text>
+              </View>
+
+              {/* <Text style={styles.addressText}>{this.state.addresses[key].postCode}</Text> */}
+            </View>
+          </TouchableOpacity>
+          <WhiteSpace height={10}/>
+          </View>
+        ))}
+      </ScrollView>
+    :
+      <View style={{flex: scrollFlex}}/>
+
+      
+    
+    )
+  
+
   renderPurchaseModal = () => {
     const {deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, deliveryOptionContainer, radioButton } = styles;
-    const {activeScreen} = this.state;
+    var {activeScreen} = this.state;
 
     
 
@@ -1164,63 +1306,8 @@ class ProductDetails extends Component {
 
               
               
-              {this.state.addresses ?
-                <ScrollView style={{flex: 0.35}} contentContainerStyle={styles.addressesContainer}>
-                  {Object.keys(this.state.addresses).map( (key, index) => (
-                    <View>
-                    <TouchableOpacity 
-                    onPress={ () => {
-                      // console.log(this.state.addresses)
-                      const {...state} = this.state;
-
-                      Object.keys(state.addresses).forEach( (k) => {
-                        state.addresses[k].selected = false
-                      });
-                      state.addresses[key].selected = !state.addresses[key].selected;
-                      state.selectedAddress = state.addresses[key];
-                      this.setState(state); 
-                    }}
-                    style={[styles.addressContainerButton, {backgroundColor: this.state.addresses[key].selected ? lightGray : '#fff' }]}
-                    >
-                      <View style={styles.addressContainer}>
-
-                        <View style={{flex: 0.2, padding: 3}}>
-                          <View style={styles.radioButton}>
-                            {this.state.addresses[key].selected ? <SelectedOptionBullet/> : null}
-                          </View>
-                        </View>
-
-                        <View style={{flex: 0.8, padding: 5}}>
-                          <Text style={styles.addressText}>{this.state.addresses[key].addressOne + ", " + this.state.addresses[key].addressTwo + ", " + this.state.addresses[key].city + ", " + this.state.addresses[key].postCode}</Text>
-                        </View>
-
-                        {/* <Text style={styles.addressText}>{this.state.addresses[key].postCode}</Text> */}
-                      </View>
-                    </TouchableOpacity>
-                    <WhiteSpace height={10}/>
-                    </View>
-                  ))}
-                </ScrollView>
-              :
-                null
-              }
-
-              
-              
-              <View style={{flex: this.state.addresses ? 0.35 : 0.7, alignItems: 'center'}}>
-                <TouchableOpacity onPress={this.goToAddDeliveryAddress} style={styles.addDeliveryAddressButton}>
-                    <View style={[styles.collectionInPersonOptionsContainer, {justifyContent: 'space-evenly'}]}>
-                     <Text style={new avenirNextText("black", 20, "300")}>
-                        Add your delivery address
-                      </Text>
-                      <Icon
-                        name="plus"
-                        size={22}
-                        color={mantisGreen}
-                      />
-                    </View>
-                </TouchableOpacity>
-              </View>
+          
+              {this.renderAddAddressScrollBlock(0.7)}
               
 
           </View>
@@ -1456,6 +1543,319 @@ class ProductDetails extends Component {
     
   }
 
+  renderPakPurchaseModal = () => {
+    const {
+      deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, deliveryOptionContainer, radioButton,
+      receiptItemContainer,
+      } = styles;
+    var {activeScreen} = this.state;
+    const receipt = [
+      {name: this.state.name, price: this.state.price}, 
+      {name: "App reservation fee", price: businessCut*this.state.price}, 
+      {name: "Delivery fee", price: deliveryFee}
+    ]
+
+    if(activeScreen == "initial") {
+      // flex: 0.1 + 0.3 + 0.45 + 0.05 + 0.1
+      const reducer = (accumulator, currentValue) => accumulator + currentValue.price
+      return (
+      <Modal
+      animationType={modalAnimationType}
+      transparent={false}
+      visible={this.state.showPakPurchaseModal}
+      >
+      <SafeAreaView style={deliveryOptionModal}>
+        <View style={[deliveryOptionHeader, {flex: 0.1}]}>
+
+          <FontAwesomeIcon
+            name='arrow-left'
+            size={28}
+            color={'black'}
+            onPress = { () => { 
+              this.setState({showPakPurchaseModal: false })
+            }}
+          />
+          <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+
+          <FontAwesomeIcon
+            name='close'
+            size={28}
+            color={'black'}
+            onPress = { () => { 
+              this.setState({showPakPurchaseModal: false })
+            }}
+          />
+        </View>
+
+        <View style={{flex: 0.3}}>
+            {receipt.map((item) => (
+              <View style={receiptItemContainer}>
+                <Text style={{...textStyles.generic}}>{item.name}</Text>
+                <Text style={{...textStyles.generic}}>Rs {item.price}</Text>
+              </View>
+            ))}
+
+
+        </View>
+
+        
+        {this.renderAddAddressScrollBlock(0.45)}
+        
+        <View style={[receiptItemContainer, {flex: 0.05}]}>
+          <Text style={{...textStyles.generic, ...Fonts.h4}}>Total:</Text>
+          <Text style={{...textStyles.generic, ...Fonts.h4}}>Rs {receipt.reduce(reducer, 0)}</Text>
+        </View>
+
+        <NextButton text={"Proceed to Payment"} onPress={this.goToNextPage} disabled={!this.state.selectedAddress}/>
+
+        
+
+      </SafeAreaView>
+      </Modal>
+      )
+    }
+
+    else if(activeScreen == "addDeliveryAddress") {
+      var filledOutAddress = (this.state.fullName && this.state.addressOne && this.state.postCode && this.state.city);
+      return (
+      <Modal 
+      animationType={modalAnimationType}
+      transparent={false}
+      visible={this.state.showPakPurchaseModal}
+      
+      >
+        <SafeAreaView style={deliveryOptionModal}>
+
+          <View style={deliveryOptionHeader}>
+
+            
+            <FontAwesomeIcon
+              name='arrow-left'
+              size={28}
+              color={'black'}
+              onPress = { () => { 
+                  this.goToPreviousPage()
+                  // this.setState({showPurchaseModal: false })
+                  } }
+            />
+          
+            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+            
+            <FontAwesomeIcon
+              name='close'
+              size={28}
+              color={'black'}
+              onPress={this.closePurchaseModal}
+              />
+
+          </View>
+
+          <View style={[deliveryOptionBody, {flex: 0.9}]}>
+
+              <View style={{flex: 0.1}}>
+                <Text style={new avenirNextText('black', 17, "400")}>
+                  Address:
+                </Text>
+              </View>
+
+              <WhiteSpace height={10}/>
+
+              <ScrollView style={{flex: 0.25}} contentContainerStyle={styles.addressForm}>
+                  {addressFields.map( (field, index) => (
+                    <View style={styles.addressField}>
+                      <Text style={new avenirNextText("black", 14, "400")}>{field.header}</Text>
+                      <TextInput
+                      onChangeText={(text) => this.onChange(text, field.key)}
+                      value={this.state[field.key]}
+                      style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 13, color: treeGreen}}
+                      placeholder={field.placeholder}
+                      placeholderTextColor={graphiteGray}
+                      multiline={false}
+                      maxLength={index == 1 || index == 2 ? 50 : 24}
+                      autoCorrect={false}
+                      clearButtonMode={'while-editing'}
+                      />
+                    </View>
+                  ))}
+              </ScrollView>
+
+              <View style={[styles.collectionInPersonContainer, {flex: 0.65}]}>
+
+                <TouchableOpacity
+                disabled={filledOutAddress ? false : true} 
+                onPress={this.addAddress} 
+                style={styles.collectionInPersonButton}>
+
+                  <View style={[styles.collectionInPersonOptionsContainer, {width: 180}]}>
+
+                    <FontAwesomeIcon
+                      name="address-book"
+                      size={paymentScreensIconSize}
+                      color={'black'}
+
+                    />
+                    <Text style={new avenirNextText('black', 20, "300")}>
+                      Add Address
+                    </Text>
+                    
+                  </View>
+
+                </TouchableOpacity>
+
+              </View>
+                
+              
+
+          </View>
+          
+         
+
+         </SafeAreaView>
+
+      </Modal>
+    )
+
+    }
+
+    else if(activeScreen = "choosePaymentMethod") {
+      return (
+        <Modal
+        animationType={modalAnimationType}
+        transparent={false}
+        visible={this.state.showPakPurchaseModal}
+        >
+        <SafeAreaView style={deliveryOptionModal}>
+
+          <View style={deliveryOptionHeader}>
+
+            
+            <FontAwesomeIcon
+              name='arrow-left'
+              size={28}
+              color={'black'}
+              onPress = { () => { 
+                  this.goToPreviousPage()
+                  // this.setState({showPurchaseModal: false })
+                  } }
+            />
+          
+            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+            
+            <FontAwesomeIcon
+              name='close'
+              size={28}
+              color={'black'}
+              onPress={this.closePurchaseModal}
+              />
+
+          </View>
+
+          <View style={{flex: 0.8, marginHorizontal: 10, padding: 15}}>
+              <Text>Choose your preferred method of payment:</Text>
+              <TouchableOpacity 
+              onPress={ () => {
+                this.setState({cashOnDelivery: !this.state.cashOnDelivery}); 
+              }}
+              style={[styles.addressContainerButton, {backgroundColor: this.state.cashOnDelivery ? lightGray : '#fff' }]}
+              >
+                <View style={styles.addressContainer}>
+
+                  <View style={{flex: 0.2, padding: 3}}>
+                    <View style={styles.radioButton}>
+                      {this.state.cashOnDelivery ? <SelectedOptionBullet/> : null}
+                    </View>
+                  </View>
+
+                  <View style={{flex: 0.8, padding: 5}}>
+                    <Text style={styles.addressText}>Cash On Delivery</Text>
+                  </View>
+
+                  
+                </View>
+              </TouchableOpacity>
+          </View>
+
+          <NextButton 
+          text={"Confirm Order"} 
+          onPress={() => {this.handleResponse(data = {title: "success"})}} 
+          disabled={!this.state.cashOnDelivery}
+          />
+
+
+        </SafeAreaView>
+        </Modal>
+      )
+    }
+
+    else if(activeScreen == "afterPaymentScreen") {
+      //Code from purchase modal copied as is and skimmed down to not care about if whether the payment
+      //went through and whether the person chose postal delivery or collection in person.
+      return (
+        <Modal
+        animationType={modalAnimationType}
+        transparent={false}
+        visible={this.state.showPakPurchaseModal}
+        >
+          <SafeAreaView style={deliveryOptionModal}>
+
+            <View style={deliveryOptionHeader}>
+
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={28}
+                color={logoGreen}
+              />
+              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              
+              <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress={this.closePurchaseModal}
+              />
+            </View>
+
+            
+
+            
+              
+              <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
+
+                <View style={{flex: 0.4, justifyContent: 'center', alignItems: 'center'}}>
+                  <ProgressiveImage 
+                  style= {styles.successProductImage} 
+                  thumbnailSource={ require('../images/blur.png') }
+                  source={{uri: this.state.productPictureURLs[0]}}
+                  />
+                </View>
+
+                <View style={{flex: 0.6, alignItems: 'center'}}>
+                  <Text style={styles.successText}>
+                  Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
+                  </Text>
+                  <WhiteSpace height={10}/>
+                  
+                  <Text style={styles.successText}>
+                  Your item will be delivered to:
+                  {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}.
+                  Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
+                  </Text>
+                    
+                </View>
+
+              </View>    
+              
+              
+            
+          </SafeAreaView>  
+        </Modal>
+      )
+    }
+
+
+
+  }
+
    _getHeaderColor = () => {
     const {scrollY} = this.state;
 
@@ -1507,7 +1907,7 @@ class ProductDetails extends Component {
       size: text.size ? text.size : "N/A",
       type: text.type,
       condition: text.condition,
-      post_price: text.post_price,
+      post_price: text.post_price ? text.post_price : 0,
       views, //TODO: iOS
       
       // original_price: text.original_price
@@ -1586,46 +1986,32 @@ class ProductDetails extends Component {
         
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
-          <View style={styles.nameContainer}>
-            <Text style={new avenirNextText('black', 18, "300")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
-          </View>
-          <View style={styles.likesContainer}>
-            
-            <Icon name={collectionKeys.includes(params.data.key) ? "heart" : "heart-outline" }
-            size={37} 
-            color='#800000'
-            onPress={() => {collectionKeys.includes(params.data.key) ? 
-              this.decrementLikes(this.state.likes, params.data.key)
-            : 
-              this.incrementLikes(this.state.likes, params.data.key)
-            }}
-            />
-            {/* <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
-              <Text style={[styles.likes, {color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
-            </View> */}
-          
-          </View> 
-          
-            {text.original_price > 0 ?
-              <View style={[styles.priceContainer]}>
-                <Text style={[styles.original_price, {color: 'black', textDecorationLine: 'line-through', fontSize: String(text.original_price).length > 3 ? 11 : 17}]} >
-                  {this.state.currency + text.original_price}
-                </Text>
-                <Text style={[styles.original_price, {color: limeGreen, fontSize: String(text.original_price).length > 3 ? 11 : 17}]} >
-                  {this.state.currency + text.price}
-                </Text>
-              </View>
-            :
-              <View style={[styles.priceContainer]}>
-                <Text style={[styles.original_price, {fontSize: String(text.price).length > 3 ? 11 : 17, color: limeGreen}]} >
-                  {this.state.currency + text.price}
-                </Text>
-              </View>
-            }
+          <Text style={new avenirNextText('black', 18, "500")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
+          <Text style={[styles.original_price, {fontSize: String(text.price).length > 3 ? Fonts.small.fontSize : Fonts.h3.fontSize, color: mantisGreen}]} >
+            {this.state.currency + text.price}
+          </Text>
           
         </View>
-        <View style={{backgroundColor: 'black', height: 1.5}} />
-            {/* Profile And Actions Row */}
+
+        {text.description !== "Seller did not specify a description" ?
+          <View style={styles.descriptionRow}>
+          {text.description.replace(/\s*$/,'').replace(/ +/g, " ").length >= 131 ?
+              <Text 
+              onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
+              style={styles.description}>
+                {this.state.showFullDescription ? text.description.replace(/ +/g, " ").replace(/\s*$/,'') : text.description.replace(/ +/g, " ").replace(/\s*$/,'').substring(0,124) + "...." + "  " +  "(Show More?)"}
+              </Text>
+            :
+              <Text style={styles.description}>{text.description.replace(/\s*$/,'')}</Text>
+          }
+          </View>
+        :
+          null
+        }
+
+        <GraySeparation/>
+        
+        {/* Profile And Actions Row */}
         <View style={styles.sellerProfileAndActionsRow}>
             
           <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
@@ -1635,48 +2021,39 @@ class ProductDetails extends Component {
               source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')}
             />
           </TouchableOpacity>
+
           <View style={styles.profileTextContainer}>
             <Text onPress={() => 
             {this.state.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}
-            style={styles.profileText}>
-              {profile.name}
+            style={styles.profileName}>
+              {profile.username ? profile.username : randomUsername}
             </Text>
-            <Text style={styles.profileText}>
+            <Text style={styles.profileMinutia}>
               {profile.country}
             </Text>
             {profile.insta ? 
-              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "black"}]}>@{profile.insta.length > 12 ? profile.insta.substring(0,12) + '...' : profile.insta}</Text>
+              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={styles.profileMinutia}>@{profile.insta.length > 12 ? profile.insta.substring(0,12) + '...' : profile.insta}</Text>
              : 
               null
             }
           </View>
-          {productKeys.includes(data.key) ?
-            <View style={styles.actionIconContainer}>
-              {isProductSold ?
-                <View
-                  style={[styles.purchaseButton, {backgroundColor: graphiteGray}]}
-                >
-                  <Text style={new avenirNextText("#fff",16,"400")}>Sold</Text>
-                </View>
+          
+          <View style={styles.actionIconContainer}>
+            {productKeys.includes(data.key) ?
+              <Icon
+                name='wrench'
+                size={32}
+                color={'black'}
+                onPress = { () => { 
+                    // console.log('going to edit item details');
+                    //subscribe to room key
+                    this.navToEditItem(data);
+                    } }
+              />
               :
-                <Icon
-                  name='wrench'
-                  size={32}
-                  color={'black'}
-                  onPress = { () => { 
-                      // console.log('going to edit item details');
-                      //subscribe to room key
-                      this.navToEditItem(data);
-                      } }
-                />
-              
-              }
-            </View>
-            :
-            <View style={styles.actionIconContainer}>
               <Icon
                 name='message-text-outline'
-                size={38}
+                size={40}
                 color={chatIcon.color}
                 onPress = {
                   this.state.sold ? 
@@ -1694,151 +2071,44 @@ class ProductDetails extends Component {
                       }    
                   }
               />
-              <TouchableOpacity
-                disabled={isProductSold ? true : false} 
-                style={[styles.purchaseButton, {backgroundColor: isProductSold ? graphiteGray : mantisGreen}]}
-                onPress={() => {this.setState({showPurchaseModal: true})}} 
-              >
-                <Text style={new avenirNextText("#fff",16,"400")}>{isProductSold ? "Sold":"Buy"}</Text>
-              </TouchableOpacity>
-            </View>
-          }
-        </View>
-        <View style={{backgroundColor: 'black', height: 1.5}} />
-        {/* Details and Report Item Row */}
-        <View style={styles.detailsAndReportItemRow}>
-            <View style={styles.detailsColumn}>
-              <Text style={styles.descriptionHeader}>DETAILS</Text>
-              {/* Specific Details */}
-              { Object.keys(details).map( (key, index) => ( 
-                <Text style={[styles.detailsText]} key={index}>
-                {/* {key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {details[key]} */}
-                {index == 5 ? details[key] > 0 ? `Price of Post: ${this.state.currency + details[key]}` : null : `${key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: ${details[key]}`}
-                {/* {key === 'post_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]} */}
-                </Text>
-              ) ) }
-              {/* Optional Product Description Row */}
-              {/* {text.description !== "Seller did not specify a description" ?
-                text.description.replace(/ +/g, " ").length >= 131 ?
-                    <Text 
-                    onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
-                    style={styles.detailsText}>
-                    Description: {this.state.showFullDescription ? text.description : text.description.replace(/ +/g, " ").substring(0,124) + "...." + "  " +  "(Show More?)"}
-                    </Text>
-                  :
-                    <Text style={styles.detailsText}>Description: {text.description}</Text>
-              :
-                null} */}
-            </View>
-            <View style={styles.secondaryActionsColumn}>
-            {productKeys.includes(data.key) ?
-              null
-            :
-              <View style={styles.buyOrReportActionContainer}>
-                <Icon
-                  name="flag-variant-outline" 
-                  size={40}  
-                  color={'#800'}
-                  onPress = { () => { 
-                    this.setState({showReportUserModal: true})
-                  } }
-                />
-              </View>
-              
+
             }
-              
-            </View>
-        </View>
-        <View style={{backgroundColor: 'black', height: 1.5}} />
-        {/* Optional Product Description Row */}
-        { text.description !== "Seller did not specify a description" ?
-            <View>
-            <View style={styles.optionalDescriptionRow}>
-                <View style={styles.descriptionHeaderContainer}>
-                    <Text style={styles.descriptionHeader}>DESCRIPTION</Text>
-                </View>
-                <View style={styles.descriptionContainer}>
-                  {text.description.replace(/ +/g, " ").length >= 131 ?
-                    <Text 
-                    onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
-                    style={styles.description}>
-                    {this.state.showFullDescription ? text.description.replace(/ +/g, " ") : text.description.replace(/ +/g, " ").substring(0,124) + "...." + "  " +  "(Show More?)"}
-                    </Text>
-                  :
-                    <Text style={styles.description}>{text.description}</Text>
-                  }
-                </View>
-                <WhiteSpace height={3}/>
-              
-            </View>
-            <View style={{backgroundColor: 'black', height: 1.5}} />
-            </View>
-          :
-          null
-        }
-        
-        {/* comments */}
-        
-          
-          <View style={styles.reviewsHeaderContainer}>
-            <Text style={styles.reviewsHeader}>REVIEWS</Text>
-            <FontAwesomeIcon 
-              name="edit" 
-              style={styles.users}
-              size={35} 
-              color={iOSColors.black}
-              onPress={() => {this.navToProductComments(data)}}
-            /> 
           </View>
           
-          {productComments['a'] ? <WhiteSpace height={20}/> : Object.keys(productComments).map(
-                  (comment) => (
-                  <View key={comment} style={styles.commentContainer}>
-                      <View style={styles.commentPicAndTextRow}>
-                        {productComments[comment].uri ?
-                          <TouchableHighlight 
-                            onPress={() => this.state.uid == productComments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(productComments[comment].uid)} 
-                            style={styles.commentPic}
-                          >
-                            <ProgressiveImage 
-                              style= {styles.commentPic} 
-                              thumbnailSource={ require('../images/blank.jpg') }
-                              source={ {uri: productComments[comment].uri} }
-                            />
-                          </TouchableHighlight>  
-                        :
-                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
-                        }
-                          
-                        <View style={styles.textContainer}>
-                            <Text style={ styles.commentName }> {productComments[comment].name} </Text>
-                            <Text style={styles.comment}> {productComments[comment].text}  </Text>
-                        </View>
-                      </View>
-                      <View style={styles.commentTimeRow}>
-                        <Text style={ styles.commentTime }> {productComments[comment].time} </Text>
-                      </View>
-                      {productComments[comment].uri ? <View style={styles.separator}/> : null}
-                      
-                  </View>
-                  
-              )
-                      
-              )}
-          
+
+        </View>
+
+        <GraySeparation/>
+
+        {Object.keys(details).map((key, index) => (
+          <DetailCard 
+          key={key} 
+          type={index == 5 ?  "Price of post" : `${key.replace(key.charAt(0), key.charAt(0).toUpperCase())}`} 
+          value={index == 5 ? `${this.state.currency + details[key]}` : `${details[key]}`}
+
+          />
+        ))}
+        
         {/* {this.renderPictureModal()} */}
         {this.renderReportUserModal()}
         {this.renderPurchaseModal()}
+        {this.renderPakPurchaseModal()}
         {/* {this.r()} */}
       </Animated.ScrollView> 
+
+      <TouchableOpacity  
+      onPress={() => {this.state.currency == "RS" ? this.setState({showPakPurchaseModal: true}) : this.setState({showPurchaseModal: true})}}
+      disabled={isProductSold ? true : false}  
+      style={{flex: 0.1, backgroundColor: logoGreen, justifyContent: 'center', alignItems: 'center'}}
+      >
+        <Text style={{...textStyles.generic, color: '#fff', ...Fonts.big, fontWeight: "600"}}>{isProductSold ? "SOLD":"BUY NOW"}</Text>
+      </TouchableOpacity>
       </SafeAreaView>
     );
   }
 }
 export default withNavigation(ProductDetails);
-{/* <View style={{flex: 2, alignItems: 'center'}}>
-          <CustomCarousel data={params.data.uris} />
-        </View> */}
+
 const styles = StyleSheet.create( {
   mainContainer: {
     flex: 1,
@@ -1870,18 +2140,30 @@ const styles = StyleSheet.create( {
     // marginBottom: 5
   },
   carouselContainer: {
-    flex: 2,
+    flex: 0.55,
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: 'green',
     width: "100%"
   },
-  backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
+  // backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
   nameAndPriceRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flex: 0.1,
     // backgroundColor: 'red',
-    padding: 5,
+    paddingHorizontal: 10,
+    paddingTop: 15,
     // margin: 5
+  },
+
+  descriptionRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    // backgroundColor: 'red'
+    // flex: 0.1
   },
   nameContainer: {
     justifyContent: 'center',
@@ -1899,45 +2181,47 @@ const styles = StyleSheet.create( {
     // backgroundColor: 'blue'
   },
   sellerProfileAndActionsRow: {
-    height: 90,
+    height: 115,
     flexDirection: 'row',
-    paddingVertical: 10,
-    paddingHorizontal: 5
+    // paddingVertical: 10,
+    // paddingHorizontal: 8
   },
   profilePicture: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderColor: 'black',
-    borderWidth: 1,
+    width: 85,
+    height: 85,
+    borderRadius: 42.5,
+    // borderColor: 'black',
+    // borderWidth: 1,
   },
   profilePictureContainer: {
-    flex: 0.2,
-    padding: 0,
+    flex: 0.25,
+    padding: 4,
     // height:100,
     // width: 150,
     justifyContent: 'center',
     // backgroundColor: 'yellow'
   },
   profileTextContainer: {
-    flex: 0.4,
+    flex: 0.55,
     flexDirection: 'column',
     justifyContent: 'center',
-    alignContent: 'flex-end',
+    // alignContent: 'flex-end',
     alignItems: 'center',
     // backgroundColor: 'red'
   },
-  profileText: {
-    ...textStyles.generic,
-    fontSize: 14,
-    color: 'black'
+
+  profileName: {
+    ...textStyles.generic, ...Fonts.big, fontWeight: "600",
   },
+
+  profileMinutia: {...textStyles.generic, ...Fonts.normal, fontWeight: "300", fontStyle: "italic"},
+  
   likeIconContainer: {
     padding: 5
   },
   original_price: {
     fontFamily: 'Avenir Next',
-    fontWeight: '400',
+    fontWeight: '600',
     fontSize: 17
   },
   price: {
@@ -1946,10 +2230,10 @@ const styles = StyleSheet.create( {
     
   },
   actionIconContainer: {
-    flex: 0.4,
+    flex: 0.2,
     flexDirection: 'row',
     // backgroundColor: 'brown',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 0
   },
@@ -2184,7 +2468,7 @@ descriptionHeader: {
 descriptionContainer: {
   justifyContent: 'flex-start'
 },
-description: {textAlign: 'justify', ...textStyles.generic, color: graphiteGray},
+description: {textAlign: 'justify', ...textStyles.generic, color: 'black'},
 ////Picture Modal Stuff
 pictureModal: {
   flex: 1,
@@ -2331,10 +2615,11 @@ addressText: {
   color: 'black',
 },
 addDeliveryAddressButton: {
-  width: 270,
-  height: 40,
-  borderRadius: 15,
-  backgroundColor: '#fff',
+  flex: 0.4,
+  // width: 270,
+  // height: 40,
+  // borderRadius: 15,
+  // backgroundColor: 'green',
 },
 addressForm: {
   paddingHorizontal: 10,
@@ -2343,6 +2628,34 @@ addressForm: {
 },
 addressField: {
   alignItems: 'flex-start',
+},
+
+/////////////
+/////////////
+/////////////  **pakPurchaseModal
+/////////////
+///////////// Receipt
+
+receiptItemContainer: {
+  flexDirection: 'row', 
+  justifyContent: 'space-between', alignItems: 'center', 
+  paddingTop: 30, paddingHorizontal: 20
+},
+
+nextButton: {
+  flex: 0.1,
+  backgroundColor: mantisGreen,
+  borderRadius: 20,
+  marginHorizontal: 30, 
+  marginVertical: 20,
+  padding: 5,
+  justifyContent: 'center', alignItems: 'center', 
+},
+
+nextButtonText: {
+  ...textStyles.generic,
+  ...Fonts.h4,
+  color: '#fff'
 },
 ////////////
 ////////////

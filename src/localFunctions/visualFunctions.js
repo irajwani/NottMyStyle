@@ -1,7 +1,7 @@
 import React from 'react';
 import { Animated, Easing, View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput, Platform, StyleSheet } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
-import { darkGray, lightGray, rejectRed, almostWhite, flagRed, highlightGreen, mantisGreen, treeGreen } from '../colors';
+import { darkGray, lightGray, rejectRed, almostWhite, flagRed, highlightGreen, mantisGreen, treeGreen, silver } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
 import {shadow} from '../constructors/shadow';
@@ -16,6 +16,10 @@ const GrayLine = () => (
 
 const WhiteSpace = ({height}) => (
     <View style={{backgroundColor: '#fff', height: height}}/>
+)
+
+const GraySeparation = () => (
+  <View style={{backgroundColor: "#edeff2", height: 20}}/>
 )
 
 const DismissKeyboardView = ({children}) => (
@@ -85,20 +89,6 @@ const SignInTextInput = ({width, placeholder, onChangeText, value, secureTextEnt
         onSubmitEditing={onSubmitEditing ? onSubmitEditing : null}
         />         
     </View>
-)
-
-const minutiaContainer = {marginHorizontal: 2, justifyContent: 'center', alignItems: 'center'};
-
-const ProfileMinutia = ({icon, text}) => (
-  <View style={{flexDirection: 'row', margin: 0}}>
-    <View style={minutiaContainer}>
-      <Icon name={icon} size={20} color={'black'}/>
-    </View>
-    <View style={minutiaContainer}>
-      <Text style={[textStyles.generic, {fontSize: 14, color: 'black'}]}>{text}</Text>
-    </View>
-  </View>
-
 )
 
 const BasicLoadingIndicator = ({isVisible, type, color}) => (
@@ -325,7 +315,7 @@ class BadgeIcon extends React.Component {
 
 
 
-export {GrayLine, WhiteSpace, ProfileMinutia, BasicLoadingIndicator, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
+export {GrayLine, GraySeparation, WhiteSpace, BasicLoadingIndicator, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -333,8 +323,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     // flexDirection: ''
     // justifyContent: 'center',
-    // borderBottomWidth: 0.2,
-    // borderBottomColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
     alignItems: 'stretch'
 },
 
@@ -349,7 +339,7 @@ input: {
   ...new shadow(2,2, color = mantisGreen, -1, 1)
 },
 
-inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
+inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "700", color: "#fff"},
 
 loadingIndicatorContainer: {justifyContent: 'center', alignItems: 'center', width: 75, height: 75},
 
