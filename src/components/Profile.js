@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Keyboard, AsyncStorage, Platform, Dimensions, Modal, Text, TextInput, StyleSheet, ImageBackground, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native'
+import { Keyboard, AsyncStorage, Platform, Dimensions, Animated, Modal, Text, TextInput, StyleSheet, ImageBackground, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView, FlatList } from 'react-native'
 
 
 import Svg, { Path } from 'react-native-svg';
@@ -22,7 +22,7 @@ import Dialog, { DialogTitle, DialogContent, DialogButton, SlideAnimation } from
 // import { PacmanIndicator } from 'react-native-indicators';
 // import { avenirNextText } from '../constructors/avenirNextText';
 
-import { highlightGreen, graphiteGray, avenirNext,lightGreen, yellowGreen } from '../colors.js';
+import { highlightGreen, graphiteGray, avenirNext,lightGreen, yellowGreen, silver } from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import ProgressiveImage from '../components/ProgressiveImage';
 import { stampShadow, lowerShadow } from '../styles/shadowStyles.js';
@@ -31,6 +31,8 @@ import { Images, Fonts, Colors } from '../Theme/index.js';
 import randomUsernameString from '../fashion/randomUsernameString.js';
 const {width, height} = Dimensions.get('window');
 
+const iconSize = 35;
+
 const randomUsername = new randomUsernameString();
 
 const profilePicSize = 0.5*width;
@@ -38,6 +40,10 @@ const profilePicSize = 0.5*width;
 const resizeMode = 'center';
 
 const noReviewsText = "No Reviews have been\n left for you thus far.";
+
+function onlyUnique(value, index, self) { 
+  return self.indexOf(value) === index;
+}
 
 const DismissKeyboardView = ({children}) => (
   <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -90,10 +96,38 @@ export default class Profile extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            ProductImages: this.props.showAddListing ? ['add listing'] : [],
             isMenuActive: false,
             isOptionModalActive: false,
             isReportModalActive: false,
+
+            isDrawerActive: false,
+            drawerHeight: new Animated.Value(0),
         }
+    }
+
+    componentWillMount = async () => {
+      await this.fetchProductImages(this.props.currentUser ? this.props.uid : this.props.otherUserUid);
+    }
+
+    fetchProductImages = (uid) => {
+      firebase.database().ref('/Users/' + uid + '/').on("value", async (snapshot) => {
+        let currentUser = snapshot.val();
+        
+        if(currentUser.products != undefined) {
+          let {...state} = this.state;
+          let Products = Object.values(currentUser.products)
+          let ProductImages = Products.map(product => {
+            return product.uris.pd[0]
+          })
+          // state.ProductImages.concat(ProductImages);
+          console.log(ProductImages);
+          
+          this.setState({ProductImages: [...ProductImages,...state.ProductImages]})
+        }
+
+        
+      })
     }
 
     toggleMenu = () => {
@@ -232,6 +266,127 @@ export default class Profile extends Component {
         </Modal> 
     )
 
+    toggleDrawer = () => {
+      
+      this.setState({isDrawerActive: !this.state.isDrawerActive}, () => {
+        // Animated.
+        Animated.spring(
+          this.state.drawerHeight,
+          {
+            duration: 300,
+            toValue: this.state.isDrawerActive ? 300 : 0,
+            friction: 10
+          }
+        )
+        .start();
+      })
+      
+    }
+
+    renderReviewsModal = (currentUser, noComments, comments, navToUserComments, navToOtherUserProfilePage) => (
+      <Animated.View style={styles.footerContainer}>
+
+        <TouchableOpacity onPress={this.toggleDrawer}>
+          <View style={styles.pillContainer}>
+              <View style={styles.pill}/>
+          </View>
+
+          <View style={[styles.reviewsHeaderContainer, { justifyContent: !currentUser? 'space-between' : 'center', }]}>
+          
+              <Text style={styles.reviewsHeader}>REVIEWS</Text>
+              {!currentUser && 
+              <FontAwesomeIcon 
+                name="edit" 
+                // style={styles.users}
+                size={35} 
+                color={'black'}
+                onPress={navToUserComments}
+              /> 
+              }
+            
+          </View>
+
+        </TouchableOpacity>
+
+        
+        {this.renderReviews(noComments, comments, navToOtherUserProfilePage)}
+        
+
+        
+      </Animated.View>
+    )
+
+    renderReviews = (noComments, comments, navToOtherUserProfilePage) => (
+      
+        
+      <Animated.ScrollView style={[styles.reviewsContainer, {
+        height: this.state.drawerHeight,
+        // height: this.state.drawerHeight.interpolate({inputRange: [0, 10],outputRange: [0, 10]})
+        }]}
+      >
+            
+            
+            {noComments ? null : Object.keys(comments).map(
+                    (comment) => (
+                    <View key={comment} style={styles.commentContainer}>
+  
+                        <View style={styles.commentPicAndTextRow}>
+  
+                          {comments[comment].uri ?
+                          <TouchableOpacity
+                          onPress={() => navToOtherUserProfilePage(comments[comment].uid)}
+                          style={styles.commentPic}
+                          >
+                            <ProgressiveImage 
+                              style= {styles.commentPic} 
+                              thumbnailSource={ require('../images/blank.jpg') }
+                              source={ {uri: comments[comment].uri} }
+                            />
+                          </TouchableOpacity>                          
+                          :
+                            <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
+                          }
+                            
+                          <TouchableOpacity onPress={() => navToOtherUserProfilePage(comments[comment].uid)} style={styles.textContainer}>
+                              <Text style={ styles.commentName }> {comments[comment].name} </Text>
+                              <Text style={styles.comment}> {comments[comment].text}  </Text>
+                          </TouchableOpacity>
+  
+                        </View>
+  
+                        <View style={styles.commentTimeRow}>
+  
+                          <Text style={ styles.commentTime }> {comments[comment].time} </Text>
+  
+                        </View>
+  
+                        
+  
+                        
+                        
+                    </View>
+                    
+                )
+                        
+                )}
+            
+          
+        </Animated.ScrollView>
+        
+    )
+
+    // _getDrawerHeight = () => {
+    //   const {isDrawerVisible} = this.state;
+
+    //   return isDrawerVisible.interpolate({
+    //       inputRange: [],
+    //       outputRange: [0, 0.1, 1],
+    //       extrapolate: 'clamp',
+    //       useNativeDriver: true
+    //   });
+
+    // };
+
 
 
     render() {
@@ -239,6 +394,7 @@ export default class Profile extends Component {
           var {
             // PP
             currentUser,
+            uid,
             profileData,
             isGetting, 
 
@@ -284,7 +440,10 @@ export default class Profile extends Component {
         }
 
         var {uri, name, username, country, insta} = profileData;
-
+        var {ProductImages} = this.state;
+        ProductImages = ProductImages.filter(onlyUnique)
+        console.log(this.state.ProductImages)
+        
         if(isGetting){
             return(
               <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
@@ -310,14 +469,14 @@ export default class Profile extends Component {
                     {currentUser ? 
                     <Icon 
                       name="settings" 
-                      size={40} 
+                      size={iconSize} 
                       color={'black'}
                       onPress={navToSettings}
                     />
                     :
                     <Icon 
                       name="arrow-left"   
-                      size={30} 
+                      size={iconSize - 5} 
                       color={'black'}
                       onPress={navBack}
                     />    
@@ -325,12 +484,12 @@ export default class Profile extends Component {
       
                     {currentUser ?
                     <TouchableOpacity onPress={this.toggleMenu}>
-                      <Image style={{width: 40, height: 40}} source={Images.logout}/>
+                      <Image style={{width: iconSize, height: iconSize}} source={Images.logout}/>
                     </TouchableOpacity>
                     :
                     <Icon 
                       name="account-alert"      
-                      size={30} 
+                      size={iconSize} 
                       color={'#020002'}
                       onPress={this.toggleReportModal}
                     />
@@ -357,118 +516,61 @@ export default class Profile extends Component {
                       <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
                     }
                     
-                    <Text style={[styles.name, {textAlign: 'center'}]}>{username ? username : randomUsername}</Text>
-      
-                    <ProfileMinutia icon={'city'} text={country} />
-      
-                    {insta ? <ProfileMinutia icon={'instagram'} text={`@${insta}`} /> : null}
+                    <View style={{alignItems: 'center'}}>
+                      <Text style={[styles.name, {textAlign: 'center'}]}>{username ? username : randomUsername}</Text>
+        
+                      <ProfileMinutia icon={'city'} text={country} />
+        
+                      {insta ? <ProfileMinutia icon={'instagram'} text={`@${insta}`} /> : null}
+                    </View>
       
                     
                   </View>  
       
                   
-                      
+                  <View style={styles.labelRow}>
+                    <View style={styles.labelContainer}>
+                      <Text style={styles.label}>On Sale</Text>
+                    </View>
+
+                  </View> 
       
-                
-                
-                
-                <View style={styles.buttonsContainer}>
-                    <ButtonContainer onPress={currentUser ? navToYourProducts : navToOtherUserProducts} text={"On Sale"}>
-                      <View  style={[styles.blackCircle]}>
-                        <SaleGraphic/>
-                      </View>
-                    </ButtonContainer>
-      
-                    {/* <ButtonContainer>
-                      <TouchableOpacity onPress={() => {this.props.navigation.navigate('Sell')}} style={styles.whiteCircle}>
-                        <Icon name={'plus'} size={60} color='black'/>
-                      </TouchableOpacity>
-                    </ButtonContainer> */}
-      
-                    <ButtonContainer onPress={currentUser ? navToSoldProducts : navToOtherUserSoldProducts} text={"Sold"}>
-                      <View style={styles.blackCircle}>
-                        <FontAwesomeIcon 
-                          name={"paper-plane"} 
-                          size={30} 
-                          color={'#fff'}
-                        />
-                        {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: "700", fontSize: 16, color:'#fff'}}>SOLD</Text> */}
-                      </View>
-                    </ButtonContainer>
-      
-                </View>
-      
-                
-      
-      
+            
             </ImageBackground>
+
             
-            
-            
-            
-            <View style={styles.footerContainer} >
-            {/* Reviews Section contained within this flex-box */}
-            <ScrollView style={styles.halfPageScrollContainer} contentContainerStyle={styles.halfPageScroll}>
+            <View style={styles.productsContainer}>
+
                 
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginRight: 10}}>
-                  <Text style={styles.reviewsHeader}>REVIEWS</Text>
-                  {!currentUser && 
-                  <FontAwesomeIcon 
-                    name="edit" 
-                    // style={styles.users}
-                    size={35} 
-                    color={'black'}
-                    onPress={navToUserComments}
-                  /> 
-                  }
-                </View>
-                {noComments ? null : Object.keys(comments).map(
-                        (comment) => (
-                        <View key={comment} style={styles.commentContainer}>
-      
-                            <View style={styles.commentPicAndTextRow}>
-      
-                              {comments[comment].uri ?
-                              <TouchableOpacity
-                              onPress={() => navToOtherUserProfilePage(comments[comment].uid)}
-                              style={styles.commentPic}
-                              >
-                                <ProgressiveImage 
-                                  style= {styles.commentPic} 
-                                  thumbnailSource={ require('../images/blank.jpg') }
-                                  source={ {uri: comments[comment].uri} }
-                                />
-                              </TouchableOpacity>                          
-                              :
-                                <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
-                              }
-                                
-                              <TouchableOpacity onPress={() => navToOtherUserProfilePage(comments[comment].uid)} style={styles.textContainer}>
-                                  <Text style={ styles.commentName }> {comments[comment].name} </Text>
-                                  <Text style={styles.comment}> {comments[comment].text}  </Text>
-                              </TouchableOpacity>
-      
-                            </View>
-      
-                            <View style={styles.commentTimeRow}>
-      
-                              <Text style={ styles.commentTime }> {comments[comment].time} </Text>
-      
-                            </View>
-      
-                            
-      
-                            
-                            
-                        </View>
-                        
-                    )
-                            
-                    )}
-                
-              
-            </ScrollView>
+
+              <FlatList
+                style={styles.productScrollContainer}
+                contentContainerStyle={styles.productScrollContentContainer}
+                horizontal={true}
+                data={ProductImages}
+                renderItem={(item, index) => (
+                  (this.props.showAddListing && item.item == 'add listing') ?
+                    <TouchableOpacity style={[styles.productImage, styles.addListing]} onPress={this.props.navToAddListing}>
+                      <Icon 
+                        name={'plus'} size={70} color={'black'}
+                      />
+                    </TouchableOpacity>
+                      :
+                    <TouchableOpacity onPress={currentUser ? navToYourProducts : navToOtherUserProducts}>
+                      <ProgressiveImage 
+                      source={{uri: item.item}} 
+                      style={styles.productImage}
+                      thumbnailSource={ require('../images/blank.jpg') }
+                      />
+                    </TouchableOpacity>
+                  )}
+                keyExtractor={item => item.key}
+              />
+
             </View>
+            
+            {this.renderReviewsModal(currentUser, noComments, comments, navToUserComments, navToOtherUserProfilePage)}
+            {/* {this.renderReviews(currentUser, noComments, comments, navToUserComments, navToOtherUserProfilePage)} */}
       
                   
             
@@ -495,11 +597,12 @@ const styles = StyleSheet.create({
     },
     halfPageScroll: {
       backgroundColor: "#fff",
-      justifyContent: 'center',
+      // justifyContent: 'center',
+
       // alignItems: 'center',
       paddingTop: 5,
       paddingHorizontal: 10,
-      justifyContent: 'space-evenly'
+      // justifyContent: 'space-evenly'
     },
     mainContainer: {
       flex: 1,
@@ -511,8 +614,8 @@ const styles = StyleSheet.create({
     
   
     linearGradient: {
-      flex: 0.8,
-      ...lowerShadow,
+      flex: 0.65,
+      // ...lowerShadow,
       // overflow: 'hidden',
       // position: "relative",
       // backgroundColor: "blue",
@@ -525,16 +628,57 @@ const styles = StyleSheet.create({
       // overflow: 'hidden', // for hide the not important parts from circle
       // height: 175,
     },
-  
+
     footerContainer: {
-      flex: 0.2,
-      flexDirection: 'column',
-      backgroundColor: '#fff',
-      justifyContent: 'center',
-      // alignItems: 'center',
-      padding: 10,
-      justifyContent: 'space-evenly'
+      flex: 0.1, position: "absolute",zIndex: 1,
+      bottom: 0,
+      width: "100%",
     },
+
+      pillContainer: {
+        flex: 0.2,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 5,
+      },
+
+        pill: {
+          backgroundColor: Colors.white,
+          width: 55,
+          height: 5,
+          borderRadius: 15,
+        },
+
+      reviewsHeaderContainer: {
+        flexDirection: 'row', 
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        alignItems: 'center',
+        flex: 0.8,
+        borderTopRightRadius: 15,
+        borderTopLeftRadius: 15,
+        backgroundColor: 'black',
+        
+        
+      },
+
+      reviewsContainer: {
+        width: "100%",
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: silver,
+        // height: 0,
+      },
+  
+    // footerContainer: {
+    //   flex: 0.2,
+    //   flexDirection: 'column',
+    //   backgroundColor: '#fff',
+    //   justifyContent: 'center',
+    //   // alignItems: 'center',
+    //   padding: 10,
+    //   justifyContent: 'space-evenly'
+    // },
   
  
     iconRow: {
@@ -550,9 +694,9 @@ const styles = StyleSheet.create({
     },
   
     profileRow: {
-      flex: 0.68,
+      flex: 0.81,
       // marginTop: 25,
-      justifyContent: 'flex-start',
+      justifyContent: 'space-evenly',
       alignItems: 'center',
       // backgroundColor: '#fff',
       // marginVertical: 20
@@ -578,9 +722,10 @@ const styles = StyleSheet.create({
         ...Fonts.h4,
       },
   
-    buttonsContainer: {
-      flex: 0.2,    
-      flexDirection: 'row',
+    productsContainer: {
+      flex: 0.3,    
+      // backgroundColor: "#fff",
+      // flexDirection: 'row',
       
       // borderBottomColor: 'black',
       // borderBottomWidth: 1,
@@ -592,6 +737,63 @@ const styles = StyleSheet.create({
       // overflow: 'hidden',
       // marginLeft: -100,
     },
+
+      labelRow: {
+        flex: 0.07,
+        justifyContent: 'flex-end',
+        alignItems: 'flex-start',
+        // backgroundColor: 'red',
+
+      },
+
+        labelContainer: {
+          marginLeft: 15,
+          textAlign: 'center',
+          backgroundColor: 'black',
+          padding: 2,
+          borderTopLeftRadius: 5,
+          borderTopRightRadius: 5,
+        },
+
+          label: {
+            ...textStyles.generic,
+            fontSize: 12,
+            color: '#fff'
+
+          },
+
+      productScrollContainer: {
+        // borderRadius: 10,
+        borderColor: "black",
+        borderTopWidth: 1,
+        // borderBottomWidth: 1,
+        // flex: 0.8,
+        backgroundColor: '#fff',
+        // marginHorizontal: 4,
+        
+      },
+
+      productScrollContentContainer: {
+        paddingVertical: 15,
+        justifyContent: 'center',
+        // alignItems: 'center'
+      },
+
+        productImage: {
+          width: width/3 - 15,
+          height: width/3 - 15,
+          marginHorizontal: 5,
+        },
+
+        addListing: {
+          // backgroundColor: 'red',
+          borderColor: 'black',
+          borderWidth: 2.5,
+          borderStyle: 'dashed',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+      
   
       blackCircle: {
         // marginBottom: 10,
@@ -633,7 +835,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "200",
     letterSpacing: 1,
-    color: 'black'
+    color: '#fff'
   },
   
   commentContainer: {

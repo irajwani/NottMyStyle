@@ -26,6 +26,6 @@ export default {
   white: '#fff',
   black: '#000',
   grey: '#989898',
-  lightgrey: "#D9D7E8",
+  lightGrey: "#D9D7E8",
   containerBackground: '#F2F2F2',
 }

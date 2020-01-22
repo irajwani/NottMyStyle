@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image, Platform } from 'react-native';
+import { Text, StyleSheet, View, TouchableHighlight, Platform } from 'react-native';
 // import {withNavigationFocus} from 'react-navigation';
 import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
-import {Button} from 'react-native-elements';
+// import {Button} from 'react-native-elements';
 
 // import { withNavigation } from 'react-navigation';
 // import { material } from 'react-native-typography';
-import {flashOrange, graphiteGray, almostWhite, treeGreen, highlightGreen} from '../colors.js';
+import {flashOrange, almostWhite, treeGreen, highlightGreen} from '../colors.js';
 import { BasicLoadingIndicator } from '../localFunctions/visualFunctions.js';
 
 class MultiplePictureCamera extends Component {

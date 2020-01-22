@@ -574,7 +574,7 @@ class Notifications extends Component {
               currency = '£';
               break;
             case "Pakistan":
-              currency = 'RS';
+              currency = 'Rs.';
               break;
             default:
               currency = '$';

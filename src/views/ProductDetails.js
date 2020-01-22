@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Platform, TouchableWithoutFeedback, Keyboard, Animated, ScrollView, SafeAreaView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
@@ -27,7 +27,7 @@ import Chatkit from "@pusher/chatkit-client";
 import {Config} from '../Config';
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { almostWhite,lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen, lightGray, silver } from '../colors';
+import { almostWhite,lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen, lightGray, silver, flashOrange } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Fonts} from '../Theme';
 // import BackButton from '../components/BackButton';
@@ -308,6 +308,8 @@ class ProductDetails extends Component {
       //When this component launches for the first time, we want to retrieve the person's addresses from the cloud (if they have any)
       //When this function is run everytime after
       var addresses = false;
+      console.log(d.Users[uid].addresses);
+      console.log( this.state.addresses)
       addresses = this.state.addresses ? d.Users[uid].addresses.length != this.state.addresses.length ? d.Users[uid].addresses : this.state.addresses : d.Users[uid].addresses ? d.Users[uid].addresses : false
       // !this.state.addresses && d.Users[uid].addresses ?
       //   addresses = d.Users[uid].addresses
@@ -516,7 +518,7 @@ class ProductDetails extends Component {
       data: item, //possibly unnecessary
       pictureuris: item.uris.source, 
       price: item.text.price, 
-      original_price: item.text.original_price, 
+      // original_price: item.text.original_price, 
       post_price: item.text.post_price > 0 ? item.text.post_price : 0,
       condition: item.text.condition,
       type: item.text.type,
@@ -868,7 +870,7 @@ class ProductDetails extends Component {
   }
 
   goToNextPage = () => {
-    if(this.state.currency == "RS") {
+    if(this.state.currency == "Rs.") {
       //pakPurchaseModal
       switch(this.state.activeScreen) {
         case "initial":
@@ -901,7 +903,7 @@ class ProductDetails extends Component {
 
   goToPreviousPage = () => {
     //Depending on the active screen, navigate to the previous page accordingly
-    if(this.state.currency == "RS") {
+    if(this.state.currency == "Rs.") {
       //pakPurchaseModal
       this.setState({activeScreen: "initial"});
     } 
@@ -1026,6 +1028,68 @@ class ProductDetails extends Component {
       
     
     )
+
+  renderAddressInputs = (filledOutAddress) => (
+
+    
+
+    <View style={[styles.deliveryOptionBody, {flex: 0.9}]}>
+
+      <View style={{flex: 0.1}}>
+        <Text style={new avenirNextText('black', 17, "400")}>
+          Address:
+        </Text>
+      </View>
+
+      <WhiteSpace height={10}/>
+      <ScrollView style={{flex: 0.25}} contentContainerStyle={styles.addressForm}>
+          {addressFields.map( (field, index) => (
+            <View style={styles.addressField}>
+              <Text style={new avenirNextText("black", 14, "400")}>{field.header}</Text>
+              <TextInput
+              onChangeText={(text) => this.onChange(text, field.key)}
+              value={this.state[field.key]}
+              style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 13, color: treeGreen}}
+              placeholder={field.placeholder}
+              placeholderTextColor={graphiteGray}
+              multiline={false}
+              maxLength={index == 1 || index == 2 ? 50 : 24}
+              autoCorrect={false}
+              clearButtonMode={'while-editing'}
+              />
+            </View>
+          ))}
+      </ScrollView>
+
+      <View style={[styles.collectionInPersonContainer, {flex: 0.65}]}>
+
+        <TouchableOpacity
+        disabled={filledOutAddress ? false : true} 
+        onPress={this.addAddress} 
+        style={styles.collectionInPersonButton}>
+
+          <View style={[styles.collectionInPersonOptionsContainer, {width: 180}]}>
+
+            <FontAwesomeIcon
+              name="address-book"
+              size={paymentScreensIconSize}
+              color={'black'}
+
+            />
+            <Text style={{...textStyles.generic, fontSize: 20}}>
+              Add Address
+            </Text>
+            
+          </View>
+
+        </TouchableOpacity>
+
+        </View>
+
+      </View>
+      
+  )
+
   
 
   renderPurchaseModal = () => {
@@ -1383,63 +1447,15 @@ class ProductDetails extends Component {
 
           </View>
 
-          <View style={[deliveryOptionBody, {flex: 0.9}]}>
+          
 
-              <View style={{flex: 0.1}}>
-                <Text style={new avenirNextText('black', 17, "400")}>
-                  Address:
-                </Text>
-              </View>
+          {this.renderAddressInputs(filledOutAddress)}
 
-              <WhiteSpace height={10}/>
-
-              <ScrollView style={{flex: 0.25}} contentContainerStyle={styles.addressForm}>
-                  {addressFields.map( (field, index) => (
-                    <View style={styles.addressField}>
-                      <Text style={new avenirNextText("black", 14, "400")}>{field.header}</Text>
-                      <TextInput
-                      onChangeText={(text) => this.onChange(text, field.key)}
-                      value={this.state[field.key]}
-                      style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 13, color: treeGreen}}
-                      placeholder={field.placeholder}
-                      placeholderTextColor={graphiteGray}
-                      multiline={false}
-                      maxLength={index == 1 || index == 2 ? 50 : 24}
-                      autoCorrect={false}
-                      clearButtonMode={'while-editing'}
-                      />
-                    </View>
-                  ))}
-              </ScrollView>
-
-              <View style={[styles.collectionInPersonContainer, {flex: 0.65}]}>
-
-                <TouchableOpacity
-                disabled={filledOutAddress ? false : true} 
-                onPress={this.addAddress} 
-                style={styles.collectionInPersonButton}>
-
-                  <View style={[styles.collectionInPersonOptionsContainer, {width: 180}]}>
-
-                    <FontAwesomeIcon
-                      name="address-book"
-                      size={paymentScreensIconSize}
-                      color={'black'}
-
-                    />
-                    <Text style={new avenirNextText('black', 20, "300")}>
-                      Add Address
-                    </Text>
-                    
-                  </View>
-
-                </TouchableOpacity>
-
-              </View>
+              
                 
               
 
-          </View>
+          
           
          
 
@@ -1650,63 +1666,11 @@ class ProductDetails extends Component {
 
           </View>
 
-          <View style={[deliveryOptionBody, {flex: 0.9}]}>
-
-              <View style={{flex: 0.1}}>
-                <Text style={new avenirNextText('black', 17, "400")}>
-                  Address:
-                </Text>
-              </View>
-
-              <WhiteSpace height={10}/>
-
-              <ScrollView style={{flex: 0.25}} contentContainerStyle={styles.addressForm}>
-                  {addressFields.map( (field, index) => (
-                    <View style={styles.addressField}>
-                      <Text style={new avenirNextText("black", 14, "400")}>{field.header}</Text>
-                      <TextInput
-                      onChangeText={(text) => this.onChange(text, field.key)}
-                      value={this.state[field.key]}
-                      style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 13, color: treeGreen}}
-                      placeholder={field.placeholder}
-                      placeholderTextColor={graphiteGray}
-                      multiline={false}
-                      maxLength={index == 1 || index == 2 ? 50 : 24}
-                      autoCorrect={false}
-                      clearButtonMode={'while-editing'}
-                      />
-                    </View>
-                  ))}
-              </ScrollView>
-
-              <View style={[styles.collectionInPersonContainer, {flex: 0.65}]}>
-
-                <TouchableOpacity
-                disabled={filledOutAddress ? false : true} 
-                onPress={this.addAddress} 
-                style={styles.collectionInPersonButton}>
-
-                  <View style={[styles.collectionInPersonOptionsContainer, {width: 180}]}>
-
-                    <FontAwesomeIcon
-                      name="address-book"
-                      size={paymentScreensIconSize}
-                      color={'black'}
-
-                    />
-                    <Text style={new avenirNextText('black', 20, "300")}>
-                      Add Address
-                    </Text>
-                    
-                  </View>
-
-                </TouchableOpacity>
-
-              </View>
+          {this.renderAddressInputs(filledOutAddress)}
                 
               
 
-          </View>
+          
           
          
 
@@ -1751,7 +1715,7 @@ class ProductDetails extends Component {
           </View>
 
           <View style={{flex: 0.8, marginHorizontal: 10, padding: 15}}>
-              <Text>Choose your preferred method of payment:</Text>
+              <Text style={{marginBottom: 10}}>Choose your preferred method of payment:</Text>
               <TouchableOpacity 
               onPress={ () => {
                 this.setState({cashOnDelivery: !this.state.cashOnDelivery}); 
@@ -1900,7 +1864,7 @@ class ProductDetails extends Component {
       isGetting, profile, navToChatLoading, productComments, uid, collectionKeys, 
       views //TODO: iOS
     } = this.state,
-    {text} = data,
+    {text, key} = data,
     details = {
       brand: text.brand,
       category: text.gender,
@@ -2097,11 +2061,11 @@ class ProductDetails extends Component {
       </Animated.ScrollView> 
 
       <TouchableOpacity  
-      onPress={() => {this.state.currency == "RS" ? this.setState({showPakPurchaseModal: true}) : this.setState({showPurchaseModal: true})}}
+      onPress={() => { productKeys.includes(key) ? this.navToEditItem(data) : this.state.currency == "Rs." ? this.setState({showPakPurchaseModal: true}) : this.setState({showPurchaseModal: true})}}
       disabled={isProductSold ? true : false}  
-      style={{flex: 0.1, backgroundColor: logoGreen, justifyContent: 'center', alignItems: 'center'}}
+      style={{flex: 0.1, backgroundColor: isProductSold ? 'gray' : productKeys.includes(key) ? flashOrange : logoGreen, justifyContent: 'center', alignItems: 'center'}}
       >
-        <Text style={{...textStyles.generic, color: '#fff', ...Fonts.big, fontWeight: "600"}}>{isProductSold ? "SOLD":"BUY NOW"}</Text>
+        <Text style={{...textStyles.generic, color: '#fff', ...Fonts.big, fontWeight: "600"}}>{productKeys.includes(key) ? "EDIT ITEM" : isProductSold ? "SOLD":"BUY NOW"}</Text>
       </TouchableOpacity>
       </SafeAreaView>
     );

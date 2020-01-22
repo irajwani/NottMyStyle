@@ -318,7 +318,7 @@ const styles = StyleSheet.create( {
   mainPictureRow: {
     flex: 1,
     flexDirection: 'row',
-    // backgroundColor: bgBlack,
+    backgroundColor: 'red',
   },
 
   mainPictureTouchContainer: {

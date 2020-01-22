@@ -155,7 +155,7 @@ class CreateItem extends Component {
                 currency = '£';
                 break;
             case "Pakistan":
-                currency = 'RS';
+                currency = 'Rs.';
                 break;
             default:
                 currency = '$';
@@ -239,7 +239,7 @@ helpUserFillDetails = () => {
  // alert(`Please enter details for the following fields:\n${this.state.name ? name}`)
 }
 
-updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, brand, condition, size, oldItemPostKey, oldItemUploadDate) => {
+updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, post_price, brand, condition, size, oldItemPostKey, oldItemUploadDate) => {
  this.setState({isUploading: true}); 
  // if(priceIsWrong) {
  // alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
@@ -296,10 +296,10 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     if(gender != oldValues.gender) {
         updates[productTextPath + 'gender/'] = gender;
     }
-    if(original_price != oldValues.original_price) {
-        console.log('Editing Original Price')
-        updates[productTextPath + 'original_price/'] = original_price;
-    }
+    // if(original_price != oldValues.original_price) {
+    //     console.log('Editing Original Price')
+    //     updates[productTextPath + 'original_price/'] = original_price;
+    // }
     if(type != oldValues.type) {
         updates[productTextPath + 'type/'] = type;
     }
@@ -316,7 +316,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         name: name,
         brand: brand,
         price: price,
-        original_price: original_price ? original_price : "",
+
         type: type,
         size: size,
         description: description ? description.replace(/\s*$/,'') : 'Seller did not specify a description',
@@ -632,7 +632,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
  }
 
  startOver = () => {
-    this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
+    this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, type: false, size: false, condition: false});
     this.setState({ 
     uri: undefined,
     name: '',
@@ -715,13 +715,14 @@ uploadToStore = (pictureuris, uid, postKey) => {
     // List of values we navigate over to CreateItem from other components:
     var pictureuris = navigation.getParam('pictureuris', 'nothing here');
     var price = navigation.getParam('price', 0);
-    var original_price = navigation.getParam('original_price', 0);
+    // var original_price = navigation.getParam('original_price', 0);
     var condition = navigation.getParam('condition', false); 
     var type = navigation.getParam('type', false); 
     var brand = navigation.getParam('brand', false);
     var size = navigation.getParam('size', false);
     var post_price = navigation.getParam('post_price', 0);
-    // console.log(pictureuris);
+    
+    console.log(brand);
     ////
 
     ///
@@ -730,12 +731,12 @@ uploadToStore = (pictureuris, uid, postKey) => {
     ///
 
     //When the condition to submit a product has partially been satisfied:
-    var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) ) || ( (Number.isFinite(price)) && (price > 0) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (this.state.paypal);
-    var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
+    var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (this.state.paypal);
+    var partialConditionMet = (this.state.name) || (brand) || ( (Number.isFinite(price)) && (price > 0) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) ) || (condition);
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition);
+    var conditionMet = (this.state.name) && (brand) && (Number.isFinite(price)) && (price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) ) && (condition);
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
-
+    // console.log(conditionMet);
     //console.log(priceIsWrong);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})
@@ -1143,9 +1144,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 onPress={() => {
                 conditionMet ?
                     this.state.editItemBoolean ?
-                        this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, brand, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+                        this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, post_price, brand, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
                         :
-                        this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, brand, condition, size, false, false)
+                        this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, post_price, brand, condition, size, false, false)
                     :
                     this.helpUserFillDetails();
                 } } 

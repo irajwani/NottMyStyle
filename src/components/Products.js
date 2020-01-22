@@ -358,7 +358,7 @@ class Products extends Component {
           currency = '£';
           break;
         case "Pakistan":
-          currency = 'RS';
+          currency = 'Rs.';
           break;
         default:
           currency = '$';
@@ -1019,7 +1019,7 @@ class Products extends Component {
     <View style={styles.quickFilterBar}>
       {categories.map(category => (
         <TouchableOpacity onPress={() => this.quickFilterBy(category)} style={[styles.quickFilterContainer, this.state.categoriesSelected.includes(category) ? {borderBottomColor: highlightGreen, borderBottomWidth: 3} : null]}>
-          <Text style={styles.quickFilter}>{category.toLowerCase()}</Text>
+          <Text style={styles.quickFilter}>{category.toUpperCase()}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -1054,9 +1054,10 @@ class Products extends Component {
     underlayColor={'transparent'}
     onPress={() => {this.navToProductDetails(product, this.state.collectionKeys, this.state.productKeys, this.state.currency);}}
     >
-      <Image 
+      <ProgressiveImage
           source={{uri: product.uris.pd[0]}}
           style={styles.productImage}
+          thumbnailSource={ require('../images/glass.png') }
       />
     </TouchableOpacity>
   )
@@ -1937,7 +1938,7 @@ const styles = StyleSheet.create({
   headerText: {
     ...textStyles.generic,
     color: '#fff',
-    ...Fonts.h2
+    ...Fonts.h4
   },
 
   quickFilterBar: {
@@ -1958,6 +1959,7 @@ const styles = StyleSheet.create({
 
   quickFilter: {
     ...textStyles.generic,
+    ...Fonts.small,
     color: Colors.black,
   },
 
@@ -1974,7 +1976,8 @@ const styles = StyleSheet.create({
 
   productImage: {
     width: width/3,
-    height: height/3.85,
+    // height: height/3.85,
+    height: width/3,
   },
 
 

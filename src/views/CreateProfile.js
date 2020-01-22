@@ -491,7 +491,9 @@ class CreateProfile extends Component {
     // }
 
     let profileRef = '/Users/' + uid + '/profile/';
-
+    if(data.username) {
+        updates[profileRef + 'username/'] = data.username;     
+    }
     updates[profileRef + 'name/'] = data.firstName + " " + data.lastName; 
     updates[profileRef + 'country/'] = data.city + ", " + data.country;
     updates[profileRef + 'insta/'] = data.insta;

@@ -257,6 +257,9 @@ class ProfilePage extends Component {
     return (
       <Profile
         currentUser={true}
+        uid={this.uid}
+        showAddListing={true}
+        navToAddListing={()=>this.props.navigation.navigate('Sell')}
         profileData={profileData}
         isGetting={isGetting}
         navToSettings={this.navToSettings}

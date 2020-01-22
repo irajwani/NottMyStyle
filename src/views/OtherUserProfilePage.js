@@ -245,6 +245,7 @@ class OtherUserProfilePage extends Component {
         currentUser={false}
         isGetting={isGetting}
         profileData={profileData}
+        showAddListing={false}
         navBack={() => this.props.navigation.goBack()}
 
         navToOtherUserProducts={this.navToOtherUserProducts}
