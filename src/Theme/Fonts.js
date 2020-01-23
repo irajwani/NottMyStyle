@@ -7,7 +7,8 @@ const size = {
   big: 20,
   regular: 17,
   medium: 16,
-  small: 12,
+  small: 16,
+  tiny: 12,
 }
 
 export default {
@@ -34,5 +35,8 @@ export default {
   },
   small: {
     fontSize: size.small
+  },
+  tiny: {
+    fontSize: size.tiny
   },
 }

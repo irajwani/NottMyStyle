@@ -591,6 +591,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             
         }
         else {
+            //
             this.props.navigation.navigate('Market');
         }
         

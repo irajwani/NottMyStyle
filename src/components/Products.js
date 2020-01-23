@@ -1038,6 +1038,9 @@ class Products extends Component {
         style={styles.productScrollContainer}
         data={Products}
         showsVerticalScrollIndicator={true}
+        horizontal={false}
+        showsHorizontalScrollIndicator={false}
+        // alwaysBounceHorizontal={false}
         renderItem={(item, index) => this.renderProduct(item.item, index)}
         keyExtractor={item => item.key}
         numColumns={3}
@@ -1050,6 +1053,7 @@ class Products extends Component {
 
   renderProduct = (product, index) => (
     <TouchableOpacity
+    key={index}
     style={[styles.productContainer, index % 3 != 0 ? {marginRight: smallMargin} : null]}
     underlayColor={'transparent'}
     onPress={() => {this.navToProductDetails(product, this.state.collectionKeys, this.state.productKeys, this.state.currency);}}
@@ -1959,7 +1963,7 @@ const styles = StyleSheet.create({
 
   quickFilter: {
     ...textStyles.generic,
-    ...Fonts.small,
+    ...Fonts.tiny,
     color: Colors.black,
   },
 

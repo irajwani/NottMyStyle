@@ -5,6 +5,7 @@ import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import Lightbox from 'react-native-lightbox';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { graphiteGray, treeGreen, optionLabelBlue, lightPurple } from '../colors';
+import { Colors } from '../Theme';
 
 const {width, height} = Dimensions.get('window')
 // import { iOSColors } from 'react-native-typography';
@@ -37,7 +38,9 @@ class CustomCarousel extends Component {
     return (
       
 
-        <ThumbnailBackgroundView onPress={ () => { 
+        <TouchableOpacity 
+        style={[styles.thumbnailBackgroundView, !this.props.biggerImage ? {alignItems: 'center', justifyContent: 'center'} : null]}
+        onPress={ () => { 
           // console.log("clicked to index", index)
           this._carousel.snapToItem(index);
         }}
@@ -51,7 +54,7 @@ class CustomCarousel extends Component {
               <Image source={{ uri: item }} style={styles.image}/>
             </Lightbox>
 
-            <View style={{alignItems: 'center',bottom: 0,position: "absolute"}}>
+            <View style={styles.paginationContainer}>
             {this.pagination}
             </View>
 
@@ -59,7 +62,7 @@ class CustomCarousel extends Component {
             
           
             {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
-        </ThumbnailBackgroundView>
+        </TouchableOpacity>
             
         
         
@@ -73,25 +76,25 @@ class CustomCarousel extends Component {
 
   get pagination () {
     const { activeSlide } = this.state;
-    const {data} = this.props;
+    const {data, biggerImage} = this.props;
     return (
         <Pagination
+          carouselRef={this._carousel}
+          tappableDots={true}
           dotsLength={data.length}
           activeDotIndex={activeSlide}
-          containerStyle={{ backgroundColor: 'transparent' }}
-          dotStyle={{
-              // width: 10,
-              // height: 10,
-              // borderRadius: 5,
-              // marginHorizontal: 8,
-              backgroundColor: "green"
-          }}
+          containerStyle={{ backgroundColor: 'transparent', width }}
+          dotStyle={biggerImage? 
+            {backgroundColor: Colors.black, height: 16, width: 16, borderRadius: 8}
+            :
+            {backgroundColor: Colors.green}
+            }
           inactiveDotStyle={{
               backgroundColor: "#fff"
               // Define styles for inactive dots here
           }}
-          inactiveDotOpacity={0.4}
-          inactiveDotScale={0.6}
+          inactiveDotOpacity={0.8}
+          inactiveDotScale={!biggerImage ? 0.6 : 0.65}
         />
     );
 }
@@ -99,36 +102,45 @@ class CustomCarousel extends Component {
 // <TouchableBackground onPress={this.props.onPress}>
 
   render = () => {
-    //const { params } = this.props.navigation.state;
+    const { data, biggerImage } = this.props;
     
 
     // console.log("videos: updating")
 
-    return (
-
-      
-        <Carousel
-          
-          ref={ (c) => { this._carousel = c; } }
-          data={this.props.data}
-          renderItem={this._renderItem.bind(this)}
-          onSnapToItem={this.handleSnapToItem.bind(this)}
-          sliderWidth={500}
-          itemWidth={500}
-          layout={'default'}
-          firstItem={0}
-          
-          
-        /> 
-      
-        
-      
-        
+    if(data == "nothing here") {
+      return (
+        <CarouselContainer>
+          <Image 
+            source={require('../images/nothing_here.png')}
+            style={{width: 130, height: 130, borderRadius: 0}}
+          />
+        </CarouselContainer>
       
 
     );
   }
+
+  else {
+    return (
+      <Carousel
+        ref={ (c) => { this._carousel = c; } }
+        data={data}
+        renderItem={this._renderItem.bind(this)}
+        onSnapToItem={this.handleSnapToItem.bind(this)}
+        sliderWidth={500}
+        itemWidth={500}
+        layout={'default'}
+        firstItem={0}
+      /> 
+    )
+  }
+  }
 }
+
+CustomCarousel.defaultProps = {
+  biggerImage: false,
+  
+};
 
 export default CustomCarousel;
 
@@ -146,6 +158,17 @@ const styles = StyleSheet.create({
     // borderColor: "#2c2d2d",
     // position: 'absolute'
   },
+
+  thumbnailBackgroundView: {
+    flex: 1,
+    width: "100%",
+  },
+
+  paginationContainer: {
+    alignItems: 'center',justifyContent: 'center',
+    bottom: 0,position: "absolute", 
+    
+  }
 })
 
 
@@ -154,9 +177,7 @@ const VideoTitleText = styled.Text`
   top: 28;
   justify-content: center;
 `
-
-
-const ThumbnailBackgroundView = styled.TouchableOpacity`
+const CarouselContainer = styled.View`
   justify-content: center;
   align-items: center;
   flex: 1;
@@ -166,6 +187,19 @@ const ThumbnailBackgroundView = styled.TouchableOpacity`
   ${'' /* width: 90%;  */}
   ${'' /* position: relative; */}
 `;
+
+
+
+// const ThumbnailBackgroundView = styled.TouchableOpacity`
+//   ${'' /* justify-content: center; */}
+//   ${'' /* align-items: center; */}
+//   flex: 1;
+//   width: 100%;
+//   position: relative;
+//   ${'' /* background-color: blue */}
+//   ${'' /* width: 90%;  */}
+//   ${'' /* position: relative; */}
+// `;
 
 const CurrentVideoTO = styled.View`
   justify-content: center;

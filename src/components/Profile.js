@@ -550,13 +550,13 @@ export default class Profile extends Component {
                 data={ProductImages}
                 renderItem={(item, index) => (
                   (this.props.showAddListing && item.item == 'add listing') ?
-                    <TouchableOpacity style={[styles.productImage, styles.addListing]} onPress={this.props.navToAddListing}>
+                    <TouchableOpacity key={index} style={[styles.productImage, styles.addListing]} onPress={this.props.navToAddListing}>
                       <Icon 
                         name={'plus'} size={70} color={'black'}
                       />
                     </TouchableOpacity>
                       :
-                    <TouchableOpacity onPress={currentUser ? navToYourProducts : navToOtherUserProducts}>
+                    <TouchableOpacity key={index} onPress={currentUser ? navToYourProducts : navToOtherUserProducts}>
                       <ProgressiveImage 
                       source={{uri: item.item}} 
                       style={styles.productImage}
@@ -564,7 +564,7 @@ export default class Profile extends Component {
                       />
                     </TouchableOpacity>
                   )}
-                keyExtractor={item => item.key}
+                // keyExtractor={item => item.key}
               />
 
             </View>

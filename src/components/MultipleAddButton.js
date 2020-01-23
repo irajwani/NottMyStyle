@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll, PermissionsAndroid } from 'react-native'
+import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, TouchableOpacity, CameraRoll, PermissionsAndroid } from 'react-native'
 import Svg, { Path } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
@@ -7,6 +7,7 @@ import * as BasicImagePicker from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import { withNavigation } from 'react-navigation';
 import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack, treeGreen } from '../colors';
+import CustomCarousel from './CustomCarousel';
  
 const NothingHere = () => (
   <Svg height={"100%"} width={"100%"} viewBox="0 0 400 400">
@@ -28,6 +29,7 @@ class MultipleAddButton extends Component {
   }
 
   platformSpecificAction = () => {
+    console.log('Selecting Picture')
     let {navToComponent} = this.props;
     if(navToComponent == 'EditProfile' || navToComponent == 'CreateProfile') {
       if(Platform.OS == "ios") {
@@ -188,7 +190,13 @@ class MultipleAddButton extends Component {
     }
   }
 
-  renderMainPictureRow = (pictureuris) => {
+  renderCarousel = (pictureuris) => (
+    <TouchableOpacity style={styles.carouselContainer} onPress={this.platformSpecificAction}>
+      <CustomCarousel data={pictureuris} biggerImage={true}/>
+    </TouchableOpacity>
+  )
+
+  renderCarousela = (pictureuris) => {
     return (
       <View style={styles.mainPictureRow}>
         <TouchableHighlight underlayColor={'transparent'} style={styles.mainPictureTouchContainer} onPress={this.platformSpecificAction} >
@@ -241,39 +249,35 @@ class MultipleAddButton extends Component {
 
   render() {
 
-    var moreThanOnePicture = Array.isArray(this.props.pictureuris) && this.props.pictureuris.length > 1;
+    // var moreThanOnePicture = Array.isArray(this.props.pictureuris) && this.props.pictureuris.length > 1;
     
     // console.log(moreThanOnePicture);
     // just have one uri and one image placeholder in the case of creating or editing your profile
-    if(this.props.navToComponent == 'EditProfile' || this.props.navToComponent == 'CreateProfile') {
-      return (
-        <View style={styles.mainContainer}>
+    // if(this.props.navToComponent == 'EditProfile' || this.props.navToComponent == 'CreateProfile') {
+    //   return (
+    //     <View style={styles.mainContainer}>
         
-          {this.renderMainPictureRow(this.props.pictureuris)}
+    //       {this.renderCarousel(this.props.pictureuris)}
         
-          <ActionSheet
-          ref={o => this.ActionSheet = o}
-          title={'Method to Select Picture:'}
-          options={['Camera', 'Photo Library', 'cancel']}
-          cancelButtonIndex={2}
-          destructiveButtonIndex={1}
-          onPress={(index) => { this.cameraOrGallery(index, this.props.navToComponent) }}
+    //       <ActionSheet
+    //       ref={o => this.ActionSheet = o}
+    //       title={'Method to Select Picture:'}
+    //       options={['Camera', 'Photo Library', 'cancel']}
+    //       cancelButtonIndex={2}
+    //       destructiveButtonIndex={1}
+    //       onPress={(index) => { this.cameraOrGallery(index, this.props.navToComponent) }}
           
-          />
+    //       />
         
-        </View>
-      )
-    }
+    //     </View>
+    //   )
+    // }
     
     return (
-      <View style={[styles.mainContainer, {height: moreThanOnePicture ? 270: 140}]}>
+      <View style={styles.mainContainer}>
         
-          {this.renderMainPictureRow(this.props.pictureuris)}
-          {moreThanOnePicture ?
-            this.renderOtherPicturesRow(this.props.pictureuris)
-            :
-            null
-          }
+          {this.renderCarousel(this.props.pictureuris)}
+          
         
         
           <ActionSheet
@@ -281,7 +285,7 @@ class MultipleAddButton extends Component {
           title={'Choose picture selection option'}
           options={['Camera', 'Photo Library', 'cancel']}
           cancelButtonIndex={2}
-          destructiveButtonIndex={1}
+          // destructiveButtonIndex={1}
           onPress={(index) => { this.cameraOrGallery(index, this.props.navToComponent) }}
           />
         
@@ -315,10 +319,11 @@ const styles = StyleSheet.create( {
   },
 
 
-  mainPictureRow: {
+  carouselContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
+    width: "100%"
   },
 
   mainPictureTouchContainer: {
