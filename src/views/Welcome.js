@@ -18,7 +18,7 @@ import { evenShadow } from '../styles/shadowStyles';
 const {platform,screenWidth} = Metrics;
 
 const WelcomeButton = ({backgroundColor, text, color, icon = false, onPress}) => (
-    <TouchableOpacity underlayColorr={'transparent'} style={[styles.welcomeButton, {backgroundColor}, platform == "ios" ? evenShadow : null]} onPress={onPress}>
+    <TouchableOpacity underlayColor={'transparent'} style={[styles.welcomeButton, {backgroundColor}, platform == "ios" ? evenShadow : null]} onPress={onPress}>
         {icon &&
         <View style={{flex: 0.12, justifyContent: 'center', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 10,}}>
             {icon == "facebook" ?
